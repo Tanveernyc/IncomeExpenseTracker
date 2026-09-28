@@ -54,6 +54,7 @@ Never edit or delete an existing entry.
 
 ## Phase 12 — Ship
 - START: 2026-07-15T13:41:49Z — agent: claude — Beginning Phase 12.
+- FINISH: 2026-09-28T20:00:48Z — agent: claude — Shipped. Owner reports App Store Connect shows **iOS App 1.0 — Ready for Distribution** (ASC App ID 6813181506, bundle com.trueorganichub.propertyledger, v1.0.0 build 16). Repo verified green at close: 206 passed, 0 failed (28 suites), tsc clean on main. Phase 12 deliverables completed across 2026-07/2026-09: app icon, bundle id, EAS project link (23ab3b7d…, account trueorganichub), eas.json, privacy policy at https://tanveernyc.github.io/PropertyLedger/privacy.html, App-Review demo account seeded, interactive `eas build -p ios --profile production` + `eas submit` run by the owner, App Store Connect listing / privacy label / review notes completed, review passed. Note: the Guideline 5.1.1(v) rejection that interrupted this phase was resolved by Phase 13 (in-app account deletion). Unblocks the 1.2 metadata changes parked in docs/app-store-listing.md §"1.2 - personal budgets (apply after 1.0 approval)" — editing name/subtitle/keywords is now safe because no version is under review.
 
 ## Phase 13 — Account Deletion
 - START: 2026-09-17T20:58:00Z — agent: claude — Beginning Phase 13. Required by App Store Review Guideline 5.1.1(v): the app offered account creation but no in-app deletion, blocking submission for review.
