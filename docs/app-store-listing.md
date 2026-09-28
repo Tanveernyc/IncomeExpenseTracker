@@ -1,23 +1,26 @@
 # App Store Listing — PropertyLedger: Rental P&L
 
-ASC App ID `6813181506` · Bundle `com.trueorganichub.propertyledger` · v1.0.0 build 16
+ASC App ID `6813181506` · Bundle `com.trueorganichub.propertyledger`
 
-Everything below is copy-paste ready for App Store Connect. Claims were checked
-against the actual implementation — nothing here describes a feature the app
-doesn't have.
+**1.0.0 (build 16) is live — "Ready for Distribution" as of 2026-09-28.**
+Everything below is the **1.2** metadata (personal budgets), applied on
+2026-09-28 now that 1.0 has cleared review. It is copy-paste ready for App Store
+Connect; the 1.2 build itself has not been made yet. Claims were checked against
+the actual implementation — nothing here describes a feature the app doesn't
+have. Spec: `docs/superpowers/specs/2026-09-21-personal-budgets-design.md` §7.
 
 ---
 
 ## Name & Subtitle
 
-**App Name** (30 max, 26 used)
+**App Name** (30 max, 26 used) — unchanged
 ```
 PropertyLedger: Rental P&L
 ```
 
-**Subtitle** (30 max, 30 used)
+**Subtitle** (30 max, 26 used) — 1.2, replaces `Track rental income & expenses`
 ```
-Track rental income & expenses
+Rentals & personal budgets
 ```
 
 ---
@@ -32,10 +35,15 @@ Every property, every dollar, in one place. Log income and expenses in seconds, 
 
 ## Description
 
+The opening paragraph is the 1.2 rewrite; every section below it is unchanged
+from 1.0.
+
 ```
-PropertyLedger keeps the books for your rental properties. Income in, expenses
-out, and a profit-and-loss picture you can actually read — without a
-spreadsheet and without a subscription to accounting software built for
+PropertyLedger keeps the books for your rental properties — and, if you like,
+for your own household too. Each ledger is either a rental property or a
+personal budget: rentals get income, expenses, and a profit-and-loss picture
+you can actually read; budgets get the same fast entry, monthly totals, and a
+savings rate. No spreadsheet, no subscription to accounting software built for
 something else.
 
 EVERY PROPERTY, TRACKED SEPARATELY
@@ -82,66 +90,38 @@ numbers straight and their tax prep boring.
 
 ---
 
-## What's New (1.1)
+## What's New (1.2)
 
-```
-Recurring income and expenses. Set up a rent payment or a monthly bill once — PropertyLedger posts it on the 1st of every month, backfills from the start month you choose, and lets you edit or delete any single month without touching the rest. Stop a rule any time; your history stays.
-```
-
----
-
-## Keywords (100 max, 97 used)
-
-```
-landlord,expense,income,tax,schedule e,deduction,real estate,tracker,bookkeeping,profit,cash flow
-```
-
-Deliberately omits `rental`, `property`, and `ledger` — Apple already indexes
-those from the name and subtitle, so repeating them wastes the field.
-
----
-
-## 1.2 - personal budgets (apply after 1.0 approval)
-
-Do not touch App Store Connect metadata until version 1.0 is approved — editing
-name/subtitle/keywords on a version under review restarts the review. Once 1.0
-is live, apply the following with the 1.2 build (spec
-`docs/superpowers/specs/2026-09-21-personal-budgets-design.md` §7). App Name and
-Bundle ID are unchanged.
-
-**Subtitle** (30 max, 26 used) — replaces `Track rental income & expenses`
-```
-Rentals & personal budgets
-```
-
-**Keywords** (100 max, 98 used) — adds `budget,savings,spending,household`;
-drops `schedule e,deduction` per the spec and `real estate` to fit the limit
-(Apple already indexes "rental"/"property" from the name and subtitle).
-```
-landlord,expense,income,tax,tracker,bookkeeping,profit,cash flow,budget,savings,spending,household
-```
-
-**Description** — new first paragraph, replacing the current opening paragraph;
-the rest of the description stays as is.
-```
-PropertyLedger keeps the books for your rental properties — and, if you like,
-for your own household too. Each ledger is either a rental property or a
-personal budget: rentals get income, expenses, and a profit-and-loss picture
-you can actually read; budgets get the same fast entry, monthly totals, and a
-savings rate. No spreadsheet, no subscription to accounting software built for
-something else.
-```
-
-**What's New (1.2)**
 ```
 Personal budgets. Alongside your rental properties you can now keep a household budget — same quick entry, recurring bills, and reports, with a This Month view and your savings rate. Categories are tailored to each ledger: landlord categories for rentals, everyday ones for budgets.
 ```
 
-**Screenshots** — add one shot as screenshot 7: the **Household** budget
-dashboard from the demo account (`demo.reviewer@…`), which is seeded with a
-personal ledger named "Household" (salary, groceries, dining out, fuel,
-subscriptions, phone, rent across the current and previous month). Take it at
-release time so the month totals match the release month.
+---
+
+## Keywords (100 max, 98 used)
+
+```
+landlord,expense,income,tax,tracker,bookkeeping,profit,cash flow,budget,savings,spending,household
+```
+
+1.2 adds `budget,savings,spending,household`; drops `schedule e,deduction` per
+the spec and `real estate` to fit the limit. Deliberately omits `rental`,
+`property`, and `ledger` — Apple already indexes those from the name and
+subtitle, so repeating them wastes the field. **Confirm the `real estate` drop at
+release** (Phase 16 ruling 7).
+
+---
+
+## Screenshots
+
+Existing iPhone 6.9" set carried over from 1.0. `ios.supportsTablet` is `false`,
+so no iPad set is required.
+
+**Add as screenshot 7 for 1.2:** the **Household** budget dashboard from the
+App Review demo account, which is seeded with a personal ledger named
+"Household" (salary, groceries, dining out, fuel, subscriptions, phone, rent
+across the current and previous month). Take it at release time so the month
+totals match the release month.
 
 ---
 
@@ -150,7 +130,7 @@ release time so the month totals match the release month.
 | Field | Value |
 |---|---|
 | Privacy Policy URL (required) | `https://tanveernyc.github.io/PropertyLedger/privacy.html` |
-| Support URL (required) | needs a real page — see Open Items |
+| Support URL (required) | `https://tanveernyc.github.io/PropertyLedger/support.html` (`docs/support.html`, contact `support@trueorganichub.com`) |
 | Marketing URL (optional) | leave blank |
 
 ---
@@ -159,7 +139,7 @@ release time so the month totals match the release month.
 
 Verified against `supabase/schema.sql`, `app/(auth)/sign-in.tsx`, and the full
 dependency list. There are **no analytics, advertising, or crash-reporting SDKs**
-in the project.
+in the project. Unchanged for 1.2 — personal budgets add no new data category.
 
 **"Do you or your third-party partners collect data from this app?" → Yes**
 
@@ -183,6 +163,11 @@ Usage Data, Diagnostics, Sensitive Info, Other Data.
 **Tracking question → No.** Nothing is shared with data brokers or ad networks,
 and there is no ATT prompt because there is nothing to track.
 
+> If Phase 17 (Sign in with Apple and Google) ships in or before 1.2, re-check
+> this section: both providers return an email address, which the Contact Info /
+> Email Address row already covers, so no new row is expected — but confirm
+> before submitting.
+
 ---
 
 ## Other App Store Connect fields
@@ -192,30 +177,31 @@ and there is no ATT prompt because there is nothing to track.
 - **Copyright:** `2026 True Organic Hub LLC`
 - **Mac availability:** UNCHECK "available on Mac with Apple silicon" — this is
   what produced warning ITMS-90863 on the build 16 delivery
-- **Sign-in required for review:** yes — Apple needs a demo account (see Open Items)
+- **Sign-in required for review:** yes — Apple needs the demo account credentials
+  in App Review Information
 
 ---
 
-## Open Items — these block "Submit for Review"
+## Before submitting 1.2
 
-1. **In-app account deletion is missing.** Guideline 5.1.1(v) requires any app
-   offering account creation to let users start account deletion from inside the
-   app. `app/(tabs)/index.tsx:54` has Sign out only; there is no delete path
-   anywhere in `app/`. This is a frequent, near-automatic rejection. Needs a
-   "Delete account" action plus a Supabase-side delete (the schema already
-   cascades: `on delete cascade` from `auth.users` clears properties, categories,
-   expenses, and income).
+1. Reconcile the version numbers: `app.json` says `1.1.0`, `package.json` says
+   `1.0.0`, and the repo README says "Version 1.1.0 in progress". 1.1 was never
+   shipped — its recurring-items work rolls into this release.
+2. Take screenshot 7 (Household dashboard) at release time.
+3. Confirm the `real estate` keyword drop.
+4. Re-seed / refresh the demo account so the reviewer sees current months.
+5. Decide whether Phase 17 social sign-in rides along; if so, finish the console
+   setup in `docs/setup-social-sign-in.md` §1–§3 and set the env flags first —
+   an enabled flag without the console work burns Apple's one-shot name.
 
-2. **Demo account for App Review.** Reviewers hit the sign-in wall immediately.
-   Create a throwaway account seeded with two properties and a handful of
-   transactions, then put the credentials in App Review Information. An empty
-   account gets rejected as "incomplete."
+---
 
-3. **Screenshots.** `app.json` sets `ios.supportsTablet: true`, so Apple requires
-   **iPad screenshots in addition to iPhone**. Either produce both sets, or set
-   `supportsTablet: false` and rebuild to drop the requirement. iPhone 6.9" is
-   mandatory; iPad 13" is mandatory while tablet support is on.
+## Resolved before 1.0 (kept for the record)
 
-4. **Support URL.** A privacy policy alone won't satisfy this. Simplest fix: add
-   a `docs/support.html` page next to the privacy page — same GitHub Pages site,
-   already live — with a contact email.
+1. ~~In-app account deletion missing (Guideline 5.1.1(v))~~ — shipped in Phase
+   13: `app/delete-account.tsx` plus the `delete-account` edge function.
+2. ~~Demo account for App Review~~ — seeded, credentials in App Review
+   Information. Now also carries a "Household" personal ledger.
+3. ~~iPad screenshots required~~ — resolved by setting
+   `ios.supportsTablet: false`; only the iPhone 6.9" set is needed.
+4. ~~Support URL~~ — `docs/support.html` published to the same GitHub Pages site.
