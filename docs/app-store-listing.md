@@ -184,9 +184,11 @@ and there is no ATT prompt because there is nothing to track.
 
 ## Before submitting 1.2
 
-1. Reconcile the version numbers: `app.json` says `1.1.0`, `package.json` says
-   `1.0.0`, and the repo README says "Version 1.1.0 in progress". 1.1 was never
-   shipped — its recurring-items work rolls into this release.
+1. ~~Reconcile the version numbers.~~ Done 2026-09-29: `app.json`,
+   `package.json` and the README all read `1.2.0`. 1.1 was never shipped, so its
+   recurring-items work rolls into this release. (`store.config.json` is still
+   untracked and pinned to `apple.version: "1.0"` — point it at 1.2 before using
+   it to push metadata.)
 2. Take screenshot 7 (Household dashboard) at release time.
 3. Confirm the `real estate` keyword drop.
 4. Re-seed / refresh the demo account so the reviewer sees current months.
