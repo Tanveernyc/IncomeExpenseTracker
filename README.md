@@ -2,7 +2,7 @@
 
 Income and expense tracking for rental properties, with month-by-month recurring bills and a year-end profit-and-loss per property. iOS app built with Expo; data lives in Supabase under row-level security.
 
-App Store: **PropertyLedger: Rental P&L** (bundle `com.trueorganichub.propertyledger`). Version 1.1.0 in progress; see `WORKLOG.md` for the build log.
+App Store: **PropertyLedger: Rental P&L** (bundle `com.trueorganichub.propertyledger`). Version 1.0.0 is live on the App Store; 1.2.0 (recurring items, personal budgets, social sign-in) is in progress. See `WORKLOG.md` for the build log.
 
 ## What it does
 
