@@ -6,13 +6,19 @@
 // Google providers enabled in docs/setup-social-sign-in.md §3 are actually live.
 //
 // We can't complete a real sign-in without a genuine Apple/Google identity token, so instead
-// we send a syntactically valid JWT — correct issuer, correct audience (the client IDs from
-// §2), correct nonce — with a signature we can't produce, since we don't have Apple's or
-// Google's private key. Verified against this project directly (see the commands in the PR/
-// commit that added this file): a provider that is NOT enabled rejects with
-// error_code "provider_disabled" ("Provider ... is not enabled") before it even looks at the
-// token's audience. A provider that IS enabled gets far enough to reject our unsignable token
-// instead, with a different error_code. That's the line this test checks.
+// we send a syntactically valid JWT — correct issuer, correct nonce — with a signature we
+// can't produce, since we don't have Apple's or Google's private key. Probed against this
+// project directly:
+//   enabled provider  → 400 {"error":"invalid request","error_description":"Bad ID token"}
+//   disabled provider → 400 {"error_code":"provider_disabled","msg":"Provider ... not enabled"}
+//   wrong issuer      → 400 {"error_code":"validation_failed","msg":"...issuer is not a ..."}
+// Reaching "Bad ID token" therefore means GoTrue accepted the provider and the issuer and got
+// all the way to verifying the signature. That is the line these tests check.
+//
+// LIMITATION, verified rather than assumed: this canNOT prove the client ids are in the
+// provider's "Authorized Client IDs" list. A deliberately wrong audience returns the exact
+// same "Bad ID token" response, because the signature check fails first. Don't re-word these
+// tests to claim the audience is authorized — only a real signed token could show that.
 //
 // Uses Node's `https` directly rather than `fetch`: the RN/jest-expo preset stubs global
 // fetch for component tests, which would make this pass against a mock instead of the network.
@@ -101,24 +107,26 @@ const hasEnv = Boolean(SUPABASE_URL && ANON_KEY && GOOGLE_WEB_CLIENT_ID);
 const describeIfConfigured = hasEnv ? describe : describe.skip;
 
 describeIfConfigured('Supabase provider config (live project)', () => {
-  it('has Apple enabled with the bundle id authorized', async () => {
+  it('has the Apple provider enabled and accepting Apple-issued tokens', async () => {
     const rawNonce = 'integration-test-apple-nonce';
     const idToken = fakeIdToken('https://appleid.apple.com', APPLE_BUNDLE_ID, rawNonce);
     const { status, body } = await exchangeIdToken('apple', idToken, rawNonce);
 
-    expect(status).toBe(400); // we expect rejection — we only care *why*
+    expect(status).toBe(400); // rejection is expected — the point is *which* rejection
     expect(body.error_code).not.toBe('provider_disabled');
-    expect(String(body.msg ?? '')).not.toMatch(/not enabled/i);
+    // Positive assertion, so an unrelated 400 (rate limit, bad anon key, API change) fails
+    // instead of passing silently the way a bare "not provider_disabled" check would.
+    expect(String(body.error_description ?? '')).toMatch(/bad id token/i);
   });
 
-  it('has Google enabled with the web client id authorized', async () => {
+  it('has the Google provider enabled and accepting Google-issued tokens', async () => {
     const rawNonce = 'integration-test-google-nonce';
     const idToken = fakeIdToken('https://accounts.google.com', GOOGLE_WEB_CLIENT_ID!, rawNonce);
     const { status, body } = await exchangeIdToken('google', idToken, rawNonce);
 
     expect(status).toBe(400);
     expect(body.error_code).not.toBe('provider_disabled');
-    expect(String(body.msg ?? '')).not.toMatch(/not enabled/i);
+    expect(String(body.error_description ?? '')).toMatch(/bad id token/i);
   });
 });
 

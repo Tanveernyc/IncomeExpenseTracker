@@ -45,7 +45,9 @@ function withUiSceneLifecycle(config) {
     if (!CLASS_DECLARATION_RE.test(contents)) {
       throw new Error(
         'withUiSceneLifecycle: AppDelegate.swift class declaration not found or already ' +
-          'patched — the generated template changed, update plugins/withUiSceneLifecycle.js.'
+          'patched. The prebuild template changed — if Expo now wires up the scene delegate ' +
+          'itself, drop "./plugins/withUiSceneLifecycle" from app.json; otherwise update the ' +
+          'regexes in plugins/withUiSceneLifecycle.js.'
       );
     }
     contents = contents.replace(
@@ -55,8 +57,10 @@ function withUiSceneLifecycle(config) {
 
     if (!WINDOW_START_BLOCK_RE.test(contents)) {
       throw new Error(
-        'withUiSceneLifecycle: window/startReactNative block not found in AppDelegate.swift ' +
-          '— the generated template changed, update plugins/withUiSceneLifecycle.js.'
+        'withUiSceneLifecycle: window/startReactNative block not found in AppDelegate.swift. ' +
+          'The prebuild template changed — if Expo now wires up the scene delegate itself, ' +
+          'drop "./plugins/withUiSceneLifecycle" from app.json; otherwise update the regexes ' +
+          'in plugins/withUiSceneLifecycle.js.'
       );
     }
     contents = contents.replace(WINDOW_START_BLOCK_RE, '');

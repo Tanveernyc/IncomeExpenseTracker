@@ -19,6 +19,11 @@ appId: com.trueorganichub.propertyledger
 # `{ type: 'cancelled' }` rather than an error only because that's what the real SDK
 # does — a mock can assert that behavior exists, not that it's true.
 #
+# PRECONDITION: a simulator with NO Apple ID signed in. That is what makes both providers
+# stop at a dismissable system alert instead of a real credential sheet, which is the only
+# reason this is automatable at all. On a simulator signed into an Apple ID, Apple presents
+# the real credential sheet and the "Close" tap below will not find its button.
+#
 # Run: maestro test .maestro/social-sign-in-buttons.flow.yaml
 # If the swipe-to-dismiss steps below don't close the real sheet on your simulator,
 # record the actual taps with `maestro studio` and replace them — see the demo-reviewer
