@@ -1,0 +1,59 @@
+appId: com.trueorganichub.propertyledger
+---
+# Functional test for docs/setup-social-sign-in.md task 6 — drives the REAL native
+# Apple/Google modules against the REAL provider config just enabled in Supabase.
+# __tests__/sign-in-screen.test.tsx mocks both signInWithApple/signInWithGoogle away, so
+# it proves our screen code reacts correctly to a result but never proves the real SDKs
+# on a real device produce that result. This flow closes that gap.
+#
+# Requires a simulator build that includes the two native modules (see §4's rebuild —
+# `eas build -p ios --profile preview-sim`). The build in place before Phase 17 task 6
+# predates this work and does not have them; re-run this flow after that build installs.
+#
+# We can't complete a full third-party login headlessly: Apple/Google need real
+# credentials, and Apple additionally needs Face ID/passcode the simulator can't satisfy.
+# So this proves what CAN be proven on-device — both buttons render, tapping each opens
+# the real system sheet (screenshotted as evidence), and cancelling returns cleanly to
+# the sign-in screen with no error. That last part is the one thing the mocked unit test
+# cannot cover for real: social-auth.ts treats a cancelled Google sheet as
+# `{ type: 'cancelled' }` rather than an error only because that's what the real SDK
+# does — a mock can assert that behavior exists, not that it's true.
+#
+# Run: maestro test .maestro/social-sign-in-buttons.flow.yaml
+# If the swipe-to-dismiss steps below don't close the real sheet on your simulator,
+# record the actual taps with `maestro studio` and replace them — see the demo-reviewer
+# memory note that tab-bar taps on this app needed point coordinates, not text/id matches,
+# because Maestro's id/text matching is unreliable against some RN native views.
+
+- launchApp:
+    clearState: true
+
+- assertVisible:
+    id: "apple-sign-in"
+- assertVisible:
+    id: "google-sign-in"
+
+- tapOn:
+    id: "apple-sign-in"
+- takeScreenshot: apple-sheet-presented
+# On a simulator with no Apple ID signed in, this is a plain system alert ("Sign in to your
+# Apple Account... You need to sign in to your Apple Account in Settings.") rather than a
+# swipeable credential sheet, so it's dismissed with its own "Close" button, not a swipe.
+# This itself is useful signal: the real AuthenticationServices call fired at all, which only
+# happens if the Sign in with Apple capability/entitlement is genuinely wired up.
+- tapOn: "Close"
+- assertVisible:
+    id: "apple-sign-in"
+- assertNotVisible: "failed"
+- assertNotVisible: "error"
+
+- tapOn:
+    id: "google-sign-in"
+- takeScreenshot: google-sheet-presented
+# iOS shows its own "<app> Wants to Use accounts.google.com to Sign In" permission alert
+# before Google's actual sheet — another plain alert, dismissed with "Cancel".
+- tapOn: "Cancel"
+- assertVisible:
+    id: "google-sign-in"
+- assertNotVisible: "failed"
+- assertNotVisible: "error"
