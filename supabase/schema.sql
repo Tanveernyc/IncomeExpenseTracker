@@ -146,11 +146,11 @@ alter table properties
 update properties set property_use = 'long_term_rental'
   where property_type = 'rental' and property_use is null;
 
--- A property ledger always carries a use; a personal budget never does.
+-- A budget never carries a use. A property may leave it null: clients older than
+-- this column do not send it, and null reads as long_term_rental throughout.
 alter table properties drop constraint if exists properties_use_shape;
 alter table properties add constraint properties_use_shape check (
-  (property_type = 'rental' and property_use is not null)
-  or (property_type = 'personal' and property_use is null)
+  property_type = 'rental' or property_use is null
 );
 
 -- TENANT-ONLY CATEGORIES — income that needs a tenant in place. Narrows the

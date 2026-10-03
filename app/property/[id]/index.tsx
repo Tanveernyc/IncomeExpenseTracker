@@ -128,7 +128,12 @@ export default function PropertyTransactionsScreen() {
         >
           <Text style={!categoryId ? styles.chipTextActive : styles.chipText}>All</Text>
         </Pressable>
-        {(property ? categoriesVisibleToLedger(categories ?? [], property) : []).map((c) => (
+        {/* Until the property loads, show the categories every ledger shares rather
+            than an empty row that also never recovers if the query fails. */}
+        {(property
+          ? categoriesVisibleToLedger(categories ?? [], property)
+          : (categories ?? []).filter((c) => c.scope === 'both')
+        ).map((c) => (
           <Pressable
             key={c.id}
             style={[styles.chip, categoryId === c.id && styles.chipActive]}

@@ -31,9 +31,13 @@ const USE_LABELS: Record<PropertyUse, string> = {
   primary_home: 'Primary home',
 };
 
-/** Title-case label for a property's use — the form's picker chips. */
+/**
+ * Title-case label for a property's use — the form's picker chips. Uses are meant
+ * to grow, and the value arrives unvalidated from the database, so an unknown one
+ * falls back to itself rather than rendering undefined.
+ */
 export function propertyUseLabel(use: PropertyUse): string {
-  return USE_LABELS[use];
+  return USE_LABELS[use] ?? use;
 }
 
 /**
@@ -45,7 +49,7 @@ export function ledgerMetaLabel(
 ): string {
   if (ledger.property_type === 'personal') return 'budget';
   if (!ledger.property_use || ledger.property_use === 'long_term_rental') return 'rental';
-  return USE_LABELS[ledger.property_use].toLowerCase();
+  return propertyUseLabel(ledger.property_use).toLowerCase();
 }
 
 /** Tab / section title for the whole collection: one kind's plural, or "Ledgers" when mixed or empty. */

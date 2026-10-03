@@ -8,6 +8,7 @@ import {
   partyLabel,
   propertyUseLabel,
 } from '../src/lib/ledger-copy';
+import type { PropertyUse } from '../src/types';
 
 describe('nounFor', () => {
   it('rental is Property, personal is Budget', () => {
@@ -72,6 +73,13 @@ describe('ledgerMetaLabel', () => {
 
   it('falls back to "rental" for a property row that predates uses', () => {
     expect(ledgerMetaLabel({ property_type: 'rental', property_use: null })).toBe('rental');
+  });
+
+  it('survives a use this build has never heard of', () => {
+    // Uses are meant to grow; a client older than a new value must not crash.
+    const future = 'co_living' as PropertyUse;
+    expect(propertyUseLabel(future)).toBe('co_living');
+    expect(ledgerMetaLabel({ property_type: 'rental', property_use: future })).toBe('co_living');
   });
 });
 
