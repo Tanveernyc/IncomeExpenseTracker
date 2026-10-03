@@ -50,3 +50,6 @@ google-service-account.json
 # generated native folders
 /ios
 /android
+
+# Supabase CLI scratch state (records the last-seen CLI version; pure churn)
+supabase/.temp/
