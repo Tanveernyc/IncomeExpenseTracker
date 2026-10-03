@@ -116,12 +116,15 @@ export default function HistoryScreen() {
                 <Text style={styles.cell}>{point.period}</Text>
                 <Text style={styles.cellRight}>{formatMoney(point.total)}</Text>
                 <Text style={[styles.cellRight, changeStyle(point.changeFromPrev)]}>
-                  {point.changeFromPrev === null ? '-' : formatMoney(point.changeFromPrev)}
+                  {/* Em dash, not a hyphen: "no previous period", never a minus. */}
+                  {point.changeFromPrev === null ? '—' : formatMoney(point.changeFromPrev)}
                 </Text>
                 <Text style={[styles.cellRight, changeStyle(point.changeFromPrev)]}>
+                  {/* toFixed would emit an ASCII hyphen next to the true minus
+                      in the Change cell, so the sign is written by hand. */}
                   {point.pctChangeFromPrev === null
-                    ? '-'
-                    : `${point.pctChangeFromPrev >= 0 ? '+' : ''}${point.pctChangeFromPrev.toFixed(1)}%`}
+                    ? '—'
+                    : `${point.pctChangeFromPrev >= 0 ? '+' : '−'}${Math.abs(point.pctChangeFromPrev).toFixed(1)}%`}
                 </Text>
               </View>
             ))}

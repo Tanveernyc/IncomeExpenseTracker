@@ -16,10 +16,20 @@ export function parseAmountInput(text: string): number | undefined {
   return value;
 }
 
-/** Formats dollars for display: 1234.5 → "$1,234.50". */
+/**
+ * Formats dollars for display: 1234.5 → "$1,234.50".
+ * Negatives use a true minus (U+2212), not a hyphen: it is the same width as the
+ * digits, so a column of amounts stays aligned, and it matches the signs the
+ * screens prefix by hand. Display only — the CSV export writes raw toFixed(2).
+ */
 export function formatMoney(amount: number): string {
+  // Intl formats negative zero as a signed "-$0.00"; -0 === 0 is true, so this
+  // collapses it to a plain zero before formatting.
+  const value = amount === 0 ? 0 : amount;
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-  }).format(amount);
+  })
+    .format(value)
+    .replace('-', '−');
 }

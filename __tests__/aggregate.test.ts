@@ -172,8 +172,24 @@ describe('calcPLByProperty', () => {
     const result = calcPLByProperty(properties, expenses, incomeRows, {});
 
     expect(result).toEqual([
-      { propertyId: 'p1', name: 'Maple St', totalIncome: 1800, totalExpense: 300, net: 1500 },
-      { propertyId: 'p2', name: 'Oak Ave', totalIncome: 50, totalExpense: 100, net: -50 },
+      {
+        propertyId: 'p1',
+        name: 'Maple St',
+        kind: 'rental',
+        use: 'long_term_rental',
+        totalIncome: 1800,
+        totalExpense: 300,
+        net: 1500,
+      },
+      {
+        propertyId: 'p2',
+        name: 'Oak Ave',
+        kind: 'rental',
+        use: 'long_term_rental',
+        totalIncome: 50,
+        totalExpense: 100,
+        net: -50,
+      },
     ]);
   });
 
@@ -182,6 +198,8 @@ describe('calcPLByProperty', () => {
     expect(result[0]).toEqual({
       propertyId: 'p9',
       name: 'Empty',
+      kind: 'rental',
+      use: 'long_term_rental',
       totalIncome: 0,
       totalExpense: 0,
       net: 0,

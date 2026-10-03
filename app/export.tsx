@@ -50,7 +50,7 @@ export default function ExportScreen() {
       <Text style={styles.body}>
         Creates a spreadsheet-ready CSV of every income and expense entry across all
         your properties and opens the share sheet. Email it, save it to Files, or hand
-        it to your accountant - your data is never locked in.
+        it to your accountant — your data is never locked in.
       </Text>
       <Pressable style={styles.button} onPress={exportAll} disabled={!ready || busy}>
         {busy ? (

@@ -3,6 +3,7 @@
 // render is a spec §5 Phase 11 test).
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { DashboardModel } from '@/lib/dashboard';
+import { ledgerMetaLabel } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
 import type { TimelineEntry } from '@/lib/timeline';
 import { colors, money, radius, type, ui } from '@/theme';
@@ -32,7 +33,7 @@ export function DashboardView({
     <ScrollView contentContainerStyle={styles.container} testID="dashboard">
       {/* Portfolio net this year */}
       <View style={styles.netCard}>
-        <Text style={styles.netLabel}>Net this year, all properties</Text>
+        <Text style={styles.netLabel}>Net this year, all {collectionTitle.toLowerCase()}</Text>
         <Text style={[styles.netValue, yearPL.net < 0 && styles.netNegative]}>
           {formatMoney(yearPL.net)}
         </Text>
@@ -55,7 +56,7 @@ export function DashboardView({
       <Text style={styles.sectionTitle}>{collectionTitle}</Text>
       {propertyCards.length === 0 ? (
         <Text style={styles.empty}>
-          No {collectionTitle.toLowerCase()} yet - add one on the {collectionTitle} tab.
+          No {collectionTitle.toLowerCase()} yet — add one on the {collectionTitle} tab.
         </Text>
       ) : (
         propertyCards.map((card) => (
@@ -64,14 +65,20 @@ export function DashboardView({
             style={styles.propertyCard}
             onPress={() => onOpenProperty(card.propertyId)}
           >
-            <Text style={styles.propertyName}>{card.name}</Text>
-            <View style={styles.propertyNumbers}>
-              <Text style={styles.propertyIn}>+{formatMoney(card.totalIncome)}</Text>
-              <Text style={styles.propertyOut}>−{formatMoney(card.totalExpense)}</Text>
+            {/* Net sits right, like the amount on a Recent activity row, so every
+                card answers the same question in the same place. */}
+            <View style={styles.propertyTop}>
+              <Text style={styles.propertyName} numberOfLines={1}>
+                {card.name}
+              </Text>
               <Text style={[styles.propertyNet, card.net < 0 && styles.propertyNetNegative]}>
                 {formatMoney(card.net)}
               </Text>
             </View>
+            <Text style={styles.propertySub} numberOfLines={1}>
+              {ledgerMetaLabel({ property_type: card.kind, property_use: card.use })} · In{' '}
+              {formatMoney(card.totalIncome)} · Out {formatMoney(card.totalExpense)}
+            </Text>
           </Pressable>
         ))
       )}
@@ -116,17 +123,17 @@ const styles = StyleSheet.create({
   netRow: { flexDirection: 'row', gap: 16, marginTop: 2 },
   netBreakdown: { ...money, color: '#B8C0D0', fontSize: 13, fontWeight: '500' },
   netMonth: { ...money, color: '#B8C0D0', fontSize: 13, fontWeight: '500', marginTop: 6 },
-  quickAdd: { ...ui.buttonSecondary },
-  quickAddText: { ...ui.buttonSecondaryText, color: colors.brass },
+  // The app's most-used action: filled, not an outline that reads as disabled.
+  quickAdd: { ...ui.buttonPrimary, marginTop: 10 },
+  quickAddText: { ...ui.buttonPrimaryText },
   sectionTitle: { ...type.title, fontSize: 17, marginTop: 8 },
   empty: { ...type.hint, fontSize: 14 },
-  propertyCard: { ...ui.card, padding: 14, gap: 8 },
-  propertyName: { ...type.body, fontWeight: '600' },
-  propertyNumbers: { flexDirection: 'row', justifyContent: 'space-between' },
-  propertyIn: { ...money, color: colors.gain, fontSize: 13, fontWeight: '500' },
-  propertyOut: { ...money, color: colors.slate, fontSize: 13, fontWeight: '500' },
-  propertyNet: { ...money, fontSize: 13, fontWeight: '700' },
+  propertyCard: { ...ui.card, padding: 14, gap: 3 },
+  propertyTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  propertyName: { ...type.body, fontWeight: '600', flex: 1 },
+  propertyNet: { ...money, fontSize: 16, fontWeight: '700' },
   propertyNetNegative: { color: colors.danger },
+  propertySub: { ...type.hint, fontSize: 12 },
   recentRow: {
     ...ui.row,
     paddingHorizontal: 14,

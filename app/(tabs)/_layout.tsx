@@ -3,9 +3,9 @@
 // (README §4.2): post any months that became due since the app last opened.
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Tabs } from 'expo-router';
+import { router, Tabs } from 'expo-router';
 import { useEffect } from 'react';
-import type { ColorValue } from 'react-native';
+import { Pressable, type ColorValue } from 'react-native';
 import { listProperties } from '@/db/properties';
 import { syncRecurringEntries } from '@/db/recurring';
 import { collectionTitle, kindsOf } from '@/lib/ledger-copy';
@@ -57,11 +57,28 @@ export default function TabsLayout() {
     >
       <Tabs.Screen
         name="index"
-        options={{ title: 'Dashboard', tabBarIcon: tabIcon('grid-outline', 'grid') }}
+        options={{
+          title: 'Dashboard',
+          tabBarIcon: tabIcon('grid-outline', 'grid'),
+          // Account lives behind this, off the Dashboard itself.
+          headerRight: () => (
+            <Pressable
+              onPress={() => router.push('/settings')}
+              accessibilityLabel="Settings"
+              accessibilityRole="button"
+              hitSlop={12}
+              style={{ paddingHorizontal: 16 }}
+            >
+              <Ionicons name="person-circle-outline" size={26} color={colors.ink} />
+            </Pressable>
+          ),
+        }}
       />
       <Tabs.Screen
         name="properties"
-        options={{ title: ledgersTitle, tabBarIcon: tabIcon('home-outline', 'home') }}
+        // A house would be wrong whenever this tab reads "Budgets"; a book covers
+        // every title it takes, and matches the paper-ledger direction in theme.ts.
+        options={{ title: ledgersTitle, tabBarIcon: tabIcon('book-outline', 'book') }}
       />
       <Tabs.Screen
         name="add"

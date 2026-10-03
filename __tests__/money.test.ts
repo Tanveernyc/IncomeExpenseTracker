@@ -33,4 +33,14 @@ describe('formatMoney', () => {
     expect(formatMoney(1234.5)).toBe('$1,234.50');
     expect(formatMoney(0.01)).toBe('$0.01');
   });
+
+  it('uses a true minus so a column of amounts stays aligned', () => {
+    expect(formatMoney(-1234.5)).toBe('−$1,234.50');
+    expect(formatMoney(-1234.5)).not.toContain('-');
+  });
+
+  it('never shows a signed zero', () => {
+    expect(formatMoney(-0)).toBe('$0.00');
+    expect(formatMoney(0)).toBe('$0.00');
+  });
 });

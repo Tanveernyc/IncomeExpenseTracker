@@ -45,6 +45,7 @@ function RootNavigator() {
         <Stack.Screen name="property/[id]/edit" options={{ title: 'Edit Ledger' }} />
         <Stack.Screen name="property/[id]/recurring" options={{ title: 'Recurring' }} />
         <Stack.Screen name="transaction/[kind]/[id]" options={{ title: 'Edit Transaction' }} />
+        <Stack.Screen name="settings" options={{ title: 'Settings' }} />
         <Stack.Screen name="categories" options={{ title: 'Categories' }} />
         <Stack.Screen name="history" options={{ title: 'History & Trends' }} />
         <Stack.Screen name="export" options={{ title: 'Export' }} />
