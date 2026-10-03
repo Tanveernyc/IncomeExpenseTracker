@@ -45,6 +45,7 @@ const sampleProperty: Property = {
   name: '12 Maple St',
   address: null,
   property_type: 'rental',
+  property_use: 'long_term_rental',
   purchase_date: null,
   purchase_price: null,
   notes: null,

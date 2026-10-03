@@ -1,6 +1,6 @@
 // Phase 3 tests — property create/edit validation (spec §5 Phase 3):
 // name required; type must be rental|personal.
-import { parsePriceInput, validateProperty } from '../src/lib/property-validation';
+import { PROPERTY_USES, parsePriceInput, validateProperty } from '../src/lib/property-validation';
 
 describe('validateProperty', () => {
   it('requires a name', () => {
@@ -24,6 +24,12 @@ describe('validateProperty', () => {
   it('accepts both valid types', () => {
     expect(validateProperty({ name: '12 Maple St', property_type: 'rental' }).valid).toBe(true);
     expect(validateProperty({ name: 'Home', property_type: 'personal' }).valid).toBe(true);
+  });
+});
+
+describe('PROPERTY_USES', () => {
+  it('offers long-term rental, flip, investment and primary home', () => {
+    expect(PROPERTY_USES).toEqual(['long_term_rental', 'flip', 'investment', 'primary_home']);
   });
 });
 

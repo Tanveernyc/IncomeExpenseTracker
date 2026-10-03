@@ -3,7 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'expo-router';
 import { Pressable, SectionList, StyleSheet, Switch, Text, View } from 'react-native';
 import { listProperties } from '@/db/properties';
-import { collectionTitle, kindsOf, nounFor } from '@/lib/ledger-copy';
+import { collectionTitle, kindsOf, ledgerMetaLabel, nounFor } from '@/lib/ledger-copy';
+import { PROPERTY_TYPES } from '@/lib/property-validation';
 import type { Property } from '@/types';
 import { colors, radius, type, ui } from '@/theme';
 import { useState } from 'react';
@@ -20,7 +21,7 @@ export default function PropertiesScreen() {
   const kinds = kindsOf(data ?? []);
   const sections =
     kinds.length > 1
-      ? (['rental', 'personal'] as const).map((k) => ({
+      ? PROPERTY_TYPES.map((k) => ({
           title: nounFor(k).many,
           data: (data ?? []).filter((p) => p.property_type === k),
         }))
@@ -73,7 +74,7 @@ function PropertyRow({ property }: { property: Property }) {
         <View style={styles.rowText}>
           <Text style={styles.rowName}>{property.name}</Text>
           <Text style={styles.rowMeta}>
-            {property.property_type === 'personal' ? 'budget' : 'rental'}
+            {ledgerMetaLabel(property)}
             {property.address ? ` · ${property.address}` : ''}
           </Text>
         </View>

@@ -135,3 +135,20 @@ alter table recurring_rules
 alter table categories
   add column if not exists scope text not null default 'rental'
   check (scope in ('rental', 'personal', 'both'));
+
+-- PROPERTY USE — how a property ledger is used. Label axis only: category scope
+-- and form fields still key off property_type, so adding a use never re-opens
+-- the rental/personal split.
+alter table properties
+  add column if not exists property_use text
+  check (property_use in ('long_term_rental', 'flip', 'investment', 'primary_home'));
+
+update properties set property_use = 'long_term_rental'
+  where property_type = 'rental' and property_use is null;
+
+-- A property ledger always carries a use; a personal budget never does.
+alter table properties drop constraint if exists properties_use_shape;
+alter table properties add constraint properties_use_shape check (
+  (property_type = 'rental' and property_use is not null)
+  or (property_type = 'personal' and property_use is null)
+);

@@ -12,7 +12,9 @@ const CHOICES: { key: string; title: string; body: string; ledgers: NewProperty[
     key: 'rental',
     title: 'A rental property',
     body: 'Track rent, taxes, repairs and the year-end profit for each property.',
-    ledgers: [{ name: 'My first property', property_type: 'rental' }],
+    ledgers: [
+      { name: 'My first property', property_type: 'rental', property_use: 'long_term_rental' },
+    ],
   },
   {
     key: 'personal',
@@ -25,7 +27,7 @@ const CHOICES: { key: string; title: string; body: string; ledgers: NewProperty[
     title: 'Both',
     body: 'A property ledger and a household budget, side by side.',
     ledgers: [
-      { name: 'My first property', property_type: 'rental' },
+      { name: 'My first property', property_type: 'rental', property_use: 'long_term_rental' },
       { name: 'Household', property_type: 'personal' },
     ],
   },

@@ -6,6 +6,13 @@ export type PropertyType = 'rental' | 'personal';
 /** Same values as PropertyType; the name says what the app means by it now. */
 export type LedgerKind = PropertyType;
 
+/**
+ * How a property ledger is used. A label only — it never changes which fields or
+ * categories a ledger gets, so it is free to grow. Set when property_type is
+ * 'rental' (the stored value for every property-style ledger), null for budgets.
+ */
+export type PropertyUse = 'long_term_rental' | 'flip' | 'investment' | 'primary_home';
+
 /** Which ledger kinds a category is offered to (spec §4.1). */
 export type CategoryScope = 'rental' | 'personal' | 'both';
 
@@ -16,6 +23,7 @@ export interface Property {
   name: string;
   address: string | null;
   property_type: PropertyType;
+  property_use: PropertyUse | null;
   purchase_date: string | null;
   purchase_price: number | null;
   notes: string | null;
@@ -103,6 +111,7 @@ export interface NewIncome {
 export interface NewProperty {
   name: string;
   property_type: PropertyType;
+  property_use?: PropertyUse | null;
   address?: string | null;
   purchase_date?: string | null;
   purchase_price?: number | null;

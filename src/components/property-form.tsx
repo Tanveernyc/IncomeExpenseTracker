@@ -1,15 +1,16 @@
 // Shared property create/edit form (Phase 3). The caller supplies initial values
 // and receives the validated NewProperty payload on save.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
-import type { NewProperty, Property, PropertyType } from '@/types';
+import type { NewProperty, Property, PropertyType, PropertyUse } from '@/types';
 import { ui } from '@/theme';
 import {
+  PROPERTY_USES,
   parsePriceInput,
   validateProperty,
   type PropertyValidation,
 } from '@/lib/property-validation';
-import { nounFor } from '@/lib/ledger-copy';
+import { nounFor, propertyUseLabel } from '@/lib/ledger-copy';
 
 interface Props {
   /** Existing property when editing; undefined when creating. */
@@ -26,6 +27,9 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel }: Pro
   const [propertyType, setPropertyType] = useState<PropertyType>(
     initial?.property_type ?? 'rental'
   );
+  const [propertyUse, setPropertyUse] = useState<PropertyUse>(
+    initial?.property_use ?? 'long_term_rental'
+  );
   const [address, setAddress] = useState(initial?.address ?? '');
   const [purchaseDate, setPurchaseDate] = useState(initial?.purchase_date ?? '');
   const [priceText, setPriceText] = useState(
@@ -36,6 +40,13 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel }: Pro
 
   const isRental = propertyType === 'rental';
   const resolvedSubmitLabel = typeof submitLabel === 'function' ? submitLabel(propertyType) : submitLabel;
+
+  // Editing a ledger whose use sits off the right edge would otherwise open with
+  // an apparently unselected row. Scroll from the chip's own onLayout, which is
+  // the first moment its position is known.
+  const useRowRef = useRef<ScrollView>(null);
+  const initialUse = useRef(initial?.property_use ?? 'long_term_rental').current;
+  const didRevealUse = useRef(false);
 
   const submit = () => {
     const validation = validateProperty({ name, property_type: propertyType });
@@ -55,6 +66,7 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel }: Pro
     onSubmit({
       name: name.trim(),
       property_type: propertyType,
+      property_use: isRental ? propertyUse : null,
       address: address.trim() || null,
       purchase_date: purchaseDate.trim() || null,
       purchase_price: purchasePrice,
@@ -101,6 +113,28 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel }: Pro
 
       {isRental ? (
         <>
+          <Text style={styles.label}>How it&apos;s used</Text>
+          <ScrollView ref={useRowRef} horizontal contentContainerStyle={styles.typeRow}>
+            {PROPERTY_USES.map((use) => (
+              <Pressable
+                key={use}
+                style={[styles.typeChip, propertyUse === use && styles.typeChipActive]}
+                onPress={() => setPropertyUse(use)}
+                onLayout={({ nativeEvent }) => {
+                  if (didRevealUse.current || use !== initialUse) return;
+                  didRevealUse.current = true;
+                  if (nativeEvent.layout.x > 0) {
+                    useRowRef.current?.scrollTo({ x: nativeEvent.layout.x - 16, animated: false });
+                  }
+                }}
+              >
+                <Text style={propertyUse === use ? styles.typeChipTextActive : styles.typeChipText}>
+                  {propertyUseLabel(use)}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+
           <Text style={styles.label}>Address</Text>
           <TextInput
             style={styles.input}
