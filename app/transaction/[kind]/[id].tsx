@@ -2,7 +2,7 @@
 // only) the covers-period fields. Kind comes from the route: /transaction/expense/:id.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -26,42 +26,46 @@ import { money, type, ui } from '@/theme';
 export default function EditTransactionScreen() {
   const { kind, id } = useLocalSearchParams<{ kind: 'expense' | 'income'; id: string }>();
   const isExpense = kind === 'expense';
-  const queryClient = useQueryClient();
 
   const { data: transaction, isPending } = useQuery<Expense | Income>({
     queryKey: [isExpense ? 'expense' : 'income-entry', id],
     queryFn: () => (isExpense ? getExpense(id) : getIncome(id)),
   });
+
+  // The editor mounts only once the row is here, so its fields start from the
+  // transaction instead of being written in afterwards by an effect.
+  if (isPending || !transaction) return <ActivityIndicator style={styles.spinner} />;
+  return <TransactionEditor id={id} isExpense={isExpense} transaction={transaction} />;
+}
+
+function TransactionEditor({
+  id,
+  isExpense,
+  transaction,
+}: {
+  id: string;
+  isExpense: boolean;
+  transaction: Expense | Income;
+}) {
+  const queryClient = useQueryClient();
   const { data: property } = useQuery({
-    queryKey: ['property', transaction?.property_id],
-    queryFn: () => getProperty(transaction!.property_id),
-    enabled: !!transaction,
+    queryKey: ['property', transaction.property_id],
+    queryFn: () => getProperty(transaction.property_id),
   });
   const ledgerKind = property?.property_type;
 
-  const [amountText, setAmountText] = useState('');
-  const [date, setDate] = useState('');
-  const [party, setParty] = useState('');
-  const [notes, setNotes] = useState('');
-  const [periodStart, setPeriodStart] = useState('');
-  const [periodEnd, setPeriodEnd] = useState('');
+  const isExpenseRow = 'paid_on' in transaction;
+  const [amountText, setAmountText] = useState(String(transaction.amount));
+  const [date, setDate] = useState(isExpenseRow ? transaction.paid_on : transaction.received_on);
+  const [party, setParty] = useState(
+    isExpenseRow ? (transaction.vendor ?? '') : (transaction.source ?? '')
+  );
+  const [notes, setNotes] = useState(transaction.notes ?? '');
+  const [periodStart, setPeriodStart] = useState(
+    isExpenseRow ? (transaction.period_start ?? '') : ''
+  );
+  const [periodEnd, setPeriodEnd] = useState(isExpenseRow ? (transaction.period_end ?? '') : '');
   const [errors, setErrors] = useState<TransactionValidation['errors']>({});
-
-  // Prefill once the row arrives.
-  useEffect(() => {
-    if (!transaction) return;
-    setAmountText(String(transaction.amount));
-    setNotes(transaction.notes ?? '');
-    if ('paid_on' in transaction) {
-      setDate(transaction.paid_on);
-      setParty(transaction.vendor ?? '');
-      setPeriodStart(transaction.period_start ?? '');
-      setPeriodEnd(transaction.period_end ?? '');
-    } else {
-      setDate(transaction.received_on);
-      setParty(transaction.source ?? '');
-    }
-  }, [transaction]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -114,8 +118,6 @@ export default function EditTransactionScreen() {
       if (!e.silent) Alert.alert('Could not save changes', e.message);
     },
   });
-
-  if (isPending) return <ActivityIndicator style={styles.spinner} />;
 
   return (
     <ScrollView
@@ -177,7 +179,7 @@ export default function EditTransactionScreen() {
         </>
       ) : null}
 
-      <Text style={styles.label}>{partyLabel(ledgerKind ?? 'rental', kind)}</Text>
+      <Text style={styles.label}>{partyLabel(ledgerKind ?? 'rental', isExpense ? 'expense' : 'income')}</Text>
       <TextInput style={styles.input} value={party} onChangeText={setParty} />
 
       <Text style={styles.label}>Notes</Text>

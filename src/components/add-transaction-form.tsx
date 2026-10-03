@@ -72,11 +72,13 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
   const ledgerKind = selectedLedger?.property_type;
   const kindCategories = orderCategoriesByRecent(categories ?? [], recentCategoryIds, kind, selectedLedger);
 
-  // Category selection tracks the selected ledger's scope; drop it if it no longer applies.
-  useEffect(() => {
-    if (!properties || !categories) return;
-    if (state.categoryId && !kindCategories.some((c) => c.id === state.categoryId)) set({ categoryId: null });
-  }, [state.propertyId, properties, categories]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Category selection tracks the selected ledger's scope. Derived, not written back
+  // by an effect: switching ledger must never leave a render holding a category the
+  // new ledger does not offer.
+  const categoryId =
+    state.categoryId && kindCategories.some((c) => c.id === state.categoryId)
+      ? state.categoryId
+      : null;
 
   const isPersonal = ledgerKind === 'personal';
 
@@ -86,7 +88,7 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
         amountText: state.amountText,
         date: state.date,
         propertyId: state.propertyId,
-        categoryId: state.categoryId,
+        categoryId,
         periodStart: isExpense && !isPersonal ? state.periodStart : undefined,
         periodEnd: isExpense && !isPersonal ? state.periodEnd : undefined,
       });
@@ -96,7 +98,7 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
       }
       const common = {
         property_id: state.propertyId!,
-        category_id: state.categoryId!,
+        category_id: categoryId!,
         amount: validation.amount,
         notes: state.notes.trim() || null,
       };
@@ -117,7 +119,7 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
     },
     onSuccess: () => {
       // Stay on the screen; clear per-entry fields, keep property/category.
-      const recents = pushRecentCategory(recentCategoryIds, state.categoryId!);
+      const recents = pushRecentCategory(recentCategoryIds, categoryId!);
       setRecentCategoryIds(recents);
       AsyncStorage.setItem(LAST_PROPERTY_KEY, state.propertyId!);
       AsyncStorage.setItem(recentCategoriesKey(kind), JSON.stringify(recents));
@@ -178,7 +180,7 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
           <Chip
             key={c.id}
             label={c.name}
-            active={state.categoryId === c.id}
+            active={categoryId === c.id}
             onPress={() => set({ categoryId: c.id })}
           />
         ))}

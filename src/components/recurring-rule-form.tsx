@@ -2,7 +2,7 @@
 // end condition. On save: insert the rule, then immediately sync it so the
 // first month(s) appear right away (README §4.2 "right after a rule is created").
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { listCategories } from '@/db/categories';
 import { listProperties } from '@/db/properties';
@@ -26,8 +26,8 @@ interface Props {
 
 export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
   const queryClient = useQueryClient();
-  const [propertyId, setPropertyId] = useState<string | null>(initialPropertyId ?? null);
-  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [chosenPropertyId, setPropertyId] = useState<string | null>(initialPropertyId ?? null);
+  const [chosenCategoryId, setCategoryId] = useState<string | null>(null);
   const [amountText, setAmountText] = useState('');
   const [startMonthText, setStartMonthText] = useState(monthKey(todayISO()));
   const [endMode, setEndMode] = useState<EndMode>('until_stopped');
@@ -43,20 +43,19 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
     queryFn: () => listProperties(),
   });
   const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: listCategories });
+
+  // The selection only becomes real once the user picks; until then it follows the
+  // data. Derived rather than written back by an effect, so there is no render
+  // where the form holds a property or category that is not on offer.
+  const propertyId = chosenPropertyId ?? properties?.[0]?.id ?? null;
   const selectedLedger = (properties ?? []).find((p) => p.id === propertyId);
   const ledgerKind = selectedLedger?.property_type;
   const kindCategories = orderCategoriesByRecent(categories ?? [], [], kind, selectedLedger);
 
-  // Default to the only/first property when none was passed in.
-  useEffect(() => {
-    if (!propertyId && properties?.length) setPropertyId(properties[0].id);
-  }, [properties, propertyId]);
-
-  // Category selection tracks the selected ledger's scope; drop it if it no longer applies.
-  useEffect(() => {
-    if (!properties || !categories) return;
-    if (categoryId && !kindCategories.some((c) => c.id === categoryId)) setCategoryId(null);
-  }, [propertyId, properties, categories]); // eslint-disable-line react-hooks/exhaustive-deps
+  const categoryId =
+    chosenCategoryId && kindCategories.some((c) => c.id === chosenCategoryId)
+      ? chosenCategoryId
+      : null;
 
   // Live preview of how many months will post immediately (finding 4) — independent of
   // full form validation so it updates as soon as the start month looks parseable.

@@ -2,7 +2,7 @@
 // This Year / Last Year / All Time / Custom, plus expense-by-category totals.
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { listCategories } from '@/db/categories';
 import { listAllExpenses } from '@/db/expenses';
@@ -27,10 +27,11 @@ import { colors, money, type, ui } from '@/theme';
 type Preset = 'this-month' | 'last-month' | 'this-year' | 'last-year' | 'all-time' | 'custom';
 
 export default function ReportsScreen() {
-  const [preset, setPreset] = useState<Preset>('this-year');
+  // Null until the user picks: the default depends on data that arrives later,
+  // so it is derived below rather than written into state by an effect.
+  const [chosenPreset, setPreset] = useState<Preset | null>(null);
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo] = useState('');
-  const defaultedRef = useRef(false);
 
   const { data: properties } = useQuery({
     queryKey: ['properties', { includeArchived: true }],
@@ -41,15 +42,11 @@ export default function ReportsScreen() {
   const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: listCategories });
 
   // Kind-aware default (spec §8.2): personal-only users land on This Month;
-  // rental-only (and mixed) users keep This Year. Runs once, after properties load.
-  useEffect(() => {
-    if (defaultedRef.current || !properties) return;
-    defaultedRef.current = true;
-    const kinds = kindsOf(properties);
-    if (kinds.length === 1 && kinds[0] === 'personal') {
-      setPreset('this-month');
-    }
-  }, [properties]);
+  // rental-only (and mixed) users keep This Year. An explicit choice always wins.
+  const kinds = kindsOf(properties ?? []);
+  const defaultPreset: Preset =
+    kinds.length === 1 && kinds[0] === 'personal' ? 'this-month' : 'this-year';
+  const preset = chosenPreset ?? defaultPreset;
 
   const range: DateRange = useMemo(() => {
     switch (preset) {

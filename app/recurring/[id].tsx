@@ -4,7 +4,7 @@
 // never a month the user edited by hand (is_edited), and never a deleted one.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -23,73 +23,64 @@ import { orderCategoriesByRecent } from '@/lib/add-transaction-state';
 import { isValidISODate, monthKey, todayISO } from '@/lib/dates';
 import { collectionNoun, kindsOf, partyLabel } from '@/lib/ledger-copy';
 import { validateRecurringRuleForm, type RecurringRuleValidation } from '@/lib/recurring-rule-validation';
-import type { EndMode } from '@/types';
+import type { EndMode, RecurringRule } from '@/types';
 import { colors, money, type, ui } from '@/theme';
 
 export default function EditRecurringRuleScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const queryClient = useQueryClient();
-
   const { data: rule, isPending } = useQuery({
     queryKey: ['recurring', 'rule', id],
     queryFn: () => getRecurringRule(id),
   });
+
+  // The editor mounts only once the rule is here, so its fields start from the
+  // row instead of being written in afterwards by an effect.
+  if (isPending || !rule) return <ActivityIndicator style={styles.spinner} />;
+  return <RuleEditor id={id} rule={rule} />;
+}
+
+function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
+  const queryClient = useQueryClient();
+
   const { data: properties } = useQuery({
     queryKey: ['properties', { includeArchived: false }],
     queryFn: () => listProperties(),
   });
   const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: listCategories });
 
-  const [propertyId, setPropertyId] = useState<string | null>(null);
-  const [categoryId, setCategoryId] = useState<string | null>(null);
-  const [amountText, setAmountText] = useState('');
-  const [party, setParty] = useState('');
-  const [notes, setNotes] = useState('');
-  const [startMonthText, setStartMonthText] = useState('');
-  const [endMode, setEndMode] = useState<EndMode>('until_stopped');
-  const [occurrencesText, setOccurrencesText] = useState('');
+  const [chosenPropertyId, setPropertyId] = useState<string | null>(rule.property_id);
+  const [chosenCategoryId, setCategoryId] = useState<string | null>(rule.category_id);
+  const [amountText, setAmountText] = useState(String(rule.amount));
+  const [party, setParty] = useState(rule.party ?? '');
+  const [notes, setNotes] = useState(rule.notes ?? '');
+  const [startMonthText, setStartMonthText] = useState(monthKey(rule.start_month));
+  const [endMode, setEndMode] = useState<EndMode>(rule.end_mode);
+  const [occurrencesText, setOccurrencesText] = useState(rule.occurrences ? String(rule.occurrences) : '12');
   const [applyToPosted, setApplyToPosted] = useState(false);
   const [applyFromText, setApplyFromText] = useState(monthKey(todayISO()));
   const [errors, setErrors] = useState<RecurringRuleValidation['errors'] & { applyFrom?: string }>({});
 
-  // Prefill once the row arrives.
-  useEffect(() => {
-    if (!rule) return;
-    setPropertyId(rule.property_id);
-    setCategoryId(rule.category_id);
-    setAmountText(String(rule.amount));
-    setParty(rule.party ?? '');
-    setNotes(rule.notes ?? '');
-    setStartMonthText(monthKey(rule.start_month));
-    setEndMode(rule.end_mode);
-    setOccurrencesText(rule.occurrences ? String(rule.occurrences) : '12');
-  }, [rule]);
-
-  const isExpense = rule?.kind === 'expense';
+  const isExpense = rule.kind === 'expense';
+  const propertyId = chosenPropertyId;
   const selectedLedger = (properties ?? []).find((p) => p.id === propertyId);
   const ledgerKind = selectedLedger?.property_type;
-  const scopedCategories = orderCategoriesByRecent(
-    categories ?? [],
-    [],
-    rule?.kind ?? 'expense',
-    selectedLedger
-  );
+  const scopedCategories = orderCategoriesByRecent(categories ?? [], [], rule.kind, selectedLedger);
   // A rule written before the ledger became a flip or a primary home may sit on a
   // category that is no longer offered (Rent, say). Keep its own category in the
-  // list, or the effect below blanks it and there is nothing valid to pick.
-  const ruleCategory = (categories ?? []).find((c) => c.id === rule?.category_id);
+  // list, or there would be nothing valid left to pick.
+  const ruleCategory = (categories ?? []).find((c) => c.id === rule.category_id);
   const kindCategories =
     ruleCategory && !scopedCategories.some((c) => c.id === ruleCategory.id)
       ? [ruleCategory, ...scopedCategories]
       : scopedCategories;
 
-  // Category selection tracks the selected ledger's scope; drop it if it no longer applies.
-  // Guarded until both lists load, so the rule's prefilled category isn't nulled by an
-  // empty kindCategories before properties/categories have arrived.
-  useEffect(() => {
-    if (!properties || !categories) return;
-    if (categoryId && !kindCategories.some((c) => c.id === categoryId)) setCategoryId(null);
-  }, [propertyId, properties, categories]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Derived, not reset by an effect: while the category lists are still loading
+  // kindCategories is empty, and blanking the selection then would lose the
+  // rule's own category before the user ever saw it.
+  const categoryId =
+    chosenCategoryId && (!categories || kindCategories.some((c) => c.id === chosenCategoryId))
+      ? chosenCategoryId
+      : null;
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -142,8 +133,6 @@ export default function EditRecurringRuleScreen() {
       if (!e.silent) Alert.alert('Could not save changes', e.message);
     },
   });
-
-  if (isPending || !rule) return <ActivityIndicator style={styles.spinner} />;
 
   return (
     <ScrollView
