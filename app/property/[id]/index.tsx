@@ -20,6 +20,7 @@ import { deleteExpense, listPropertyExpenses } from '@/db/expenses';
 import { deleteIncome, listPropertyIncome } from '@/db/income';
 import { getProperty } from '@/db/properties';
 import { skipRecurringMonth } from '@/db/recurring';
+import { categoriesVisibleToLedger } from '@/lib/categories';
 import { confirmDelete } from '@/lib/confirm-delete';
 import { nounFor } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
@@ -127,7 +128,7 @@ export default function PropertyTransactionsScreen() {
         >
           <Text style={!categoryId ? styles.chipTextActive : styles.chipText}>All</Text>
         </Pressable>
-        {(categories ?? []).filter((c) => c.scope === 'both' || c.scope === property?.property_type).map((c) => (
+        {(property ? categoriesVisibleToLedger(categories ?? [], property) : []).map((c) => (
           <Pressable
             key={c.id}
             style={[styles.chip, categoryId === c.id && styles.chipActive]}

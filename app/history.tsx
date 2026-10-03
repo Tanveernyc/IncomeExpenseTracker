@@ -30,7 +30,11 @@ export default function HistoryScreen() {
   });
 
   const selected = (properties ?? []).find((p) => p.id === propertyId);
-  const expenseCategories = categoriesForLedger(categories ?? [], selected?.property_type ?? 'rental', 'expense');
+  const expenseCategories = categoriesForLedger(
+    categories ?? [],
+    selected ?? { property_type: 'rental', property_use: 'long_term_rental' },
+    'expense'
+  );
 
   const trend = useMemo(
     () => (categoryId ? calcCategoryTrend(expenses ?? [], categoryId, groupBy) : []),

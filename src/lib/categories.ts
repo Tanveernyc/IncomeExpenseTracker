@@ -1,6 +1,9 @@
 // Category list helpers — pure functions, no React, no network (spec §4 rule).
 // Phase 4 tests: expense/income lists filter by kind correctly.
-import type { Category, CategoryKind, LedgerKind } from '@/types';
+import type { Category, CategoryKind, Property } from '@/types';
+
+/** The two ledger fields that decide which categories it may use. */
+export type LedgerCategoryScope = Pick<Property, 'property_type' | 'property_use'>;
 
 /** Only categories of the given kind (expense pickers must never show income rows). */
 export function filterCategoriesByKind(categories: Category[], kind: CategoryKind): Category[] {
@@ -22,13 +25,33 @@ export function canDeleteCategory(category: Category): boolean {
   return !category.is_system;
 }
 
-/** Categories a ledger of `ledgerKind` may use for `entryKind` entries (spec §4.1). */
+/**
+ * Whether rent actually comes in. A flip is held to resell and a primary home is
+ * lived in, so neither has a tenant paying rent, late fees or a deposit. A property
+ * from before uses existed (null) is treated as rented, which is what it was.
+ */
+export function ledgerHasTenants(ledger: LedgerCategoryScope): boolean {
+  if (ledger.property_type !== 'rental') return false;
+  return ledger.property_use !== 'flip' && ledger.property_use !== 'primary_home';
+}
+
+/** Every category a ledger may use, of any entry kind (spec §4.1). */
+export function categoriesVisibleToLedger(
+  categories: Category[],
+  ledger: LedgerCategoryScope
+): Category[] {
+  const hasTenants = ledgerHasTenants(ledger);
+  return categories.filter(
+    (c) =>
+      (c.scope === 'both' || c.scope === ledger.property_type) && (hasTenants || !c.tenant_only)
+  );
+}
+
+/** Categories a ledger may use for `entryKind` entries (spec §4.1). */
 export function categoriesForLedger(
   categories: Category[],
-  ledgerKind: LedgerKind,
+  ledger: LedgerCategoryScope,
   entryKind: CategoryKind
 ): Category[] {
-  return categories.filter(
-    (c) => c.kind === entryKind && (c.scope === 'both' || c.scope === ledgerKind)
-  );
+  return categoriesVisibleToLedger(categories, ledger).filter((c) => c.kind === entryKind);
 }

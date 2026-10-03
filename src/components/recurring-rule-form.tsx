@@ -45,7 +45,7 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
   const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: listCategories });
   const selectedLedger = (properties ?? []).find((p) => p.id === propertyId);
   const ledgerKind = selectedLedger?.property_type;
-  const kindCategories = orderCategoriesByRecent(categories ?? [], [], kind, ledgerKind);
+  const kindCategories = orderCategoriesByRecent(categories ?? [], [], kind, selectedLedger);
 
   // Default to the only/first property when none was passed in.
   useEffect(() => {

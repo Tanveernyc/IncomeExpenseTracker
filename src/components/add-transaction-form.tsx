@@ -67,7 +67,7 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
 
   const selectedLedger = (properties ?? []).find((p) => p.id === state.propertyId);
   const ledgerKind = selectedLedger?.property_type;
-  const kindCategories = orderCategoriesByRecent(categories ?? [], recentCategoryIds, kind, ledgerKind);
+  const kindCategories = orderCategoriesByRecent(categories ?? [], recentCategoryIds, kind, selectedLedger);
 
   // Category selection tracks the selected ledger's scope; drop it if it no longer applies.
   useEffect(() => {

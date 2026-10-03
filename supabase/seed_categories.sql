@@ -73,3 +73,9 @@ insert into categories (name, kind, is_system, scope) values
   ('Interest/Dividends','income',true,'personal'),
   ('Refund','income',true,'personal'),
   ('Gift Received','income',true,'personal');
+
+-- Income that only exists with a tenant: hidden from flips and the owner's own home.
+update categories set tenant_only = true
+ where is_system = true and kind = 'income'
+   and name in ('Rent', 'Late Fee', 'Pet Fee', 'Security Deposit Retained',
+                'Laundry/Vending', 'Parking');

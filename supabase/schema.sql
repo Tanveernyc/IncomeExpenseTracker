@@ -152,3 +152,13 @@ alter table properties add constraint properties_use_shape check (
   (property_type = 'rental' and property_use is not null)
   or (property_type = 'personal' and property_use is null)
 );
+
+-- TENANT-ONLY CATEGORIES — income that needs a tenant in place. Narrows the
+-- rental set by property_use: a flip or primary home never sees Rent/Late Fee.
+alter table categories
+  add column if not exists tenant_only boolean not null default false;
+
+update categories set tenant_only = true
+ where is_system = true and kind = 'income'
+   and name in ('Rent', 'Late Fee', 'Pet Fee', 'Security Deposit Retained',
+                'Laundry/Vending', 'Parking');

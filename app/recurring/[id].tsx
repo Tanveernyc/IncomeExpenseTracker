@@ -68,7 +68,7 @@ export default function EditRecurringRuleScreen() {
   const isExpense = rule?.kind === 'expense';
   const selectedLedger = (properties ?? []).find((p) => p.id === propertyId);
   const ledgerKind = selectedLedger?.property_type;
-  const kindCategories = orderCategoriesByRecent(categories ?? [], [], rule?.kind ?? 'expense', ledgerKind);
+  const kindCategories = orderCategoriesByRecent(categories ?? [], [], rule?.kind ?? 'expense', selectedLedger);
 
   // Category selection tracks the selected ledger's scope; drop it if it no longer applies.
   // Guarded until both lists load, so the rule's prefilled category isn't nulled by an

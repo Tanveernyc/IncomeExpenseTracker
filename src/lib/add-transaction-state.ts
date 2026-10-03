@@ -1,8 +1,8 @@
 // Add-screen state transitions — pure functions (spec §4 rule).
 // Phase 5 test: post-save state retains property/category so entering ten bills
 // is ten taps of "amount → save", not ten round trips.
-import type { Category, CategoryKind, LedgerKind } from '@/types';
-import { categoriesForLedger } from './categories';
+import type { Category, CategoryKind } from '@/types';
+import { categoriesForLedger, type LedgerCategoryScope } from './categories';
 import { todayISO } from './dates';
 
 export interface AddTransactionState {
@@ -53,10 +53,10 @@ export function orderCategoriesByRecent(
   categories: Category[],
   recentIds: string[],
   kind: CategoryKind,
-  ledgerKind?: LedgerKind
+  ledger?: LedgerCategoryScope
 ): Category[] {
-  const ofKind = ledgerKind
-    ? categoriesForLedger(categories, ledgerKind, kind)
+  const ofKind = ledger
+    ? categoriesForLedger(categories, ledger, kind)
     : categories.filter((c) => c.kind === kind);
   const byId = new Map(ofKind.map((c) => [c.id, c]));
   const recent = recentIds.map((id) => byId.get(id)).filter((c): c is Category => !!c);

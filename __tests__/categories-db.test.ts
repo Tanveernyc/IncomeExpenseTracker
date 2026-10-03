@@ -42,6 +42,7 @@ const systemCategory: Category = {
   kind: 'expense',
   is_system: true,
   scope: 'rental',
+  tenant_only: false,
   created_at: '2026-07-15T00:00:00Z',
 };
 

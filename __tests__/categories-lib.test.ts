@@ -4,9 +4,10 @@ import {
   canDeleteCategory,
   categoriesForLedger,
   filterCategoriesByKind,
+  ledgerHasTenants,
   splitCategoriesByKind,
 } from '../src/lib/categories';
-import type { Category } from '../src/types';
+import type { Category, PropertyUse } from '../src/types';
 
 const cat = (overrides: Partial<Category>): Category => ({
   id: 'c1',
@@ -15,6 +16,7 @@ const cat = (overrides: Partial<Category>): Category => ({
   kind: 'expense',
   is_system: true,
   scope: 'rental',
+  tenant_only: false,
   created_at: '2026-07-15T00:00:00Z',
   ...overrides,
 });
@@ -65,13 +67,50 @@ describe('categoriesForLedger', () => {
     cat({ id: 'p', name: 'Groceries', kind: 'expense', scope: 'personal' }),
     cat({ id: 'pi', name: 'Salary', kind: 'income', scope: 'personal' }),
   ];
+  const rental = { property_type: 'rental', property_use: 'long_term_rental' } as const;
+  const budget = { property_type: 'personal', property_use: null } as const;
+
   it('a rental ledger sees rental + both, never personal', () => {
-    expect(categoriesForLedger(scoped, 'rental', 'expense').map((c) => c.id)).toEqual(['r', 'b']);
+    expect(categoriesForLedger(scoped, rental, 'expense').map((c) => c.id)).toEqual(['r', 'b']);
   });
   it('a personal ledger sees personal + both, never rental', () => {
-    expect(categoriesForLedger(scoped, 'personal', 'expense').map((c) => c.id)).toEqual(['b', 'p']);
+    expect(categoriesForLedger(scoped, budget, 'expense').map((c) => c.id)).toEqual(['b', 'p']);
   });
   it('still filters by entry kind', () => {
-    expect(categoriesForLedger(scoped, 'personal', 'income').map((c) => c.id)).toEqual(['pi']);
+    expect(categoriesForLedger(scoped, budget, 'income').map((c) => c.id)).toEqual(['pi']);
+  });
+});
+
+describe('tenant-only categories', () => {
+  const income: Category[] = [
+    cat({ id: 'rent', name: 'Rent', kind: 'income', scope: 'rental', tenant_only: true }),
+    cat({ id: 'payout', name: 'Insurance Payout', kind: 'income', scope: 'rental' }),
+  ];
+  const property = (use: PropertyUse) => ({ property_type: 'rental', property_use: use } as const);
+
+  it('a long-term rental and an investment collect rent', () => {
+    expect(ledgerHasTenants(property('long_term_rental'))).toBe(true);
+    expect(ledgerHasTenants(property('investment'))).toBe(true);
+  });
+
+  it('a flip and a primary home do not', () => {
+    expect(ledgerHasTenants(property('flip'))).toBe(false);
+    expect(ledgerHasTenants(property('primary_home'))).toBe(false);
+  });
+
+  it('a property from before uses existed is still treated as rented', () => {
+    expect(ledgerHasTenants({ property_type: 'rental', property_use: null })).toBe(true);
+  });
+
+  it('hides Rent from a primary home but keeps the rest of its income', () => {
+    expect(categoriesForLedger(income, property('primary_home'), 'income').map((c) => c.id)).toEqual(
+      ['payout']
+    );
+  });
+
+  it('a long-term rental still sees Rent', () => {
+    expect(
+      categoriesForLedger(income, property('long_term_rental'), 'income').map((c) => c.id)
+    ).toEqual(['rent', 'payout']);
   });
 });

@@ -42,6 +42,8 @@ export interface Category {
   kind: CategoryKind;
   is_system: boolean;
   scope: CategoryScope;
+  /** Only meaningful with a tenant in place — hidden from flips and the owner's own home. */
+  tenant_only: boolean;
   created_at: string;
 }
 

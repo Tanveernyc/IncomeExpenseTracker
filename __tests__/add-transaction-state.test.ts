@@ -43,6 +43,7 @@ describe('recent-first category ordering', () => {
     kind,
     is_system: true,
     scope: 'rental',
+    tenant_only: false,
     created_at: '2026-07-15T00:00:00Z',
   });
   const categories = [
@@ -68,13 +69,14 @@ describe('recent-first category ordering', () => {
   });
 });
 
-describe('orderCategoriesByRecent with a ledger kind', () => {
+describe('orderCategoriesByRecent with a ledger', () => {
   const category = (overrides: Partial<Category> & { id: string }): Category => ({
     user_id: null,
     name: overrides.id,
     kind: 'expense',
     is_system: true,
     scope: 'rental',
+    tenant_only: false,
     created_at: '2026-07-15T00:00:00Z',
     ...overrides,
   });
@@ -85,9 +87,10 @@ describe('orderCategoriesByRecent with a ledger kind', () => {
       category({ id: 'b', kind: 'expense', scope: 'both' }),
       category({ id: 'p', kind: 'expense', scope: 'personal' }),
     ];
-    expect(orderCategoriesByRecent(cats, ['r', 'p'], 'expense', 'personal').map((c) => c.id)).toEqual(['p', 'b']);
+    const budget = { property_type: 'personal', property_use: null } as const;
+    expect(orderCategoriesByRecent(cats, ['r', 'p'], 'expense', budget).map((c) => c.id)).toEqual(['p', 'b']);
   });
-  it('without a ledger kind behaves exactly as before', () => {
+  it('without a ledger behaves exactly as before', () => {
     const cats = [category({ id: 'r', kind: 'expense', scope: 'rental' }), category({ id: 'p', kind: 'expense', scope: 'personal' })];
     expect(orderCategoriesByRecent(cats, ['p'], 'expense').map((c) => c.id)).toEqual(['p', 'r']);
   });
