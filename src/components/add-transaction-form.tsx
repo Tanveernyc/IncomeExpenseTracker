@@ -38,6 +38,9 @@ const recentCategoriesKey = (kind: CategoryKind) => `add:recent-${kind}-category
 export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
   const queryClient = useQueryClient();
   const [state, setState] = useState<AddTransactionState>(initialAddState);
+  // Declared here, not further down: the effects below call it, and a const
+  // referenced before its declaration only works by accident of effect timing.
+  const set = (patch: Partial<AddTransactionState>) => setState((s) => ({ ...s, ...patch }));
   const [recentCategoryIds, setRecentCategoryIds] = useState<string[]>([]);
   const [errors, setErrors] = useState<TransactionValidation['errors']>({});
   const [savedFlash, setSavedFlash] = useState(false);
@@ -129,7 +132,6 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
     },
   });
 
-  const set = (patch: Partial<AddTransactionState>) => setState((s) => ({ ...s, ...patch }));
 
   // Create a category without leaving the form; the new one is selected right away.
   const newCategoryMutation = useMutation({

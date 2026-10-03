@@ -155,7 +155,7 @@ export default function EditRecurringRuleScreen() {
       <Stack.Screen options={{ title: isExpense ? 'Edit Expense Rule' : 'Edit Income Rule' }} />
 
       <Text style={styles.help}>
-        Changes apply to months that haven't been posted yet. To change months already in your
+        Changes apply to months that haven&apos;t been posted yet. To change months already in your
         ledger too, turn on the switch at the bottom.
       </Text>
 
@@ -246,7 +246,7 @@ export default function EditRecurringRuleScreen() {
           <View style={styles.applyText}>
             <Text style={styles.applyTitle}>Also update months already posted</Text>
             <Text style={styles.applyHint}>
-              Rewrites this rule's posted entries with the new amount, {partyLabel(ledgerKind ?? 'rental', rule.kind).toLowerCase()},
+              Rewrites this rule&apos;s posted entries with the new amount, {partyLabel(ledgerKind ?? 'rental', rule.kind).toLowerCase()},
               category and notes. Months you edited by hand are left alone.
             </Text>
           </View>

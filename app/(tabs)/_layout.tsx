@@ -15,9 +15,10 @@ type IconName = keyof typeof Ionicons.glyphMap;
 
 /** Outline glyph when idle, filled when this tab is selected. */
 function tabIcon(idle: IconName, active: IconName) {
-  return ({ color, focused, size }: { color: ColorValue; focused: boolean; size: number }) => (
-    <Ionicons name={focused ? active : idle} color={color} size={size} />
-  );
+  function TabBarIcon({ color, focused, size }: { color: ColorValue; focused: boolean; size: number }) {
+    return <Ionicons name={focused ? active : idle} color={color} size={size} />;
+  }
+  return TabBarIcon;
 }
 
 export default function TabsLayout() {
