@@ -17,11 +17,11 @@ import { canDeleteCategory } from '@/lib/categories';
 import type { Category, CategoryKind, CategoryScope } from '@/types';
 import { colors, radius, type, ui } from '@/theme';
 
-const SCOPE_CYCLE: CategoryScope[] = ['both', 'rental', 'personal'];
+const SCOPE_CYCLE: CategoryScope[] = ['both', 'property', 'budget'];
 const SCOPE_LABELS: Record<CategoryScope, string> = {
   both: 'Both',
-  rental: 'Rental',
-  personal: 'Personal',
+  property: 'Property',
+  budget: 'Budget',
 };
 
 export default function CategoriesScreen() {
@@ -64,8 +64,8 @@ export default function CategoriesScreen() {
 
   const scopes: { scope: CategoryScope; label: string }[] = [
     { scope: 'both', label: 'Shared' },
-    { scope: 'rental', label: 'Rental' },
-    { scope: 'personal', label: 'Personal' },
+    { scope: 'property', label: 'Property' },
+    { scope: 'budget', label: 'Budget' },
   ];
   const sections = (['expense', 'income'] as const).flatMap((kind) =>
     scopes

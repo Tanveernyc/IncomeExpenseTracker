@@ -6,23 +6,23 @@ import {
   ledgerMetaLabel,
   nounFor,
   partyLabel,
-  propertyUseLabel,
+  propertySubtypeLabel,
 } from '../src/lib/ledger-copy';
-import type { PropertyUse } from '../src/types';
+import type { PropertySubtype } from '../src/types';
 
 describe('nounFor', () => {
-  it('rental is Property, personal is Budget', () => {
-    expect(nounFor('rental')).toEqual({ one: 'Property', many: 'Properties' });
-    expect(nounFor('personal')).toEqual({ one: 'Budget', many: 'Budgets' });
+  it('property is Property, budget is Budget', () => {
+    expect(nounFor('property')).toEqual({ one: 'Property', many: 'Properties' });
+    expect(nounFor('budget')).toEqual({ one: 'Budget', many: 'Budgets' });
   });
 });
 
 describe('partyLabel', () => {
-  it('rental expenses have a Vendor; personal expenses have a Payee; income is always Source', () => {
-    expect(partyLabel('rental', 'expense')).toBe('Vendor');
-    expect(partyLabel('personal', 'expense')).toBe('Payee');
-    expect(partyLabel('rental', 'income')).toBe('Source');
-    expect(partyLabel('personal', 'income')).toBe('Source');
+  it('property expenses have a Vendor; budget expenses have a Payee; income is always Source', () => {
+    expect(partyLabel('property', 'expense')).toBe('Vendor');
+    expect(partyLabel('budget', 'expense')).toBe('Payee');
+    expect(partyLabel('property', 'income')).toBe('Source');
+    expect(partyLabel('budget', 'income')).toBe('Source');
   });
 });
 
@@ -30,70 +30,68 @@ describe('kindsOf', () => {
   it('returns distinct kinds of active ledgers only', () => {
     expect(
       kindsOf([
-        { property_type: 'rental', is_archived: false },
-        { property_type: 'rental', is_archived: false },
-        { property_type: 'personal', is_archived: true },
+        { ledger_kind: 'property', is_archived: false },
+        { ledger_kind: 'property', is_archived: false },
+        { ledger_kind: 'budget', is_archived: true },
       ])
-    ).toEqual(['rental']);
+    ).toEqual(['property']);
   });
   it('is empty with no ledgers', () => {
     expect(kindsOf([])).toEqual([]);
   });
 });
 
-describe('propertyUseLabel', () => {
-  it('labels each property use', () => {
-    expect(propertyUseLabel('long_term_rental')).toBe('Long-term rental');
-    expect(propertyUseLabel('flip')).toBe('Flip');
-    expect(propertyUseLabel('investment')).toBe('Investment property');
-    expect(propertyUseLabel('primary_home')).toBe('Primary home');
+describe('propertySubtypeLabel', () => {
+  it('labels each property subtype', () => {
+    expect(propertySubtypeLabel('rental')).toBe('Rental');
+    expect(propertySubtypeLabel('flip')).toBe('Flip');
+    expect(propertySubtypeLabel('investment')).toBe('Investment');
+    expect(propertySubtypeLabel('primary_residence')).toBe('Primary residence');
   });
 });
 
 describe('ledgerMetaLabel', () => {
   it('a budget reads "budget" whatever else is on the row', () => {
-    expect(ledgerMetaLabel({ property_type: 'personal', property_use: null })).toBe('budget');
+    expect(ledgerMetaLabel({ ledger_kind: 'budget', property_subtype: null })).toBe('budget');
   });
 
-  it('a long-term rental keeps the plain word "rental"', () => {
-    expect(ledgerMetaLabel({ property_type: 'rental', property_use: 'long_term_rental' })).toBe(
-      'rental'
+  it('a rental reads "rental"', () => {
+    expect(ledgerMetaLabel({ ledger_kind: 'property', property_subtype: 'rental' })).toBe('rental');
+  });
+
+  it('other subtypes read as themselves, lowercased', () => {
+    expect(ledgerMetaLabel({ ledger_kind: 'property', property_subtype: 'flip' })).toBe('flip');
+    expect(ledgerMetaLabel({ ledger_kind: 'property', property_subtype: 'primary_residence' })).toBe(
+      'primary residence'
+    );
+    expect(ledgerMetaLabel({ ledger_kind: 'property', property_subtype: 'investment' })).toBe(
+      'investment'
     );
   });
 
-  it('other uses read as themselves, lowercased', () => {
-    expect(ledgerMetaLabel({ property_type: 'rental', property_use: 'flip' })).toBe('flip');
-    expect(ledgerMetaLabel({ property_type: 'rental', property_use: 'primary_home' })).toBe(
-      'primary home'
-    );
-    expect(ledgerMetaLabel({ property_type: 'rental', property_use: 'investment' })).toBe(
-      'investment property'
-    );
+  it('falls back to "rental" for a property row with no subtype', () => {
+    expect(ledgerMetaLabel({ ledger_kind: 'property', property_subtype: null })).toBe('rental');
   });
 
-  it('falls back to "rental" for a property row that predates uses', () => {
-    expect(ledgerMetaLabel({ property_type: 'rental', property_use: null })).toBe('rental');
-  });
-
-  it('survives a use this build has never heard of', () => {
-    // Uses are meant to grow; a client older than a new value must not crash.
-    const future = 'co_living' as PropertyUse;
-    expect(propertyUseLabel(future)).toBe('co_living');
-    expect(ledgerMetaLabel({ property_type: 'rental', property_use: future })).toBe('co_living');
+  it('survives a subtype this build has never heard of', () => {
+    // Subtypes are meant to grow; a client older than a new value must not crash.
+    const future = 'co_living' as PropertySubtype;
+    expect(propertySubtypeLabel(future)).toBe('co_living');
+    expect(ledgerMetaLabel({ ledger_kind: 'property', property_subtype: future })).toBe('co_living');
   });
 });
 
 describe('collectionTitle / collectionNoun', () => {
-  it('all rental → Properties/Property', () => {
-    expect(collectionTitle(['rental'])).toBe('Properties');
-    expect(collectionNoun(['rental'])).toBe('Property');
+  it('all property → Properties/Property', () => {
+    expect(collectionTitle(['property'])).toBe('Properties');
+    expect(collectionNoun(['property'])).toBe('Property');
   });
-  it('all personal → Budgets/Budget', () => {
-    expect(collectionTitle(['personal'])).toBe('Budgets');
-    expect(collectionNoun(['personal'])).toBe('Budget');
+  it('all budget → Budgets/Budget', () => {
+    expect(collectionTitle(['budget'])).toBe('Budgets');
+    expect(collectionNoun(['budget'])).toBe('Budget');
   });
   it('mixed or none → Ledgers/Ledger', () => {
-    expect(collectionTitle(['rental', 'personal'])).toBe('Ledgers');
+    expect(collectionTitle(['property', 'budget'])).toBe('Ledgers');
     expect(collectionTitle([])).toBe('Ledgers');
     expect(collectionNoun([])).toBe('Ledger');
   });

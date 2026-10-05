@@ -44,8 +44,8 @@ const sampleProperty: Property = {
   user_id: 'u1',
   name: '12 Maple St',
   address: null,
-  property_type: 'rental',
-  property_use: 'long_term_rental',
+  ledger_kind: 'property',
+  property_subtype: 'rental',
   purchase_date: null,
   purchase_price: null,
   notes: null,
@@ -85,18 +85,18 @@ describe('createProperty', () => {
     const builder = createBuilder({ data: sampleProperty, error: null });
     mockFrom.mockReturnValue(builder);
 
-    await createProperty({ name: '12 Maple St', property_type: 'rental' });
+    await createProperty({ name: '12 Maple St', ledger_kind: 'property' });
 
     expect(builder.calls).toContainEqual({
       method: 'insert',
-      args: [{ name: '12 Maple St', property_type: 'rental', user_id: 'u1' }],
+      args: [{ name: '12 Maple St', ledger_kind: 'property', user_id: 'u1' }],
     });
   });
 
   it('refuses to insert when not signed in', async () => {
     mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
 
-    await expect(createProperty({ name: 'X', property_type: 'rental' })).rejects.toThrow(
+    await expect(createProperty({ name: 'X', ledger_kind: 'property' })).rejects.toThrow(
       'Not signed in.'
     );
     expect(mockFrom).not.toHaveBeenCalled();

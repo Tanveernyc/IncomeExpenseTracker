@@ -1,5 +1,5 @@
 // Create-property modal (Phase 3). Title and button follow the user's ledger
-// kinds: a rental-only account reads "New Property" / "Create Property".
+// kinds: a property-only account reads "New Property" / "Create Property".
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, Stack } from 'expo-router';
 import { Alert } from 'react-native';

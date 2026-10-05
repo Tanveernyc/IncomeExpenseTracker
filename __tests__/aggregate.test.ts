@@ -50,8 +50,8 @@ const property = (id: string, name: string): Property => ({
   user_id: 'u1',
   name,
   address: null,
-  property_type: 'rental',
-  property_use: 'long_term_rental',
+  ledger_kind: 'property',
+  property_subtype: 'rental',
   purchase_date: null,
   purchase_price: null,
   notes: null,
@@ -123,8 +123,8 @@ describe('calcPL', () => {
 
 describe('calcByCategory', () => {
   const categories: Category[] = [
-    { id: 'c-ins', user_id: null, name: 'Insurance', kind: 'expense', is_system: true, scope: 'rental', tenant_only: false, created_at: '' },
-    { id: 'c-rep', user_id: null, name: 'Repairs', kind: 'expense', is_system: true, scope: 'rental', tenant_only: false, created_at: '' },
+    { id: 'c-ins', user_id: null, name: 'Insurance', kind: 'expense', is_system: true, scope: 'property', tenant_only: false, created_at: '' },
+    { id: 'c-rep', user_id: null, name: 'Repairs', kind: 'expense', is_system: true, scope: 'property', tenant_only: false, created_at: '' },
   ];
 
   it('returns empty for no expenses', () => {
@@ -175,8 +175,8 @@ describe('calcPLByProperty', () => {
       {
         propertyId: 'p1',
         name: 'Maple St',
-        kind: 'rental',
-        use: 'long_term_rental',
+        kind: 'property',
+        subtype: 'rental',
         totalIncome: 1800,
         totalExpense: 300,
         net: 1500,
@@ -184,8 +184,8 @@ describe('calcPLByProperty', () => {
       {
         propertyId: 'p2',
         name: 'Oak Ave',
-        kind: 'rental',
-        use: 'long_term_rental',
+        kind: 'property',
+        subtype: 'rental',
         totalIncome: 50,
         totalExpense: 100,
         net: -50,
@@ -198,8 +198,8 @@ describe('calcPLByProperty', () => {
     expect(result[0]).toEqual({
       propertyId: 'p9',
       name: 'Empty',
-      kind: 'rental',
-      use: 'long_term_rental',
+      kind: 'property',
+      subtype: 'rental',
       totalIncome: 0,
       totalExpense: 0,
       net: 0,

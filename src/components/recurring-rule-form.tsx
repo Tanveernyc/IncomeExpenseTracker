@@ -49,7 +49,7 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
   // where the form holds a property or category that is not on offer.
   const propertyId = chosenPropertyId ?? properties?.[0]?.id ?? null;
   const selectedLedger = (properties ?? []).find((p) => p.id === propertyId);
-  const ledgerKind = selectedLedger?.property_type;
+  const ledgerKind = selectedLedger?.ledger_kind;
   const kindCategories = orderCategoriesByRecent(categories ?? [], [], kind, selectedLedger);
 
   const categoryId =
@@ -216,14 +216,14 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
         </>
       ) : null}
 
-      <Text style={styles.label}>{partyLabel(ledgerKind ?? 'rental', kind)}</Text>
+      <Text style={styles.label}>{partyLabel(ledgerKind ?? 'property', kind)}</Text>
       <TextInput
         style={styles.input}
         value={party}
         onChangeText={setParty}
         placeholder={
           isExpense
-            ? ledgerKind === 'personal'
+            ? ledgerKind === 'budget'
               ? "e.g. Trader Joe's"
               : 'e.g. KeyBank'
             : 'e.g. tenant name'

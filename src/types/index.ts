@@ -1,20 +1,21 @@
 // Shared domain types — mirror the Postgres schema in supabase/schema.sql.
 // Dates are ISO strings (YYYY-MM-DD); money is a number in dollars backed by numeric(12,2).
 
-export type PropertyType = 'rental' | 'personal';
-
-/** Same values as PropertyType; the name says what the app means by it now. */
-export type LedgerKind = PropertyType;
+/**
+ * The master type of a ledger. A property carries an address, purchase details and
+ * a subtype; a budget is a household's money with none of those.
+ */
+export type LedgerKind = 'property' | 'budget';
 
 /**
- * How a property ledger is used. A label only — it never changes which fields or
- * categories a ledger gets, so it is free to grow. Set when property_type is
- * 'rental' (the stored value for every property-style ledger), null for budgets.
+ * How a property is used. Required on a property, null on a budget. Only decides
+ * which categories are offered (a rental and an investment collect rent), never
+ * which fields the form shows.
  */
-export type PropertyUse = 'long_term_rental' | 'flip' | 'investment' | 'primary_home';
+export type PropertySubtype = 'rental' | 'primary_residence' | 'investment' | 'flip';
 
 /** Which ledger kinds a category is offered to (spec §4.1). */
-export type CategoryScope = 'rental' | 'personal' | 'both';
+export type CategoryScope = 'property' | 'budget' | 'both';
 
 /** A row in the properties table. */
 export interface Property {
@@ -22,8 +23,8 @@ export interface Property {
   user_id: string;
   name: string;
   address: string | null;
-  property_type: PropertyType;
-  property_use: PropertyUse | null;
+  ledger_kind: LedgerKind;
+  property_subtype: PropertySubtype | null;
   purchase_date: string | null;
   purchase_price: number | null;
   notes: string | null;
@@ -112,8 +113,8 @@ export interface NewIncome {
 /** Client-supplied fields when creating a property (id/user_id/created_at are server-side). */
 export interface NewProperty {
   name: string;
-  property_type: PropertyType;
-  property_use?: PropertyUse | null;
+  ledger_kind: LedgerKind;
+  property_subtype?: PropertySubtype | null;
   address?: string | null;
   purchase_date?: string | null;
   purchase_price?: number | null;

@@ -32,7 +32,7 @@ export default function HistoryScreen() {
   const selected = (properties ?? []).find((p) => p.id === propertyId);
   const expenseCategories = categoriesForLedger(
     categories ?? [],
-    selected ?? { property_type: 'rental', property_use: 'long_term_rental' },
+    selected ?? { ledger_kind: 'property', property_subtype: 'rental' },
     'expense'
   );
 

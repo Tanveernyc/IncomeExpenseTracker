@@ -60,7 +60,7 @@ export default function PropertyRecurringScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen
-        options={{ title: `${property?.name ?? nounFor(property?.property_type ?? 'rental').one} · Recurring` }}
+        options={{ title: `${property?.name ?? nounFor(property?.ledger_kind ?? 'property').one} · Recurring` }}
       />
       <View style={styles.header}>
         <Link href={{ pathname: '/recurring/new', params: { kind: 'expense', propertyId: id } }} style={styles.link}>

@@ -47,7 +47,7 @@ export default function EditPropertyScreen() {
 
   const toggleArchive = () => {
     const archiving = !property.is_archived;
-    const noun = nounFor(property.property_type).one.toLowerCase();
+    const noun = nounFor(property.ledger_kind).one.toLowerCase();
     Alert.alert(
       archiving ? `Archive ${noun}?` : `Unarchive ${noun}?`,
       archiving
@@ -66,7 +66,7 @@ export default function EditPropertyScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: `Edit ${nounFor(property.property_type).one}` }} />
+      <Stack.Screen options={{ title: `Edit ${nounFor(property.ledger_kind).one}` }} />
       <PropertyForm
         initial={property}
         onSubmit={(values) => saveMutation.mutate(values)}
@@ -75,7 +75,7 @@ export default function EditPropertyScreen() {
       />
       <Pressable style={styles.archiveButton} onPress={toggleArchive}>
         <Text style={styles.archiveText}>
-          {property.is_archived ? 'Unarchive' : 'Archive'} {nounFor(property.property_type).one}
+          {property.is_archived ? 'Unarchive' : 'Archive'} {nounFor(property.ledger_kind).one}
         </Text>
       </Pressable>
     </View>

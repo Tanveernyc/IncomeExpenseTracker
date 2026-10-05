@@ -69,7 +69,7 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
   }, [kind]);
 
   const selectedLedger = (properties ?? []).find((p) => p.id === state.propertyId);
-  const ledgerKind = selectedLedger?.property_type;
+  const ledgerKind = selectedLedger?.ledger_kind;
   const kindCategories = orderCategoriesByRecent(categories ?? [], recentCategoryIds, kind, selectedLedger);
 
   // Category selection tracks the selected ledger's scope. Derived, not written back
@@ -80,7 +80,7 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
       ? state.categoryId
       : null;
 
-  const isPersonal = ledgerKind === 'personal';
+  const isBudget = ledgerKind === 'budget';
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -89,8 +89,8 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
         date: state.date,
         propertyId: state.propertyId,
         categoryId,
-        periodStart: isExpense && !isPersonal ? state.periodStart : undefined,
-        periodEnd: isExpense && !isPersonal ? state.periodEnd : undefined,
+        periodStart: isExpense && !isBudget ? state.periodStart : undefined,
+        periodEnd: isExpense && !isBudget ? state.periodEnd : undefined,
       });
       setErrors(validation.errors);
       if (!validation.valid || validation.amount === undefined) {
@@ -208,7 +208,7 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
       />
       {errors.date ? <Text style={styles.error}>{errors.date}</Text> : null}
 
-      {isExpense && ledgerKind !== 'personal' ? (
+      {isExpense && ledgerKind !== 'budget' ? (
         <>
           <Text style={styles.label}>Covers period (optional)</Text>
           <View style={styles.periodRow}>
@@ -231,14 +231,14 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
         </>
       ) : null}
 
-      <Text style={styles.label}>{partyLabel(ledgerKind ?? 'rental', kind)}</Text>
+      <Text style={styles.label}>{partyLabel(ledgerKind ?? 'property', kind)}</Text>
       <TextInput
         style={styles.input}
         value={state.vendor}
         onChangeText={(vendor) => set({ vendor })}
         placeholder={
           isExpense
-            ? ledgerKind === 'personal'
+            ? ledgerKind === 'budget'
               ? "e.g. Trader Joe's"
               : 'e.g. Allstate'
             : 'e.g. tenant name'

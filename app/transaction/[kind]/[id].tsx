@@ -52,7 +52,7 @@ function TransactionEditor({
     queryKey: ['property', transaction.property_id],
     queryFn: () => getProperty(transaction.property_id),
   });
-  const ledgerKind = property?.property_type;
+  const ledgerKind = property?.ledger_kind;
 
   const isExpenseRow = 'paid_on' in transaction;
   const [amountText, setAmountText] = useState(String(transaction.amount));
@@ -75,8 +75,8 @@ function TransactionEditor({
         // Property/category are not edited here; pass placeholders that satisfy the validator.
         propertyId: transaction?.property_id ?? null,
         categoryId: transaction?.category_id ?? null,
-        periodStart: isExpense && ledgerKind !== 'personal' ? periodStart : undefined,
-        periodEnd: isExpense && ledgerKind !== 'personal' ? periodEnd : undefined,
+        periodStart: isExpense && ledgerKind !== 'budget' ? periodStart : undefined,
+        periodEnd: isExpense && ledgerKind !== 'budget' ? periodEnd : undefined,
       });
       setErrors(validation.errors);
       if (!validation.valid || validation.amount === undefined) {
@@ -156,7 +156,7 @@ function TransactionEditor({
       />
       {errors.date ? <Text style={styles.error}>{errors.date}</Text> : null}
 
-      {isExpense && ledgerKind !== 'personal' ? (
+      {isExpense && ledgerKind !== 'budget' ? (
         <>
           <Text style={styles.label}>Covers period (optional)</Text>
           <View style={styles.periodRow}>
@@ -179,7 +179,7 @@ function TransactionEditor({
         </>
       ) : null}
 
-      <Text style={styles.label}>{partyLabel(ledgerKind ?? 'rental', isExpense ? 'expense' : 'income')}</Text>
+      <Text style={styles.label}>{partyLabel(ledgerKind ?? 'property', isExpense ? 'expense' : 'income')}</Text>
       <TextInput style={styles.input} value={party} onChangeText={setParty} />
 
       <Text style={styles.label}>Notes</Text>

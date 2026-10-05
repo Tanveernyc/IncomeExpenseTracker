@@ -41,7 +41,7 @@ const systemCategory: Category = {
   name: 'Insurance',
   kind: 'expense',
   is_system: true,
-  scope: 'rental',
+  scope: 'property',
   tenant_only: false,
   created_at: '2026-07-15T00:00:00Z',
 };
@@ -102,8 +102,8 @@ describe('createCategory', () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } }, error: null });
     const builder = createBuilder({ data: { id: 'c9' }, error: null });
     mockFrom.mockReturnValue(builder);
-    await createCategory('Groceries', 'expense', 'personal');
-    expect(builder.calls).toContainEqual({ method: 'insert', args: [{ name: 'Groceries', kind: 'expense', user_id: 'u1', is_system: false, scope: 'personal' }] });
+    await createCategory('Groceries', 'expense', 'budget');
+    expect(builder.calls).toContainEqual({ method: 'insert', args: [{ name: 'Groceries', kind: 'expense', user_id: 'u1', is_system: false, scope: 'budget' }] });
     await createCategory('Misc', 'expense');
     expect(builder.calls).toContainEqual({ method: 'insert', args: [{ name: 'Misc', kind: 'expense', user_id: 'u1', is_system: false, scope: 'both' }] });
   });

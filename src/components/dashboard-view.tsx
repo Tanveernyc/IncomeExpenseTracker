@@ -76,7 +76,7 @@ export function DashboardView({
               </Text>
             </View>
             <Text style={styles.propertySub} numberOfLines={1}>
-              {ledgerMetaLabel({ property_type: card.kind, property_use: card.use })} · In{' '}
+              {ledgerMetaLabel({ ledger_kind: card.kind, property_subtype: card.subtype })} · In{' '}
               {formatMoney(card.totalIncome)} · Out {formatMoney(card.totalExpense)}
             </Text>
           </Pressable>

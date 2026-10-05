@@ -100,7 +100,7 @@ export default function PropertyTransactionsScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: property?.name ?? nounFor(property?.property_type ?? 'rental').one }} />
+      <Stack.Screen options={{ title: property?.name ?? nounFor(property?.ledger_kind ?? 'property').one }} />
 
       <View style={styles.header}>
         <Link href={{ pathname: '/property/[id]/recurring', params: { id } }} asChild>

@@ -1,7 +1,7 @@
 import { shouldOnboard } from '@/lib/onboarding';
 import type { Property } from '@/types';
 
-const row = { id: 'p1', name: 'Home', property_type: 'rental', is_archived: false } as Property;
+const row = { id: 'p1', name: 'Home', ledger_kind: 'property', is_archived: false } as Property;
 
 describe('shouldOnboard', () => {
   it('is false while the list is still unknown', () => {

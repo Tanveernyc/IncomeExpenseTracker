@@ -123,7 +123,7 @@ async function main(): Promise<void> {
     // a3. a personal budget can run the same engine with a personal-scope category.
     const { data: household, error: hhErr } = await supabase
       .from('properties')
-      .insert({ user_id: userId, name: HOUSEHOLD_NAME, property_type: 'personal' })
+      .insert({ user_id: userId, name: HOUSEHOLD_NAME, ledger_kind: 'budget' })
       .select()
       .single();
     if (hhErr) throw hhErr;
@@ -131,7 +131,7 @@ async function main(): Promise<void> {
       .from('categories')
       .select('id')
       .eq('name', 'Groceries')
-      .eq('scope', 'personal')
+      .eq('scope', 'budget')
       .single();
     if (grocErr) throw grocErr;
     const prule = await createRecurringRule({

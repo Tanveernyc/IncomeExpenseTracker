@@ -63,9 +63,9 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
   const isExpense = rule.kind === 'expense';
   const propertyId = chosenPropertyId;
   const selectedLedger = (properties ?? []).find((p) => p.id === propertyId);
-  const ledgerKind = selectedLedger?.property_type;
+  const ledgerKind = selectedLedger?.ledger_kind;
   const scopedCategories = orderCategoriesByRecent(categories ?? [], [], rule.kind, selectedLedger);
-  // A rule written before the ledger became a flip or a primary home may sit on a
+  // A rule written before the ledger became a flip or a primary residence may sit on a
   // category that is no longer offered (Rent, say). Keep its own category in the
   // list, or there would be nothing valid left to pick.
   const ruleCategory = (categories ?? []).find((c) => c.id === rule.category_id);
@@ -173,14 +173,14 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
       />
       {errors.amount ? <Text style={styles.error}>{errors.amount}</Text> : null}
 
-      <Text style={styles.label}>{partyLabel(ledgerKind ?? 'rental', rule?.kind ?? 'expense')}</Text>
+      <Text style={styles.label}>{partyLabel(ledgerKind ?? 'property', rule?.kind ?? 'expense')}</Text>
       <TextInput
         style={styles.input}
         value={party}
         onChangeText={setParty}
         placeholder={
           isExpense
-            ? ledgerKind === 'personal'
+            ? ledgerKind === 'budget'
               ? "e.g. Trader Joe's"
               : 'e.g. KeyBank'
             : 'e.g. tenant name'
@@ -235,7 +235,7 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
           <View style={styles.applyText}>
             <Text style={styles.applyTitle}>Also update months already posted</Text>
             <Text style={styles.applyHint}>
-              Rewrites this rule&apos;s posted entries with the new amount, {partyLabel(ledgerKind ?? 'rental', rule.kind).toLowerCase()},
+              Rewrites this rule&apos;s posted entries with the new amount, {partyLabel(ledgerKind ?? 'property', rule.kind).toLowerCase()},
               category and notes. Months you edited by hand are left alone.
             </Text>
           </View>

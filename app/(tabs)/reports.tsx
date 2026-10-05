@@ -41,11 +41,11 @@ export default function ReportsScreen() {
   const { data: income } = useQuery({ queryKey: ['income', 'all'], queryFn: listAllIncome });
   const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: listCategories });
 
-  // Kind-aware default (spec §8.2): personal-only users land on This Month;
-  // rental-only (and mixed) users keep This Year. An explicit choice always wins.
+  // Kind-aware default (spec §8.2): budget-only users land on This Month;
+  // property-only (and mixed) users keep This Year. An explicit choice always wins.
   const kinds = kindsOf(properties ?? []);
   const defaultPreset: Preset =
-    kinds.length === 1 && kinds[0] === 'personal' ? 'this-month' : 'this-year';
+    kinds.length === 1 && kinds[0] === 'budget' ? 'this-month' : 'this-year';
   const preset = chosenPreset ?? defaultPreset;
 
   const range: DateRange = useMemo(() => {
@@ -70,7 +70,7 @@ export default function ReportsScreen() {
   const perProperty = calcPLByProperty(properties ?? [], expenses ?? [], income ?? [], range);
   const byCategory = calcByCategory(expenses ?? [], range, categories ?? []);
   const rate = savingsRate(portfolio);
-  const portfolioIsPersonal = kindsOf(properties ?? []).includes('personal');
+  const portfolioHasBudget = kindsOf(properties ?? []).includes('budget');
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -122,7 +122,7 @@ export default function ReportsScreen() {
         <PLRow label="Expenses" value={portfolio.totalExpense} />
         <View style={styles.divider} />
         <PLRow label="Net" value={portfolio.net} positive={portfolio.net >= 0} bold />
-        {portfolioIsPersonal && rate !== null ? (
+        {portfolioHasBudget && rate !== null ? (
           <Text style={styles.savingsRate}>
             {rate >= 0 ? 'Savings rate' : 'Overspent by'} {Math.abs(Math.round(rate * 100))}% of
             income
@@ -132,7 +132,7 @@ export default function ReportsScreen() {
 
       <Text style={styles.sectionTitle}>By {collectionNoun(kindsOf(properties ?? [])).toLowerCase()}</Text>
       {perProperty.map((p) => {
-        const isPersonal = properties?.find((pr) => pr.id === p.propertyId)?.property_type === 'personal';
+        const isBudget = properties?.find((pr) => pr.id === p.propertyId)?.ledger_kind === 'budget';
         const cardRate = savingsRate(p);
         return (
           <View key={p.propertyId} style={styles.card}>
@@ -141,7 +141,7 @@ export default function ReportsScreen() {
             <PLRow label="Expenses" value={p.totalExpense} />
             <View style={styles.divider} />
             <PLRow label="Net" value={p.net} positive={p.net >= 0} bold />
-            {isPersonal && cardRate !== null ? (
+            {isBudget && cardRate !== null ? (
               <Text style={styles.savingsRate}>
                 {cardRate >= 0 ? 'Savings rate' : 'Overspent by'}{' '}
                 {Math.abs(Math.round(cardRate * 100))}% of income

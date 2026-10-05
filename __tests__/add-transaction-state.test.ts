@@ -42,7 +42,7 @@ describe('recent-first category ordering', () => {
     name,
     kind,
     is_system: true,
-    scope: 'rental',
+    scope: 'property',
     tenant_only: false,
     created_at: '2026-07-15T00:00:00Z',
   });
@@ -75,7 +75,7 @@ describe('orderCategoriesByRecent with a ledger', () => {
     name: overrides.id,
     kind: 'expense',
     is_system: true,
-    scope: 'rental',
+    scope: 'property',
     tenant_only: false,
     created_at: '2026-07-15T00:00:00Z',
     ...overrides,
@@ -83,15 +83,15 @@ describe('orderCategoriesByRecent with a ledger', () => {
 
   it('drops out-of-scope categories before ordering, and a recent id that is out of scope is ignored', () => {
     const cats = [
-      category({ id: 'r', kind: 'expense', scope: 'rental' }),
+      category({ id: 'r', kind: 'expense', scope: 'property' }),
       category({ id: 'b', kind: 'expense', scope: 'both' }),
-      category({ id: 'p', kind: 'expense', scope: 'personal' }),
+      category({ id: 'p', kind: 'expense', scope: 'budget' }),
     ];
-    const budget = { property_type: 'personal', property_use: null } as const;
+    const budget = { ledger_kind: 'budget', property_subtype: null } as const;
     expect(orderCategoriesByRecent(cats, ['r', 'p'], 'expense', budget).map((c) => c.id)).toEqual(['p', 'b']);
   });
   it('without a ledger behaves exactly as before', () => {
-    const cats = [category({ id: 'r', kind: 'expense', scope: 'rental' }), category({ id: 'p', kind: 'expense', scope: 'personal' })];
+    const cats = [category({ id: 'r', kind: 'expense', scope: 'property' }), category({ id: 'p', kind: 'expense', scope: 'budget' })];
     expect(orderCategoriesByRecent(cats, ['p'], 'expense').map((c) => c.id)).toEqual(['p', 'r']);
   });
 });

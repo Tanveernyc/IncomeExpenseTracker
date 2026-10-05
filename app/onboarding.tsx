@@ -9,26 +9,26 @@ import { type, ui } from '@/theme';
 
 const CHOICES: { key: string; title: string; body: string; ledgers: NewProperty[] }[] = [
   {
-    key: 'rental',
-    title: 'A rental property',
-    body: 'Track rent, taxes, repairs and the year-end profit for each property.',
+    key: 'property',
+    title: 'A property',
+    body: 'A rental, your own home, an investment or a flip — track what it earns and costs.',
     ledgers: [
-      { name: 'My first property', property_type: 'rental', property_use: 'long_term_rental' },
+      { name: 'My first property', ledger_kind: 'property', property_subtype: 'rental' },
     ],
   },
   {
-    key: 'personal',
+    key: 'budget',
     title: 'My own budget',
     body: 'Log income and spending, set up monthly bills, and watch your savings rate.',
-    ledgers: [{ name: 'Household', property_type: 'personal' }],
+    ledgers: [{ name: 'Household', ledger_kind: 'budget' }],
   },
   {
     key: 'both',
     title: 'Both',
     body: 'A property ledger and a household budget, side by side.',
     ledgers: [
-      { name: 'My first property', property_type: 'rental', property_use: 'long_term_rental' },
-      { name: 'Household', property_type: 'personal' },
+      { name: 'My first property', ledger_kind: 'property', property_subtype: 'rental' },
+      { name: 'Household', ledger_kind: 'budget' },
     ],
   },
 ];

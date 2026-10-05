@@ -2,15 +2,15 @@
 // and receives the validated NewProperty payload on save.
 import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
-import type { NewProperty, Property, PropertyType, PropertyUse } from '@/types';
+import type { NewProperty, Property, LedgerKind, PropertySubtype } from '@/types';
 import { ui } from '@/theme';
 import {
-  PROPERTY_USES,
+  PROPERTY_SUBTYPES,
   parsePriceInput,
   validateProperty,
   type PropertyValidation,
 } from '@/lib/property-validation';
-import { nounFor, propertyUseLabel } from '@/lib/ledger-copy';
+import { nounFor, propertySubtypeLabel } from '@/lib/ledger-copy';
 
 interface Props {
   /** Existing property when editing; undefined when creating. */
@@ -19,16 +19,16 @@ interface Props {
   onSubmit: (values: NewProperty) => void;
   submitting: boolean;
   /** Fixed text, or a function of the currently selected kind ("Create Property" / "Create Budget"). */
-  submitLabel: string | ((kind: PropertyType) => string);
+  submitLabel: string | ((kind: LedgerKind) => string);
 }
 
 export function PropertyForm({ initial, onSubmit, submitting, submitLabel }: Props) {
   const [name, setName] = useState(initial?.name ?? '');
-  const [propertyType, setPropertyType] = useState<PropertyType>(
-    initial?.property_type ?? 'rental'
+  const [propertyType, setPropertyType] = useState<LedgerKind>(
+    initial?.ledger_kind ?? 'property'
   );
-  const [propertyUse, setPropertyUse] = useState<PropertyUse>(
-    initial?.property_use ?? 'long_term_rental'
+  const [propertySubtype, setPropertySubtype] = useState<PropertySubtype>(
+    initial?.property_subtype ?? 'rental'
   );
   const [address, setAddress] = useState(initial?.address ?? '');
   const [purchaseDate, setPurchaseDate] = useState(initial?.purchase_date ?? '');
@@ -38,18 +38,18 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel }: Pro
   const [notes, setNotes] = useState(initial?.notes ?? '');
   const [errors, setErrors] = useState<PropertyValidation['errors'] & { price?: string }>({});
 
-  const isRental = propertyType === 'rental';
+  const isRental = propertyType === 'property';
   const resolvedSubmitLabel = typeof submitLabel === 'function' ? submitLabel(propertyType) : submitLabel;
 
   // Editing a ledger whose use sits off the right edge would otherwise open with
   // an apparently unselected row. Scroll from the chip's own onLayout, which is
   // the first moment its position is known.
   const useRowRef = useRef<ScrollView>(null);
-  const initialUse = useRef(initial?.property_use ?? 'long_term_rental').current;
+  const initialUse = useRef(initial?.property_subtype ?? 'rental').current;
   const didRevealUse = useRef(false);
 
   const submit = () => {
-    const validation = validateProperty({ name, property_type: propertyType });
+    const validation = validateProperty({ name, ledger_kind: propertyType });
     const price = parsePriceInput(priceText);
     const nextErrors: typeof errors = { ...validation.errors };
     // Price is only validated for rentals; a personal budget hides the field.
@@ -65,8 +65,8 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel }: Pro
 
     onSubmit({
       name: name.trim(),
-      property_type: propertyType,
-      property_use: isRental ? propertyUse : null,
+      ledger_kind: propertyType,
+      property_subtype: isRental ? propertySubtype : null,
       address: address.trim() || null,
       purchase_date: purchaseDate.trim() || null,
       purchase_price: purchasePrice,
@@ -86,8 +86,8 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel }: Pro
       <ScrollView horizontal contentContainerStyle={styles.typeRow}>
         {(
           [
-            ['rental', 'Rental property'],
-            ['personal', 'Personal budget'],
+            ['property', 'Property'],
+            ['budget', 'Budget'],
           ] as const
         ).map(([type, label]) => (
           <Pressable
@@ -99,27 +99,27 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel }: Pro
           </Pressable>
         ))}
       </ScrollView>
-      {errors.property_type ? <Text style={styles.error}>{errors.property_type}</Text> : null}
+      {errors.ledger_kind ? <Text style={styles.error}>{errors.ledger_kind}</Text> : null}
 
       <Text style={styles.label}>Name *</Text>
       <TextInput
         style={styles.input}
         value={name}
         onChangeText={setName}
-        placeholder={propertyType === 'personal' ? 'e.g. Household' : 'e.g. 12 Maple St'}
+        placeholder={propertyType === 'budget' ? 'e.g. Household' : 'e.g. 12 Maple St'}
         accessibilityLabel={`${nounFor(propertyType).one} name`}
       />
       {errors.name ? <Text style={styles.error}>{errors.name}</Text> : null}
 
       {isRental ? (
         <>
-          <Text style={styles.label}>How it&apos;s used</Text>
+          <Text style={styles.label}>Property type</Text>
           <ScrollView ref={useRowRef} horizontal contentContainerStyle={styles.typeRow}>
-            {PROPERTY_USES.map((use) => (
+            {PROPERTY_SUBTYPES.map((use) => (
               <Pressable
                 key={use}
-                style={[styles.typeChip, propertyUse === use && styles.typeChipActive]}
-                onPress={() => setPropertyUse(use)}
+                style={[styles.typeChip, propertySubtype === use && styles.typeChipActive]}
+                onPress={() => setPropertySubtype(use)}
                 onLayout={({ nativeEvent }) => {
                   if (didRevealUse.current || use !== initialUse) return;
                   didRevealUse.current = true;
@@ -128,8 +128,8 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel }: Pro
                   }
                 }}
               >
-                <Text style={propertyUse === use ? styles.typeChipTextActive : styles.typeChipText}>
-                  {propertyUseLabel(use)}
+                <Text style={propertySubtype === use ? styles.typeChipTextActive : styles.typeChipText}>
+                  {propertySubtypeLabel(use)}
                 </Text>
               </Pressable>
             ))}

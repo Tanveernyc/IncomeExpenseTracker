@@ -3,7 +3,7 @@
 // arithmetic inline (spec §4 rule). All sums run in integer cents to avoid
 // floating-point drift, then convert back to dollars at the end.
 import { addMonths, endOfMonth, format, parseISO, startOfMonth } from 'date-fns';
-import type { Category, Expense, Income, LedgerKind, Property, PropertyUse } from '@/types';
+import type { Category, Expense, Income, LedgerKind, Property, PropertySubtype } from '@/types';
 
 /** Inclusive date range; open bounds mean "no limit" (All Time = {}). */
 export interface DateRange {
@@ -29,7 +29,7 @@ export interface PropertyPL extends PL {
   name: string;
   /** Carried so a summary row can say what kind of ledger this is. */
   kind: LedgerKind;
-  use: PropertyUse | null;
+  subtype: PropertySubtype | null;
 }
 
 /** Dollars → integer cents (numeric(12,2) guarantees ≤2 decimals). */
@@ -101,8 +101,8 @@ export function calcPLByProperty(
     return {
       propertyId: property.id,
       name: property.name,
-      kind: property.property_type,
-      use: property.property_use,
+      kind: property.ledger_kind,
+      subtype: property.property_subtype,
       ...pl,
     };
   });
