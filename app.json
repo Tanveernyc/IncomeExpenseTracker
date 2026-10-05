@@ -33,8 +33,11 @@
       "expo-apple-authentication",
       [
         "@react-native-google-signin/google-signin",
-        { "iosUrlScheme": "com.googleusercontent.apps.370279591490-4dhhr7gkekpeldqpq41qiiaj90or72g8" }
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.370279591490-4dhhr7gkekpeldqpq41qiiaj90or72g8"
+        }
       ],
+      "expo-font",
       "./plugins/withUiSceneLifecycle"
     ],
     "extra": {
