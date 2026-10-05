@@ -163,10 +163,13 @@ Usage Data, Diagnostics, Sensitive Info, Other Data.
 **Tracking question → No.** Nothing is shared with data brokers or ad networks,
 and there is no ATT prompt because there is nothing to track.
 
-> If Phase 17 (Sign in with Apple and Google) ships in or before 1.2, re-check
-> this section: both providers return an email address, which the Contact Info /
-> Email Address row already covers, so no new row is expected — but confirm
-> before submitting.
+> ~~If Phase 17 (Sign in with Apple and Google) ships in or before 1.2,
+> re-check this section.~~ Confirmed 2026-10-05: Phase 17 shipped and the table
+> above is unchanged. Both providers return an email address, already covered by
+> the Contact Info / Email Address row, and Apple's Hide My Email returns a relay
+> address — still an email address, still the same row. Neither provider adds an
+> advertising identifier, and nothing new is collected, so the answers to the
+> tracking question and to every "not collected" row stand.
 
 ---
 
@@ -182,19 +185,66 @@ and there is no ATT prompt because there is nothing to track.
 
 ---
 
+## Pushing the metadata
+
+`store.config.json` (tracked as of 2026-10-05) holds everything in this document
+that EAS Metadata can set. It is **generated** from these sections by
+`npm run store-config` (`scripts/build-store-config.mjs`), so the two cannot
+drift — edit this document, then regenerate; never hand-edit the JSON. The
+generator also fails rather than writing if any field is over Apple's limit:
+title, subtitle, promo text, description, keywords, release notes, the privacy
+and support URLs, copyright, categories (`FINANCE`, `BUSINESS`), the age-rating
+advisory answers pulled from the live 1.0 listing, and `release.automaticRelease`.
+
+Push it with `npx eas-cli@latest metadata:push` — **owner-gated**, and only after
+the 1.2 binary has been submitted (EAS Metadata refuses to push for a version
+with no binary). Run `metadata:pull` first if anything was edited directly in App
+Store Connect since this file was written, or the push will overwrite it.
+
+Two things are deliberately **not** in the file:
+
+- **`review`** (App Review contact and demo credentials). The demo password would
+  be committed in plain text. Keep entering it in App Store Connect by hand.
+- **Screenshots.** EAS Metadata does not manage them; see the Screenshots section.
+
+The prose in this document is hard-wrapped at ~78 columns for reading. App Store
+Connect renders newlines literally, so the generator rejoins each paragraph onto
+one line and keeps the all-caps section headings on their own lines — do not
+copy the wrapped form into ASC by hand.
+
+---
+
 ## Before submitting 1.2
 
 1. ~~Reconcile the version numbers.~~ Done 2026-09-29: `app.json`,
    `package.json` and the README all read `1.2.0`. 1.1 was never shipped, so its
-   recurring-items work rolls into this release. (`store.config.json` is still
-   untracked and pinned to `apple.version: "1.0"` — point it at 1.2 before using
-   it to push metadata.)
+   recurring-items work rolls into this release. ~~`store.config.json` is
+   untracked and pinned to `apple.version: "1.0"`.~~ Done 2026-10-05: it is
+   tracked, reads `apple.version: "1.2"`, and now carries this document's copy
+   (see "Pushing the metadata" below).
 2. Take screenshot 7 (Household dashboard) at release time.
 3. Confirm the `real estate` keyword drop.
 4. Re-seed / refresh the demo account so the reviewer sees current months.
-5. Decide whether Phase 17 social sign-in rides along; if so, finish the console
-   setup in `docs/setup-social-sign-in.md` §1–§3 and set the env flags first —
-   an enabled flag without the console work burns Apple's one-shot name.
+5. ~~Decide whether Phase 17 social sign-in rides along.~~ It does, and the
+   console work is finished: the owner completed `docs/setup-social-sign-in.md`
+   §1–§3 on 2026-09-30, the real client IDs are in `.env` and on EAS for both
+   the `preview` and `production` environments, and both buttons were verified
+   against the real system sheets on an iPhone 17 simulator on 2026-10-01
+   (WORKLOG Phase 17). Nothing here is blocked on it any more.
+6. Decide whether the 1.2 copy should cover more than personal budgets. Two
+   shipped features are absent from it, which is incomplete rather than
+   inaccurate, so it is a copy call, not a correctness fix: **recurring items**
+   (Phase 15 — 1.1 was never released, so its recurring-bill engine makes its
+   store debut in 1.2, and the description never mentions it; the release notes
+   do, in passing) and the **Phase 18** additions (a property can be labelled a
+   long-term rental, flip, investment, or the owner's own home; tenant-only
+   income like Rent and Late Fee is hidden on a flip or a primary home; account
+   actions moved to a Settings screen). Edit the Description / What's New
+   sections above and re-run `npm run store-config` if they should ride along.
+7. The 1.2 binary still does not exist. `npx eas-cli@latest build -p ios
+   --profile production --auto-submit` is owner-gated and has not been run; the
+   free-plan iOS build quota was exhausted as of 2026-10-01, so check it before
+   assuming a cloud build will start.
 
 ---
 

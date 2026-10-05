@@ -50,7 +50,8 @@
     "test": "jest",
     "test:integration": "jest --testPathIgnorePatterns=/node_modules/ --testPathPattern=__tests__/integration",
     "typecheck": "tsc --noEmit",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "store-config": "node scripts/build-store-config.mjs"
   },
   "jest": {
     "preset": "jest-expo",
