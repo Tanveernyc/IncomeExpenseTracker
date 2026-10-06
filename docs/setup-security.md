@@ -4,7 +4,11 @@ Found in the 2026-10-06 security review. The code side is done and tested. These
 steps happen in dashboards only the owner can reach, so they are listed here in
 the order to do them. **Do steps 1–3 before the 1.2 build goes out.**
 
-## 1. Apply the database hardening (required)
+## 1. ~~Apply the database hardening~~ Done 2026-10-06
+
+Applied by the owner in the SQL Editor, then verified live as the demo user: a
+normal expense saves and edits; a fake system category, an entry on another
+property, and oversized text are all refused; no test rows were left behind.
 
 `supabase/migrations/2026-10-07-security-hardening.sql` closes three gaps:
 
@@ -23,6 +27,12 @@ more than once, and existing rows are untouched.
 
 ## 2. Password reset email (required for "Forgot password?")
 
+**Blocked on custom SMTP.** Supabase only lets you edit email templates after
+connecting your own sender, and its built-in sender only reaches team members.
+Set up Resend (free) for `trueorganichub.com`, enter it under Authentication →
+Emails → Set up SMTP (host `smtp.resend.com`, port 465, user `resend`, password
+the Resend API key, sender `support@trueorganichub.com`), then edit the template.
+
 The app now has a "Forgot password?" flow that asks for the code from the email.
 Supabase's default email only contains a link, which does not work for an app.
 
@@ -37,7 +47,12 @@ Dashboard → Authentication → Emails → **Reset Password** → set the body 
 
 Subject: `Your Income Expense Tracker App reset code`
 
-## 3. Auth settings (required)
+## 3. ~~Auth settings~~ Done 2026-10-06 (except "Confirm email", see below)
+
+Minimum length 8, letters and digits, secure password change on, current
+password not required. **"Confirm email" stays off until step 2's custom SMTP
+works**: Supabase's built-in sender only delivers to team members, so with it on
+nobody could finish signing up.
 
 Dashboard → Authentication → Providers → Email, and Authentication → Policies:
 
