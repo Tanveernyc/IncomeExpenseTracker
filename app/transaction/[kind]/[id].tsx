@@ -20,8 +20,9 @@ import { validateTransactionForm, type TransactionValidation } from '@/lib/expen
 import { partyLabel } from '@/lib/ledger-copy';
 import type { Expense, Income } from '@/types';
 import { ScreenLoading } from '@/components/screen-state';
+import { DateField } from '@/components/date-field';
 import { GlassButton, GlassSurface } from '@/components/glass';
-import { colors, moneyDisplay, space, type, ui } from '@/theme';
+import { moneyDisplay, space, type, ui } from '@/theme';
 
 export default function EditTransactionScreen() {
   const { kind, id } = useLocalSearchParams<{ kind: 'expense' | 'income'; id: string }>();
@@ -150,13 +151,11 @@ function TransactionEditor({
       {errors.amount ? <Text style={styles.error}>{errors.amount}</Text> : null}
 
       <Text style={styles.label}>{isExpense ? 'Paid on' : 'Received on'} *</Text>
-      <TextInput
-        style={styles.input}
+      <DateField
         value={date}
-        onChangeText={setDate}
-        placeholder="YYYY-MM-DD"
-        placeholderTextColor={colors.mist}
-        autoCapitalize="none"
+        onChange={setDate}
+        placeholder="Add date"
+        accessibilityLabel="Date"
       />
       {errors.date ? <Text style={styles.error}>{errors.date}</Text> : null}
 
@@ -164,21 +163,21 @@ function TransactionEditor({
         <>
           <Text style={styles.label}>Covers period (optional)</Text>
           <View style={styles.periodRow}>
-            <TextInput
-              style={[styles.input, styles.periodInput]}
+            <DateField
               value={periodStart}
-              onChangeText={setPeriodStart}
-              placeholder="start YYYY-MM-DD"
-              placeholderTextColor={colors.mist}
-              autoCapitalize="none"
+              onChange={setPeriodStart}
+              placeholder="Start"
+              clearable
+              accessibilityLabel="Period start"
+              style={styles.periodInput}
             />
-            <TextInput
-              style={[styles.input, styles.periodInput]}
+            <DateField
               value={periodEnd}
-              onChangeText={setPeriodEnd}
-              placeholder="end YYYY-MM-DD"
-              placeholderTextColor={colors.mist}
-              autoCapitalize="none"
+              onChange={setPeriodEnd}
+              placeholder="End"
+              clearable
+              accessibilityLabel="Period end"
+              style={styles.periodInput}
             />
           </View>
           {errors.period ? <Text style={styles.error}>{errors.period}</Text> : null}

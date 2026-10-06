@@ -22,6 +22,7 @@ import { validateTransactionForm, type TransactionValidation } from '@/lib/expen
 import { collectionNoun, kindsOf, partyLabel } from '@/lib/ledger-copy';
 import type { CategoryKind } from '@/types';
 import { colors, moneyDisplay, space, ui } from '@/theme';
+import { DateField } from './date-field';
 import { GlassButton, GlassChip, GlassSurface } from './glass';
 
 // Last-used property is shared across kinds; recent categories are per kind.
@@ -200,13 +201,11 @@ export function AddTransactionForm({ kind, header }: { kind: CategoryKind; heade
       {errors.category ? <Text style={styles.error}>{errors.category}</Text> : null}
 
       <Text style={styles.label}>{dateLabel} *</Text>
-      <TextInput
-        style={styles.input}
+      <DateField
         value={state.date}
-        onChangeText={(date) => set({ date })}
-        placeholder="YYYY-MM-DD"
-        placeholderTextColor={colors.mist}
-        autoCapitalize="none"
+        onChange={(date) => set({ date })}
+        placeholder="Add date"
+        accessibilityLabel="Date"
       />
       {errors.date ? <Text style={styles.error}>{errors.date}</Text> : null}
 
@@ -214,21 +213,21 @@ export function AddTransactionForm({ kind, header }: { kind: CategoryKind; heade
         <>
           <Text style={styles.label}>Covers period (optional)</Text>
           <View style={styles.periodRow}>
-            <TextInput
-              style={[styles.input, styles.periodInput]}
+            <DateField
               value={state.periodStart}
-              onChangeText={(periodStart) => set({ periodStart })}
-              placeholder="start YYYY-MM-DD"
-              placeholderTextColor={colors.mist}
-              autoCapitalize="none"
+              onChange={(periodStart) => set({ periodStart })}
+              placeholder="Start"
+              clearable
+              accessibilityLabel="Period start"
+              style={styles.periodInput}
             />
-            <TextInput
-              style={[styles.input, styles.periodInput]}
+            <DateField
               value={state.periodEnd}
-              onChangeText={(periodEnd) => set({ periodEnd })}
-              placeholder="end YYYY-MM-DD"
-              placeholderTextColor={colors.mist}
-              autoCapitalize="none"
+              onChange={(periodEnd) => set({ periodEnd })}
+              placeholder="End"
+              clearable
+              accessibilityLabel="Period end"
+              style={styles.periodInput}
             />
           </View>
           {errors.period ? <Text style={styles.error}>{errors.period}</Text> : null}

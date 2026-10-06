@@ -17,6 +17,7 @@ import {
 } from '@/lib/recurring-rule-validation';
 import type { CategoryKind, EndMode } from '@/types';
 import { colors, moneyDisplay, space, type, ui } from '@/theme';
+import { DateField } from './date-field';
 import { GlassButton, GlassChip, GlassSegmented } from './glass';
 
 const END_OPTIONS = [
@@ -184,13 +185,12 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
       {errors.amount ? <Text style={styles.error}>{errors.amount}</Text> : null}
 
       <Text style={styles.label}>Start month *</Text>
-      <TextInput
-        style={styles.input}
+      <DateField
         value={startMonthText}
-        onChangeText={setStartMonthText}
-        placeholder="YYYY-MM"
-        placeholderTextColor={colors.mist}
-        autoCapitalize="none"
+        onChange={setStartMonthText}
+        granularity="month"
+        placeholder="Pick a month"
+        accessibilityLabel="Start month"
       />
       {errors.startMonth ? <Text style={styles.error}>{errors.startMonth}</Text> : null}
       {pending > 0 ? <Text style={styles.help}>Will post {pending} month(s) now</Text> : null}

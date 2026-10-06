@@ -3,7 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { DateField } from '@/components/date-field';
 import { GlassChip, GlassPressable, GlassSurface } from '@/components/glass';
 import { listCategories } from '@/db/categories';
 import { listAllExpenses } from '@/db/expenses';
@@ -23,7 +24,7 @@ import {
 import { todayISO } from '@/lib/dates';
 import { collectionNoun, kindsOf } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
-import { colors, money, serif, space, type, ui } from '@/theme';
+import { colors, money, serif, space, type } from '@/theme';
 
 type Preset = 'this-month' | 'last-month' | 'this-year' | 'last-year' | 'all-time' | 'custom';
 
@@ -97,21 +98,21 @@ export default function ReportsScreen() {
 
       {preset === 'custom' ? (
         <View style={styles.customRow}>
-          <TextInput
-            style={styles.dateInput}
+          <DateField
             value={customFrom}
-            onChangeText={setCustomFrom}
-            placeholder="from YYYY-MM-DD"
-            placeholderTextColor={colors.mist}
-            autoCapitalize="none"
-          />
-          <TextInput
+            onChange={setCustomFrom}
+            placeholder="From"
+            clearable
+            accessibilityLabel="From date"
             style={styles.dateInput}
+          />
+          <DateField
             value={customTo}
-            onChangeText={setCustomTo}
-            placeholder="to YYYY-MM-DD"
-            placeholderTextColor={colors.mist}
-            autoCapitalize="none"
+            onChange={setCustomTo}
+            placeholder="To"
+            clearable
+            accessibilityLabel="To date"
+            style={styles.dateInput}
           />
         </View>
       ) : null}
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
   presetStrip: { marginHorizontal: -space.lg, flexGrow: 0 },
   presets: { flexDirection: 'row', gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.xs },
   customRow: { flexDirection: 'row', gap: space.sm },
-  dateInput: { ...ui.input, flex: 1, fontSize: 14 },
+  dateInput: { flex: 1 },
   card: { padding: space.lg + 2, gap: space.sm },
   cardTitle: { ...type.section, fontSize: 18, marginBottom: space.xs },
   sectionTitle: { ...type.section, marginTop: space.md },

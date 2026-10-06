@@ -23,6 +23,7 @@ import { collectionNoun, kindsOf, partyLabel } from '@/lib/ledger-copy';
 import { validateRecurringRuleForm, type RecurringRuleValidation } from '@/lib/recurring-rule-validation';
 import type { EndMode, RecurringRule } from '@/types';
 import { ScreenLoading } from '@/components/screen-state';
+import { DateField } from '@/components/date-field';
 import { GlassButton, GlassChip, GlassSegmented, GlassSurface } from '@/components/glass';
 import { colors, moneyDisplay, space, type, ui } from '@/theme';
 
@@ -197,13 +198,12 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
       <TextInput style={styles.input} value={notes} onChangeText={setNotes} placeholder="optional" placeholderTextColor={colors.mist} />
 
       <Text style={styles.label}>Start month *</Text>
-      <TextInput
-        style={styles.input}
+      <DateField
         value={startMonthText}
-        onChangeText={setStartMonthText}
-        placeholder="YYYY-MM"
-        placeholderTextColor={colors.mist}
-        autoCapitalize="none"
+        onChange={setStartMonthText}
+        granularity="month"
+        placeholder="Pick a month"
+        accessibilityLabel="Start month"
       />
       {errors.startMonth ? <Text style={styles.error}>{errors.startMonth}</Text> : null}
 
@@ -236,13 +236,12 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
         {applyToPosted ? (
           <>
             <Text style={styles.label}>From month</Text>
-            <TextInput
-              style={styles.input}
+            <DateField
               value={applyFromText}
-              onChangeText={setApplyFromText}
-              placeholder="YYYY-MM"
-        placeholderTextColor={colors.mist}
-              autoCapitalize="none"
+              onChange={setApplyFromText}
+              granularity="month"
+              placeholder="Pick a month"
+              accessibilityLabel="Apply from month"
             />
             {errors.applyFrom ? <Text style={styles.error}>{errors.applyFrom}</Text> : null}
           </>

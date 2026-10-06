@@ -35,3 +35,27 @@ export function addCalendarMonths(firstOfMonthIso: string, n: number): string {
 export function monthKey(iso: string): string {
   return iso.slice(0, 7);
 }
+
+/**
+ * 'YYYY-MM-DD' (or 'YYYY-MM', read as the 1st) → a local-midnight Date for a
+ * native date picker. Local, not UTC: parsing '2026-01-01' as UTC would show
+ * Dec 31 to anyone west of Greenwich. Returns null for anything unparseable.
+ */
+export function isoToPickerDate(value: string): Date | null {
+  const match = /^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(value.trim());
+  if (!match) return null;
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, match[3] ? Number(match[3]) : 1);
+  return isValid(date) ? date : null;
+}
+
+/** A native picker's Date → 'YYYY-MM-DD' in the device's timezone. */
+export function pickerDateToISO(date: Date): string {
+  return format(date, 'yyyy-MM-dd');
+}
+
+/** How a stored date reads in a field: '2026-10-05' → 'Oct 5, 2026'; 'YYYY-MM' → 'October 2026'. */
+export function formatDateLabel(value: string): string {
+  const date = isoToPickerDate(value);
+  if (!date) return value;
+  return value.trim().length === 7 ? format(date, 'MMMM yyyy') : format(date, 'MMM d, yyyy');
+}

@@ -13,6 +13,7 @@ import {
   type PropertyValidation,
 } from '@/lib/property-validation';
 import { nounFor, propertySubtypeHint, propertySubtypeLabel } from '@/lib/ledger-copy';
+import { DateField } from './date-field';
 import { GlassButton, GlassPressable, GlassSegmented, GlassSurface } from './glass';
 
 interface Props {
@@ -159,13 +160,12 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel, foote
             <View style={styles.pair}>
               <View style={styles.pairItem}>
                 <Field label="Date">
-                  <TextInput
-                    style={styles.input}
+                  <DateField
                     value={purchaseDate}
-                    onChangeText={setPurchaseDate}
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor={colors.mist}
-                    autoCapitalize="none"
+                    onChange={setPurchaseDate}
+                    placeholder="Add date"
+                    clearable
+                    accessibilityLabel="Purchase date"
                   />
                 </Field>
               </View>

@@ -13,7 +13,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -34,6 +33,7 @@ import {
   type TimelineEntry,
   type TimelineSort,
 } from '@/lib/timeline';
+import { DateField } from '@/components/date-field';
 import { GlassChip, GlassPressable } from '@/components/glass';
 import { colors, money, radius, space, type, ui } from '@/theme';
 
@@ -126,21 +126,21 @@ export default function PropertyTransactionsScreen() {
         ))}
       </ScrollView>
       <View style={styles.dateRow}>
-        <TextInput
-          style={styles.dateInput}
+        <DateField
           value={from}
-          onChangeText={setFrom}
-          placeholder="from YYYY-MM-DD"
-          placeholderTextColor={colors.mist}
-          autoCapitalize="none"
-        />
-        <TextInput
+          onChange={setFrom}
+          placeholder="From"
+          clearable
+          accessibilityLabel="From date"
           style={styles.dateInput}
+        />
+        <DateField
           value={to}
-          onChangeText={setTo}
-          placeholder="to YYYY-MM-DD"
-          placeholderTextColor={colors.mist}
-          autoCapitalize="none"
+          onChange={setTo}
+          placeholder="To"
+          clearable
+          accessibilityLabel="To date"
+          style={styles.dateInput}
         />
       </View>
       <View style={styles.sortRow}>
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
   chipRow: { gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.xs },
   dateRow: { flexDirection: 'row', gap: space.sm },
   sortRow: { flexDirection: 'row' },
-  dateInput: { ...ui.input, flex: 1, fontSize: 14 },
+  dateInput: { flex: 1 },
   spinner: { marginTop: 32 },
   empty: { ...ui.empty },
   separator: { height: space.sm },
