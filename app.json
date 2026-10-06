@@ -14,7 +14,8 @@
       "infoPlist": {
         "CFBundleDisplayName": "Income Expense",
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "icon": "./assets/AppIcon.icon"
     },
     "android": {
       "package": "com.trueorganichub.propertyledger",

@@ -148,7 +148,11 @@ repeating them wastes the field.
 
 **1.2 set, captured 2026-10-06** on the iPhone 18 Pro Max simulator (iOS 27) at
 1320×2868, the 6.9" size, with a 9:41 status bar, from the App Review demo
-account. Each is framed with a caption by `scripts/frame-screenshots.py`: Apple
+account. Before this capture the demo data was scrubbed of everything real: the
+addresses are in the fictional town of "Sampleton" with no state or ZIP, every
+vendor is a generic label ("Mortgage lender", "Grocery store") instead of a
+real company or agency, and tenants are "Unit A tenant" and so on. Keep it that
+way when reseeding: no real places, businesses, brands or people. Each is framed with a caption by `scripts/frame-screenshots.py`: Apple
 has indexed screenshot caption text for search since June 2025, so every
 caption leads with words people search for. The framed set is in
 `store-screenshots/1.2/` and the raw captures are in `store-screenshots/1.2/raw/`.

@@ -134,7 +134,7 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel, foote
             value={name}
             maxLength={200}
             onChangeText={setName}
-            placeholder={isProperty ? 'e.g. 12 Maple St' : 'e.g. Household'}
+            placeholder={isProperty ? 'e.g. Lakeside Rental' : 'e.g. Household'}
             placeholderTextColor={colors.mist}
             accessibilityLabel={`${nounFor(ledgerKind).one} name`}
           />

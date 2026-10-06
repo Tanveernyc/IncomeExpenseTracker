@@ -248,8 +248,8 @@ export function AddTransactionForm({ kind, header }: { kind: CategoryKind; heade
         placeholder={
           isExpense
             ? ledgerKind === 'budget'
-              ? "e.g. Trader Joe's"
-              : 'e.g. Allstate'
+              ? 'e.g. Grocery store'
+              : 'e.g. Insurance company'
             : 'e.g. tenant name'
         }
       />

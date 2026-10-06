@@ -221,8 +221,8 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
         placeholder={
           isExpense
             ? ledgerKind === 'budget'
-              ? "e.g. Trader Joe's"
-              : 'e.g. KeyBank'
+              ? 'e.g. Grocery store'
+              : 'e.g. Mortgage lender'
             : 'e.g. tenant name'
         }
       />
