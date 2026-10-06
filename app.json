@@ -12,6 +12,7 @@
       "usesAppleSignIn": true,
       "bundleIdentifier": "com.trueorganichub.propertyledger",
       "infoPlist": {
+        "CFBundleDisplayName": "Income Expense",
         "ITSAppUsesNonExemptEncryption": false
       }
     },

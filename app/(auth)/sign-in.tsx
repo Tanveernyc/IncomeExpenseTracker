@@ -88,7 +88,7 @@ export default function SignInScreen() {
         <View style={styles.mark}>
           <Ionicons name="book" size={26} color={colors.brassBright} />
         </View>
-        <Text style={styles.title}>PropertyLedger</Text>
+        <Text style={styles.title}>Income Expense Tracker</Text>
         <Text style={styles.subtitle}>
           {mode === 'sign-in' ? 'Sign in to your ledger' : 'Create your account'}
         </Text>

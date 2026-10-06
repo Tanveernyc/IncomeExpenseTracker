@@ -41,7 +41,7 @@ export default function DeleteAccountScreen() {
       <GlassSurface style={styles.card}>
         <Text style={styles.body}>This permanently deletes:</Text>
         <View style={styles.list}>
-          <Text style={styles.listItem}>• Every property and budget you have added</Text>
+          <Text style={styles.listItem}>• Every property and household you have added</Text>
           <Text style={styles.listItem}>• Every expense and income record</Text>
           <Text style={styles.listItem}>• Your custom categories</Text>
           <Text style={styles.listItem}>• Your sign-in credentials</Text>

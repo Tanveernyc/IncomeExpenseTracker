@@ -27,7 +27,7 @@ const CHOICES: {
   },
   {
     key: 'budget',
-    title: 'My own budget',
+    title: 'My household',
     icon: 'wallet-outline',
     body: 'Log income and spending, set up monthly bills, and watch your savings rate.',
     ledgers: [{ name: 'Household', ledger_kind: 'budget' }],
@@ -36,7 +36,7 @@ const CHOICES: {
     key: 'both',
     title: 'Both',
     icon: 'layers-outline',
-    body: 'A property ledger and a household budget, side by side.',
+    body: 'A property ledger and a household ledger, side by side.',
     ledgers: [
       { name: 'My first property', ledger_kind: 'property', property_subtype: 'rental' },
       { name: 'Household', ledger_kind: 'budget' },

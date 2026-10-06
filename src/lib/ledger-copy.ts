@@ -1,11 +1,11 @@
 // User-facing nouns that depend on ledger kind (spec §3). Pure; the only place
-// "Property" vs "Budget" is decided, so no screen hard-codes either word.
+// "Property" vs "Household" is decided, so no screen hard-codes either word.
 import type { CategoryKind, LedgerKind, Property, PropertySubtype } from '@/types';
 import { LEDGER_KINDS } from './property-validation';
 
 const NOUNS: Record<LedgerKind, { one: string; many: string }> = {
   property: { one: 'Property', many: 'Properties' },
-  budget: { one: 'Budget', many: 'Budgets' },
+  budget: { one: 'Household', many: 'Households' },
 };
 
 export function nounFor(kind: LedgerKind): { one: string; many: string } {
@@ -54,12 +54,12 @@ export function propertySubtypeHint(subtype: PropertySubtype): string {
 
 /**
  * The lowercase word under a ledger's name in a list row: a property's subtype
- * ("rental", "primary residence"), or "budget".
+ * ("rental", "primary residence"), or "household".
  */
 export function ledgerMetaLabel(
   ledger: Pick<Property, 'ledger_kind' | 'property_subtype'>
 ): string {
-  if (ledger.ledger_kind === 'budget') return 'budget';
+  if (ledger.ledger_kind === 'budget') return 'household';
   return propertySubtypeLabel(ledger.property_subtype ?? 'rental').toLowerCase();
 }
 

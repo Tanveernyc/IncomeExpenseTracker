@@ -1,10 +1,11 @@
-# App Store Listing — PropertyLedger: Rental P&L
+# App Store Listing — Income Expense Tracker App
 
 ASC App ID `6813181506` · Bundle `com.trueorganichub.propertyledger`
 
 **1.0.0 (build 16) is live — "Ready for Distribution" as of 2026-09-28.**
-Everything below is the **1.2** metadata (personal budgets), applied on
-2026-09-28 now that 1.0 has cleared review. It is copy-paste ready for App Store
+Everything below is the **1.2** metadata. It was first written on 2026-09-28
+and reworked on 2026-10-06 for the rename to "Income Expense Tracker App" (see
+"Name & Subtitle"). It is copy-paste ready for App Store
 Connect; the 1.2 build itself has not been made yet. Claims were checked against
 the actual implementation — nothing here describes a feature the app doesn't
 have. Spec: `docs/superpowers/specs/2026-09-21-personal-budgets-design.md` §7.
@@ -13,15 +14,32 @@ have. Spec: `docs/superpowers/specs/2026-09-21-personal-budgets-design.md` §7.
 
 ## Name & Subtitle
 
-**App Name** (30 max, 26 used) — unchanged
+**App Name** (30 max, 26 used) — 1.2, replaces `PropertyLedger: Rental P&L`
 ```
-PropertyLedger: Rental P&L
+Income Expense Tracker App
 ```
 
-**Subtitle** (30 max, 26 used) — 1.2, replaces `Track rental income & expenses`
+Renamed 2026-10-06 so the app ranks for what people actually type. The 1.0 name
+only matched searches for its exact wording. `Income Expense Tracker` was
+already reserved by another developer, so the owner saved this variant in App
+Store Connect on the 1.2 version. The name is the field Apple weights most, and
+"income and expense tracker" shows up in Apple's own search suggestions.
+
+The app is an income and expense tracker, **not a budgeting app**: it sets no
+spending limits and makes no plans. Keep "budget" out of every field.
+
+**Home-screen name** — `Income Expense` (`ios.infoPlist.CFBundleDisplayName`
+in `app.json`). Apple rejects under Guideline 2.3.8 when the name under the icon
+doesn't match the store name, so it can't stay `PropertyLedger`. The full name
+is too long for the home screen.
+
+**Subtitle** (30 max, 29 used) — 1.2, replaces `Track rental income & expenses`
 ```
-Rentals & personal budgets
+Rental property & home ledger
 ```
+
+Adds words the name lacks (rental, property, home, ledger) instead of repeating
+income, expense or tracker, which Apple gives no extra credit for.
 
 ---
 
@@ -39,12 +57,17 @@ The opening paragraph is the 1.2 rewrite; every section below it is unchanged
 from 1.0.
 
 ```
-PropertyLedger keeps the books for your rental properties — and, if you like,
-for your own household too. Each ledger is either a rental property or a
-personal budget: rentals get income, expenses, and a profit-and-loss picture
-you can actually read; budgets get the same fast entry, monthly totals, and a
-savings rate. No spreadsheet, no subscription to accounting software built for
-something else.
+Income Expense Tracker App tracks the money coming in and going out of your
+properties — and, if you like, your own household too. Log income and expenses
+in seconds, see profit and loss for each property, and export a clean CSV when
+tax season arrives. No spreadsheet, no subscription to accounting software
+built for something else.
+
+RENTALS, HOMES, FLIPS AND INVESTMENTS
+Mark each property as a long-term rental, the home you live in, a flip, or an
+investment. Tenant income like rent and late fees only shows where it belongs.
+Add a household ledger to track everyday income and expenses next to your
+properties, with monthly totals and how much you kept.
 
 EVERY PROPERTY, TRACKED SEPARATELY
 Add as many properties as you own. Each one keeps its own income, expenses, and
@@ -57,14 +80,18 @@ when it matters, skip them when it doesn't. Expenses and income use the same
 fast form.
 
 CATEGORIES THAT MATCH YOUR RETURN
-36 built-in categories covering the expense and income lines landlords actually
-file — mortgage interest, repairs, insurance, property tax, management fees,
+Dozens of built-in categories covering the expense and income lines owners
+actually file — mortgage interest, repairs, insurance, property tax, management fees,
 rent, deposits, and more. Add your own when your books need something specific.
 
 BILLS THAT SPAN A PERIOD
-A school tax bill paid in September can cover the following year. PropertyLedger
+A school tax bill paid in September can cover the following year. The app
 records when money moved and, optionally, the period the bill covers — so your
 numbers land in the right year.
+
+RECURRING INCOME AND BILLS
+Set up rent, a mortgage payment, or any monthly bill once, and it is logged for
+you every month.
 
 PROFIT AND LOSS AT A GLANCE
 A dashboard for the whole portfolio and a P&L for each property. Income,
@@ -84,7 +111,7 @@ Your account is yours alone. Every record is protected at the database level by
 row-level security, so no other user can read your books. No ads, no analytics,
 no trackers, and nothing sold to anyone.
 
-PropertyLedger is for landlords with one property or twenty who want their
+Built for landlords and homeowners with one property or twenty who want their
 numbers straight and their tax prep boring.
 ```
 
@@ -93,22 +120,24 @@ numbers straight and their tax prep boring.
 ## What's New (1.2)
 
 ```
-Personal budgets. Alongside your rental properties you can now keep a household budget — same quick entry, recurring bills, and reports, with a This Month view and your savings rate. Categories are tailored to each ledger: landlord categories for rentals, everyday ones for budgets.
+PropertyLedger is now Income Expense Tracker App, with a fresh new look. Mark each property as a rental, your home, a flip, or an investment. Track your household's income and expenses next to your properties. Set up recurring rent and bills once and they are logged every month. Sign in with Apple or Google, and pick dates with the native date picker.
 ```
 
 ---
 
-## Keywords (100 max, 98 used)
+## Keywords (100 max, 97 used)
 
 ```
-landlord,expense,income,tax,tracker,bookkeeping,profit,cash flow,budget,savings,spending,household
+landlord,rent,real estate,profit,tax,mortgage,bookkeeping,cash flow,flip,household,propertyledger
 ```
 
-1.2 adds `budget,savings,spending,household`; drops `schedule e,deduction` per
-the spec and `real estate` to fit the limit. Deliberately omits `rental`,
-`property`, and `ledger` — Apple already indexes those from the name and
-subtitle, so repeating them wastes the field. **Confirm the `real estate` drop at
-release** (Phase 16 ruling 7).
+Reworked 2026-10-06 for the rename. Drops `budget,savings,spending` (the app
+is a tracker, not a budgeting app) and `expense,income,tracker` (now in the
+name). Restores `real estate`. Adds `rent`, `mortgage`, `flip` and
+`propertyledger`, so people who knew the 1.0 name still find the app. Leaves out
+every word already in the name or subtitle (income, expense, tracker, app,
+rental, property, home, ledger), because Apple indexes those already and
+repeating them wastes the field.
 
 ---
 
@@ -121,12 +150,12 @@ set is required. EAS Metadata does not manage screenshots: drag them into App
 Store Connect by hand, in this order.
 
 1. Dashboard: net this year, ledger cards
-2. New ledger: Property / Budget, and the four property types
-3. Ledgers: properties and budgets
+2. New ledger: Property / Household, and the four property types
+3. Ledgers: properties and households
 4. Maple Street Duplex: transactions, newest first
 5. Add: amount, ledger and category chips, native date picker
 6. Reports: portfolio and per-ledger P&L
-7. Household budget: transactions
+7. Household: transactions
 
 Captured from the App Review demo account after its entries were shifted
 forward one month (2026-10-05) so October is the live month. Retake them if the
@@ -148,7 +177,7 @@ demo data is reseeded.
 
 Verified against `supabase/schema.sql`, `app/(auth)/sign-in.tsx`, and the full
 dependency list. There are **no analytics, advertising, or crash-reporting SDKs**
-in the project. Unchanged for 1.2 — personal budgets add no new data category.
+in the project. Unchanged for 1.2 — household ledgers add no new data category.
 
 **"Do you or your third-party partners collect data from this app?" → Yes**
 
@@ -232,7 +261,8 @@ copy the wrapped form into ASC by hand.
    tracked, reads `apple.version: "1.2"`, and now carries this document's copy
    (see "Pushing the metadata" below).
 2. ~~Take screenshot 7 (Household dashboard) at release time.~~ Done 2026-10-05: the full set was retaken for the redesign (see Screenshots).
-3. Confirm the `real estate` keyword drop.
+3. ~~Confirm the `real estate` keyword drop.~~ Moot 2026-10-06: the keywords
+   were reworked for the rename and `real estate` is back.
 4. ~~Re-seed / refresh the demo account so the reviewer sees current months.~~ Done 2026-10-05: entries shifted forward one month; demo "Home" is now a primary residence.
 5. ~~Decide whether Phase 17 social sign-in rides along.~~ It does, and the
    console work is finished: the owner completed `docs/setup-social-sign-in.md`
@@ -240,7 +270,9 @@ copy the wrapped form into ASC by hand.
    the `preview` and `production` environments, and both buttons were verified
    against the real system sheets on an iPhone 17 simulator on 2026-10-01
    (WORKLOG Phase 17). Nothing here is blocked on it any more.
-6. Decide whether the 1.2 copy should cover more than personal budgets. Two
+6. ~~Decide whether the 1.2 copy should cover more than personal budgets.~~
+   Done 2026-10-06: the rename rewrite covers recurring items and the Phase 18
+   property types. Two
    shipped features are absent from it, which is incomplete rather than
    inaccurate, so it is a copy call, not a correctness fix: **recurring items**
    (Phase 15 — 1.1 was never released, so its recurring-bill engine makes its
@@ -250,7 +282,9 @@ copy the wrapped form into ASC by hand.
    income like Rent and Late Fee is hidden on a flip or a primary home; account
    actions moved to a Settings screen). Edit the Description / What's New
    sections above and re-run `npm run store-config` if they should ride along.
-7. The 1.2 binary still does not exist. `npx eas-cli@latest build -p ios
+7. **Retake screenshots 2, 3 and 7.** On 2026-10-06 the in-app "Budget"
+   label became "Household", so the 2026-10-05 set shows the old word.
+8. The 1.2 binary still does not exist. `npx eas-cli@latest build -p ios
    --profile production --auto-submit` is owner-gated and has not been run; the
    free-plan iOS build quota was exhausted as of 2026-10-01, so check it before
    assuming a cloud build will start.

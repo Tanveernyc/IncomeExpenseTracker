@@ -29,7 +29,7 @@ export function validateProperty(input: { name: string; ledger_kind: string }): 
   const errors: PropertyValidation['errors'] = {};
   if (input.name.trim().length === 0) errors.name = 'Name is required.';
   if (!isLedgerKind(input.ledger_kind)) {
-    errors.ledger_kind = 'Type must be property or budget.';
+    errors.ledger_kind = 'Type must be property or household.';
   }
   return { valid: Object.keys(errors).length === 0, errors };
 }

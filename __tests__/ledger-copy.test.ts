@@ -11,9 +11,9 @@ import {
 import type { PropertySubtype } from '../src/types';
 
 describe('nounFor', () => {
-  it('property is Property, budget is Budget', () => {
+  it('property is Property, budget is Household', () => {
     expect(nounFor('property')).toEqual({ one: 'Property', many: 'Properties' });
-    expect(nounFor('budget')).toEqual({ one: 'Budget', many: 'Budgets' });
+    expect(nounFor('budget')).toEqual({ one: 'Household', many: 'Households' });
   });
 });
 
@@ -52,7 +52,7 @@ describe('propertySubtypeLabel', () => {
 
 describe('ledgerMetaLabel', () => {
   it('a budget reads "budget" whatever else is on the row', () => {
-    expect(ledgerMetaLabel({ ledger_kind: 'budget', property_subtype: null })).toBe('budget');
+    expect(ledgerMetaLabel({ ledger_kind: 'budget', property_subtype: null })).toBe('household');
   });
 
   it('a rental reads "rental"', () => {
@@ -86,9 +86,9 @@ describe('collectionTitle / collectionNoun', () => {
     expect(collectionTitle(['property'])).toBe('Properties');
     expect(collectionNoun(['property'])).toBe('Property');
   });
-  it('all budget → Budgets/Budget', () => {
-    expect(collectionTitle(['budget'])).toBe('Budgets');
-    expect(collectionNoun(['budget'])).toBe('Budget');
+  it('all budget → Households/Household', () => {
+    expect(collectionTitle(['budget'])).toBe('Households');
+    expect(collectionNoun(['budget'])).toBe('Household');
   });
   it('mixed or none → Ledgers/Ledger', () => {
     expect(collectionTitle(['property', 'budget'])).toBe('Ledgers');

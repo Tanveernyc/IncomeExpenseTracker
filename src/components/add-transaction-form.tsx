@@ -20,6 +20,7 @@ import {
 } from '@/lib/add-transaction-state';
 import { validateTransactionForm, type TransactionValidation } from '@/lib/expense-validation';
 import { collectionNoun, kindsOf, partyLabel } from '@/lib/ledger-copy';
+import { recordSavedEntry } from '@/lib/review-prompt';
 import type { CategoryKind } from '@/types';
 import { colors, moneyDisplay, space, ui } from '@/theme';
 import { CategoryHint } from './category-hint';
@@ -123,6 +124,8 @@ export function AddTransactionForm({ kind, header }: { kind: CategoryKind; heade
       setSavedFlash(true);
       setTimeout(() => setSavedFlash(false), 1500);
       queryClient.invalidateQueries({ queryKey: [isExpense ? 'expenses' : 'income'] });
+      // After the saved flash, so the rating sheet never covers the confirmation.
+      setTimeout(recordSavedEntry, 1600);
     },
     onError: (e: Error & { silent?: boolean }) => {
       if (!e.silent) Alert.alert(`Could not save ${kind}`, e.message);

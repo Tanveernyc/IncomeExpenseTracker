@@ -22,7 +22,7 @@ const SCOPE_CYCLE: CategoryScope[] = ['both', 'property', 'budget'];
 const SCOPE_LABELS: Record<CategoryScope, string> = {
   both: 'Both',
   property: 'Property',
-  budget: 'Budget',
+  budget: 'Household',
 };
 
 export default function CategoriesScreen() {
@@ -66,7 +66,7 @@ export default function CategoriesScreen() {
   const scopes: { scope: CategoryScope; label: string }[] = [
     { scope: 'both', label: 'Shared' },
     { scope: 'property', label: 'Property' },
-    { scope: 'budget', label: 'Budget' },
+    { scope: 'budget', label: 'Household' },
   ];
   const sections = (['expense', 'income'] as const).flatMap((kind) =>
     scopes

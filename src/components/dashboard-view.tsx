@@ -14,7 +14,7 @@ interface Props {
   model: DashboardModel;
   /** category_id → display name (falls back to the id when unknown). */
   categoryNames: Map<string, string>;
-  /** "Properties" / "Budgets" / "Ledgers" — matches the tab's title (spec §3). */
+  /** "Properties" / "Households" / "Ledgers" — matches the tab's title (spec §3). */
   collectionTitle: string;
   onQuickAdd: () => void;
   onOpenProperty: (propertyId: string) => void;

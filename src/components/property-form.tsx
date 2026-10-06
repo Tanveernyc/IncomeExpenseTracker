@@ -22,7 +22,7 @@ interface Props {
   /** Called with a validated payload; the caller performs the insert/update. */
   onSubmit: (values: NewProperty) => void;
   submitting: boolean;
-  /** Fixed text, or a function of the currently selected kind ("Create Property" / "Create Budget"). */
+  /** Fixed text, or a function of the currently selected kind ("Create Property" / "Create Household"). */
   submitLabel: string | ((kind: LedgerKind) => string);
   /** Rendered under the submit button, inside the scroll view (e.g. Archive). */
   footer?: ReactNode;
@@ -30,7 +30,7 @@ interface Props {
 
 const KIND_OPTIONS = [
   { value: 'property', label: 'Property' },
-  { value: 'budget', label: 'Budget' },
+  { value: 'budget', label: 'Household' },
 ] as const;
 
 const SUBTYPE_ICONS: Record<PropertySubtype, ComponentProps<typeof Ionicons>['name']> = {

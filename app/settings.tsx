@@ -14,7 +14,7 @@ const SUPPORT_URL = 'https://tanveernyc.github.io/PropertyLedger/support.html';
 
 /** Email first; if no mail app is set up, fall back to the support page. */
 async function contactSupport() {
-  const mailto = `mailto:${SUPPORT_EMAIL}?subject=PropertyLedger%20support`;
+  const mailto = `mailto:${SUPPORT_EMAIL}?subject=Income%20Expense%20Tracker%20support`;
   if (await Linking.canOpenURL(mailto)) return Linking.openURL(mailto);
   return Linking.openURL(SUPPORT_URL);
 }

@@ -40,7 +40,7 @@ export default function TabsLayout() {
         <NativeTabs.Trigger.Icon sf={{ default: 'square.grid.2x2', selected: 'square.grid.2x2.fill' }} md="dashboard" />
         <NativeTabs.Trigger.Label>Dashboard</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
-      {/* A house would be wrong whenever this tab reads "Budgets"; books cover
+      {/* A house would be wrong whenever this tab reads "Households"; books cover
           every title it takes. */}
       <NativeTabs.Trigger name="(ledgers)">
         <NativeTabs.Trigger.Icon sf={{ default: 'books.vertical', selected: 'books.vertical.fill' }} md="menu_book" />

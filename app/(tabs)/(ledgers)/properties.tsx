@@ -42,7 +42,7 @@ export default function PropertiesScreen() {
       ListHeaderComponent={
         <View style={styles.header}>
           <GlassButton
-            label="Add property or budget"
+            label="Add property or household"
             accessibilityLabel="Add property"
             onPress={() => router.push('/property/new')}
           />
