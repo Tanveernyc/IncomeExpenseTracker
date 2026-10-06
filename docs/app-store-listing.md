@@ -114,14 +114,23 @@ release** (Phase 16 ruling 7).
 
 ## Screenshots
 
-Existing iPhone 6.9" set carried over from 1.0. `ios.supportsTablet` is `false`,
-so no iPad set is required.
+**1.2 set, captured 2026-10-05** on the iPhone 18 Pro Max simulator (iOS 27) at
+1320×2868, the 6.9" size, with a 9:41 status bar. They replace the whole 1.0
+set, which shows the old design. `ios.supportsTablet` is `false`, so no iPad
+set is required. EAS Metadata does not manage screenshots: drag them into App
+Store Connect by hand, in this order.
 
-**Add as screenshot 7 for 1.2:** the **Household** budget dashboard from the
-App Review demo account, which is seeded with a personal ledger named
-"Household" (salary, groceries, dining out, fuel, subscriptions, phone, rent
-across the current and previous month). Take it at release time so the month
-totals match the release month.
+1. Dashboard: net this year, ledger cards
+2. New ledger: Property / Budget, and the four property types
+3. Ledgers: properties and budgets
+4. Maple Street Duplex: transactions, newest first
+5. Add: amount, ledger and category chips, native date picker
+6. Reports: portfolio and per-ledger P&L
+7. Household budget: transactions
+
+Captured from the App Review demo account after its entries were shifted
+forward one month (2026-10-05) so October is the live month. Retake them if the
+demo data is reseeded.
 
 ---
 
@@ -222,9 +231,9 @@ copy the wrapped form into ASC by hand.
    untracked and pinned to `apple.version: "1.0"`.~~ Done 2026-10-05: it is
    tracked, reads `apple.version: "1.2"`, and now carries this document's copy
    (see "Pushing the metadata" below).
-2. Take screenshot 7 (Household dashboard) at release time.
+2. ~~Take screenshot 7 (Household dashboard) at release time.~~ Done 2026-10-05: the full set was retaken for the redesign (see Screenshots).
 3. Confirm the `real estate` keyword drop.
-4. Re-seed / refresh the demo account so the reviewer sees current months.
+4. ~~Re-seed / refresh the demo account so the reviewer sees current months.~~ Done 2026-10-05: entries shifted forward one month; demo "Home" is now a primary residence.
 5. ~~Decide whether Phase 17 social sign-in rides along.~~ It does, and the
    console work is finished: the owner completed `docs/setup-social-sign-in.md`
    §1–§3 on 2026-09-30, the real client IDs are in `.env` and on EAS for both

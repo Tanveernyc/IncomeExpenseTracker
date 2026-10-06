@@ -144,7 +144,7 @@ export default function PropertyTransactionsScreen() {
         />
       </View>
       <View style={styles.sortRow}>
-        <GlassChip label={`↕ ${TIMELINE_SORT_LABELS[sort]}`} selected onPress={nextSort} />
+        <GlassChip label={`⇅ ${TIMELINE_SORT_LABELS[sort]}`} selected onPress={nextSort} />
       </View>
       {loading ? <ActivityIndicator style={styles.spinner} /> : null}
     </View>
