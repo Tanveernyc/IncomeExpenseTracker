@@ -5,16 +5,8 @@
 // income categories, and no covers-period fields (the income table has none).
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
-import {
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { createCategory, listCategories } from '@/db/categories';
 import { createExpense } from '@/db/expenses';
 import { createIncome } from '@/db/income';
@@ -29,13 +21,14 @@ import {
 import { validateTransactionForm, type TransactionValidation } from '@/lib/expense-validation';
 import { collectionNoun, kindsOf, partyLabel } from '@/lib/ledger-copy';
 import type { CategoryKind } from '@/types';
-import { colors, money, ui } from '@/theme';
+import { colors, moneyDisplay, space, ui } from '@/theme';
+import { GlassButton, GlassChip, GlassSurface } from './glass';
 
 // Last-used property is shared across kinds; recent categories are per kind.
 const LAST_PROPERTY_KEY = 'add:last-property-id';
 const recentCategoriesKey = (kind: CategoryKind) => `add:recent-${kind}-category-ids`;
 
-export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
+export function AddTransactionForm({ kind, header }: { kind: CategoryKind; header?: ReactNode }) {
   const queryClient = useQueryClient();
   const [state, setState] = useState<AddTransactionState>(initialAddState);
   // Declared here, not further down: the effects below call it, and a const
@@ -155,48 +148,56 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
   return (
     <ScrollView
       contentContainerStyle={styles.container}
+      contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
       // Scroll the focused field (and the Save button) above the keyboard instead of hiding them.
       automaticallyAdjustKeyboardInsets
       keyboardDismissMode="interactive"
     >
+      {header}
+      <GlassSurface style={styles.amountCard}>
+        <Text style={styles.amountLabel}>Amount *</Text>
+        <View style={styles.amountRow}>
+          <Text style={styles.amountCurrency}>$</Text>
+          <TextInput
+            style={styles.amountInput}
+            value={state.amountText}
+            onChangeText={(amountText) => set({ amountText })}
+            placeholder="0.00"
+            placeholderTextColor={colors.mist}
+            keyboardType="decimal-pad"
+            accessibilityLabel="Amount"
+          />
+        </View>
+      </GlassSurface>
+      {errors.amount ? <Text style={styles.error}>{errors.amount}</Text> : null}
+
       <Text style={styles.label}>{collectionNoun(kindsOf(properties ?? []))} *</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow} style={styles.chipStrip}>
         {(properties ?? []).map((p) => (
-          <Chip
+          <GlassChip
             key={p.id}
             label={p.name}
-            active={state.propertyId === p.id}
+            selected={state.propertyId === p.id}
             onPress={() => set({ propertyId: p.id })}
           />
         ))}
       </ScrollView>
       {errors.property ? <Text style={styles.error}>{errors.property}</Text> : null}
 
-      <Text style={styles.label}>Category * (recent first)</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-        <Chip label="+ New" active={false} onPress={promptNewCategory} />
+      <Text style={styles.label}>Category · recent first</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow} style={styles.chipStrip}>
+        <GlassChip label="+ New" selected={false} onPress={promptNewCategory} />
         {kindCategories.map((c) => (
-          <Chip
+          <GlassChip
             key={c.id}
             label={c.name}
-            active={categoryId === c.id}
+            selected={categoryId === c.id}
             onPress={() => set({ categoryId: c.id })}
           />
         ))}
       </ScrollView>
       {errors.category ? <Text style={styles.error}>{errors.category}</Text> : null}
-
-      <Text style={styles.label}>Amount ($) *</Text>
-      <TextInput
-        style={[styles.input, styles.amountInput]}
-        value={state.amountText}
-        onChangeText={(amountText) => set({ amountText })}
-        placeholder="0.00"
-        keyboardType="decimal-pad"
-        accessibilityLabel="Amount"
-      />
-      {errors.amount ? <Text style={styles.error}>{errors.amount}</Text> : null}
 
       <Text style={styles.label}>{dateLabel} *</Text>
       <TextInput
@@ -204,6 +205,7 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
         value={state.date}
         onChangeText={(date) => set({ date })}
         placeholder="YYYY-MM-DD"
+        placeholderTextColor={colors.mist}
         autoCapitalize="none"
       />
       {errors.date ? <Text style={styles.error}>{errors.date}</Text> : null}
@@ -217,6 +219,7 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
               value={state.periodStart}
               onChangeText={(periodStart) => set({ periodStart })}
               placeholder="start YYYY-MM-DD"
+              placeholderTextColor={colors.mist}
               autoCapitalize="none"
             />
             <TextInput
@@ -224,6 +227,7 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
               value={state.periodEnd}
               onChangeText={(periodEnd) => set({ periodEnd })}
               placeholder="end YYYY-MM-DD"
+              placeholderTextColor={colors.mist}
               autoCapitalize="none"
             />
           </View>
@@ -251,44 +255,35 @@ export function AddTransactionForm({ kind }: { kind: CategoryKind }) {
         value={state.notes}
         onChangeText={(notes) => set({ notes })}
         placeholder="optional"
+        placeholderTextColor={colors.mist}
       />
 
-      <Pressable
-        style={styles.saveButton}
+      <GlassButton
+        label={saveMutation.isPending ? 'Saving…' : isExpense ? 'Save Expense' : 'Save Income'}
         onPress={() => saveMutation.mutate()}
         disabled={saveMutation.isPending}
-      >
-        <Text style={styles.saveButtonText}>
-          {saveMutation.isPending ? 'Saving…' : isExpense ? 'Save Expense' : 'Save Income'}
-        </Text>
-      </Pressable>
+        style={styles.saveButton}
+      />
       {savedFlash ? <Text style={styles.savedFlash}>Saved ✓</Text> : null}
     </ScrollView>
   );
 }
 
-function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
-  return (
-    <Pressable style={[styles.chip, active && styles.chipActive]} onPress={onPress}>
-      <Text style={active ? styles.chipTextActive : styles.chipText}>{label}</Text>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: { padding: 16, paddingBottom: 48, gap: 4 },
+  container: { padding: space.lg, paddingBottom: 120, gap: space.xs },
   label: { ...ui.label },
-  chipRow: { gap: 8, paddingVertical: 6 },
-  chip: { ...ui.chip },
-  chipActive: { ...ui.chipActive },
-  chipText: { ...ui.chipText },
-  chipTextActive: { ...ui.chipTextActive },
-  input: { ...ui.input, fontSize: 16 },
-  amountInput: { ...money, fontSize: 26, fontWeight: '700' },
-  periodRow: { flexDirection: 'row', gap: 8 },
+  // Chips scroll edge to edge; the row cancels the screen padding.
+  chipStrip: { marginHorizontal: -space.lg },
+  chipRow: { gap: space.sm, paddingVertical: space.xs, paddingHorizontal: space.lg },
+  input: { ...ui.input },
+  amountCard: { paddingHorizontal: space.xl, paddingVertical: space.lg, marginTop: space.md },
+  amountLabel: { ...ui.label, marginTop: 0, marginLeft: 0, marginBottom: 0 },
+  amountRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
+  amountCurrency: { ...moneyDisplay, fontSize: 30, color: colors.brass },
+  amountInput: { ...moneyDisplay, flex: 1, paddingVertical: space.xs },
+  periodRow: { flexDirection: 'row', gap: space.sm },
   periodInput: { flex: 1 },
-  error: { ...ui.error, fontSize: 13 },
-  saveButton: { ...ui.buttonPrimary, marginTop: 20 },
-  saveButtonText: { ...ui.buttonPrimaryText },
-  savedFlash: { color: colors.gain, textAlign: 'center', marginTop: 8, fontWeight: '600' },
+  error: { ...ui.error },
+  saveButton: { marginTop: space.xl },
+  savedFlash: { color: colors.gain, textAlign: 'center', marginTop: space.sm, fontWeight: '600' },
 });

@@ -5,13 +5,15 @@ import { useQuery } from '@tanstack/react-query';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { GlassButton, GlassSurface } from '@/components/glass';
 import { listCategories } from '@/db/categories';
 import { listAllExpenses } from '@/db/expenses';
 import { listAllIncome } from '@/db/income';
 import { listProperties } from '@/db/properties';
 import { buildTransactionsCsv } from '@/lib/export';
-import { type, ui } from '@/theme';
+import { colors, space, type, ui } from '@/theme';
 
 export default function ExportScreen() {
   const [busy, setBusy] = useState(false);
@@ -45,30 +47,37 @@ export default function ExportScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Export to CSV</Text>
-      <Text style={styles.body}>
-        Creates a spreadsheet-ready CSV of every income and expense entry across all
-        your properties and opens the share sheet. Email it, save it to Files, or hand
-        it to your accountant — your data is never locked in.
-      </Text>
-      <Pressable style={styles.button} onPress={exportAll} disabled={!ready || busy}>
-        {busy ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Export CSV</Text>
-        )}
-      </Pressable>
-      {!ready ? <Text style={styles.loading}>Loading data…</Text> : null}
-    </View>
+    <ScrollView style={ui.screen} contentContainerStyle={styles.container} contentInsetAdjustmentBehavior="automatic">
+      <GlassSurface style={styles.card}>
+        <View style={styles.icon}>
+          <Ionicons name="document-text-outline" size={26} color={colors.brassBright} />
+        </View>
+        <Text style={styles.heading}>Export to CSV</Text>
+        <Text style={styles.body}>
+          Creates a spreadsheet-ready CSV of every income and expense entry across all your ledgers and
+          opens the share sheet. Email it, save it to Files, or hand it to your accountant — your data is
+          never locked in.
+        </Text>
+        <GlassButton label="Export CSV" onPress={exportAll} disabled={!ready} loading={busy} style={styles.button} />
+        {!ready ? <Text style={styles.loading}>Loading data…</Text> : null}
+      </GlassSurface>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { ...ui.screen, padding: 24, gap: 16 },
+  container: { padding: space.lg },
+  card: { padding: space.xl, gap: space.md },
+  icon: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.ink,
+  },
   heading: { ...type.title },
-  body: { ...type.label, fontSize: 14, lineHeight: 20 },
-  button: { ...ui.buttonPrimary },
-  buttonText: { ...ui.buttonPrimaryText },
+  body: { ...type.label, lineHeight: 21 },
+  button: { marginTop: space.sm },
   loading: { ...type.hint, textAlign: 'center' },
 });

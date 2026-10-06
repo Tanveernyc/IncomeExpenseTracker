@@ -37,7 +37,15 @@
           "iosUrlScheme": "com.googleusercontent.apps.370279591490-4dhhr7gkekpeldqpq41qiiaj90or72g8"
         }
       ],
-      "expo-font",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "node_modules/@expo-google-fonts/playfair-display/600SemiBold/PlayfairDisplay_600SemiBold.ttf",
+            "node_modules/@expo-google-fonts/playfair-display/700Bold/PlayfairDisplay_700Bold.ttf"
+          ]
+        }
+      ],
       "./plugins/withUiSceneLifecycle"
     ],
     "extra": {

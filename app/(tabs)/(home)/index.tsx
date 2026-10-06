@@ -4,7 +4,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
 import { DashboardView } from '@/components/dashboard-view';
 import { listCategories } from '@/db/categories';
 import { listAllExpenses } from '@/db/expenses';
@@ -14,7 +13,6 @@ import { buildDashboardModel } from '@/lib/dashboard';
 import { todayISO } from '@/lib/dates';
 import { collectionTitle, kindsOf } from '@/lib/ledger-copy';
 import { shouldOnboard } from '@/lib/onboarding';
-import { ui } from '@/theme';
 
 export default function DashboardScreen() {
   const { data: properties, isFetching } = useQuery({
@@ -36,25 +34,20 @@ export default function DashboardScreen() {
   const model = buildDashboardModel(properties ?? [], expenses ?? [], income ?? [], todayISO());
   const categoryNames = new Map((categories ?? []).map((c) => [c.id, c.name]));
 
+  // The scroll view is the screen's first child so the large title collapses with it.
   return (
-    <View style={styles.container}>
-      <DashboardView
-        model={model}
-        categoryNames={categoryNames}
-        collectionTitle={collectionTitle(kindsOf(properties ?? []))}
-        onQuickAdd={() => router.push('/add')}
-        onOpenProperty={(id) => router.push({ pathname: '/property/[id]', params: { id } })}
-        onOpenTransaction={(entry) =>
-          router.push({
-            pathname: '/transaction/[kind]/[id]',
-            params: { kind: entry.kind, id: entry.id },
-          })
-        }
-      />
-    </View>
+    <DashboardView
+      model={model}
+      categoryNames={categoryNames}
+      collectionTitle={collectionTitle(kindsOf(properties ?? []))}
+      onQuickAdd={() => router.push('/add')}
+      onOpenProperty={(id) => router.push({ pathname: '/property/[id]', params: { id } })}
+      onOpenTransaction={(entry) =>
+        router.push({
+          pathname: '/transaction/[kind]/[id]',
+          params: { kind: entry.kind, id: entry.id },
+        })
+      }
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: { ...ui.screen },
-});

@@ -40,6 +40,18 @@ export function propertySubtypeLabel(subtype: PropertySubtype): string {
   return SUBTYPE_LABELS[subtype] ?? subtype;
 }
 
+const SUBTYPE_HINTS: Record<PropertySubtype, string> = {
+  rental: 'Tenants pay rent',
+  primary_residence: 'The home you live in',
+  investment: 'Held to grow in value',
+  flip: 'Bought to renovate and sell',
+};
+
+/** One line under a subtype in the picker, saying what it is for. */
+export function propertySubtypeHint(subtype: PropertySubtype): string {
+  return SUBTYPE_HINTS[subtype] ?? '';
+}
+
 /**
  * The lowercase word under a ledger's name in a list row: a property's subtype
  * ("rental", "primary residence"), or "budget".

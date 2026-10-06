@@ -3,7 +3,7 @@
 // first month(s) appear right away (README §4.2 "right after a rule is created").
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
 import { listCategories } from '@/db/categories';
 import { listProperties } from '@/db/properties';
 import { createRecurringRule, syncRule } from '@/db/recurring';
@@ -16,7 +16,13 @@ import {
   type RecurringRuleValidation,
 } from '@/lib/recurring-rule-validation';
 import type { CategoryKind, EndMode } from '@/types';
-import { colors, money, type, ui } from '@/theme';
+import { colors, moneyDisplay, space, type, ui } from '@/theme';
+import { GlassButton, GlassChip, GlassSegmented } from './glass';
+
+const END_OPTIONS = [
+  { value: 'until_stopped', label: 'Until I stop it' },
+  { value: 'count', label: 'After N months' },
+] as const;
 
 interface Props {
   kind: CategoryKind;
@@ -139,6 +145,7 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
   return (
     <ScrollView
       contentContainerStyle={styles.container}
+      contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
       // Scroll the focused field (and the Save button) above the keyboard instead of hiding them.
       automaticallyAdjustKeyboardInsets
@@ -152,7 +159,7 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
       <Text style={styles.label}>{collectionNoun(kindsOf(properties ?? []))} *</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow} style={styles.chipStrip}>
         {(properties ?? []).map((p) => (
-          <Chip key={p.id} label={p.name} active={propertyId === p.id} onPress={() => setPropertyId(p.id)} />
+          <GlassChip key={p.id} label={p.name} selected={propertyId === p.id} onPress={() => setPropertyId(p.id)} />
         ))}
       </ScrollView>
       {errors.property ? <Text style={styles.error}>{errors.property}</Text> : null}
@@ -160,7 +167,7 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
       <Text style={styles.label}>Category *</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow} style={styles.chipStrip}>
         {kindCategories.map((c) => (
-          <Chip key={c.id} label={c.name} active={categoryId === c.id} onPress={() => setCategoryId(c.id)} />
+          <GlassChip key={c.id} label={c.name} selected={categoryId === c.id} onPress={() => setCategoryId(c.id)} />
         ))}
       </ScrollView>
       {errors.category ? <Text style={styles.error}>{errors.category}</Text> : null}
@@ -171,6 +178,7 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
         value={amountText}
         onChangeText={setAmountText}
         placeholder="0.00"
+        placeholderTextColor={colors.mist}
         keyboardType="decimal-pad"
       />
       {errors.amount ? <Text style={styles.error}>{errors.amount}</Text> : null}
@@ -181,28 +189,14 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
         value={startMonthText}
         onChangeText={setStartMonthText}
         placeholder="YYYY-MM"
+        placeholderTextColor={colors.mist}
         autoCapitalize="none"
       />
       {errors.startMonth ? <Text style={styles.error}>{errors.startMonth}</Text> : null}
       {pending > 0 ? <Text style={styles.help}>Will post {pending} month(s) now</Text> : null}
 
       <Text style={styles.label}>Ends *</Text>
-      <View style={styles.segment}>
-        {(
-          [
-            ['until_stopped', 'Until I stop it'],
-            ['count', 'After N months'],
-          ] as const
-        ).map(([mode, label]) => (
-          <Pressable
-            key={mode}
-            style={[styles.segmentButton, endMode === mode && styles.segmentButtonActive]}
-            onPress={() => setEndMode(mode)}
-          >
-            <Text style={endMode === mode ? styles.segmentTextActive : styles.segmentText}>{label}</Text>
-          </Pressable>
-        ))}
-      </View>
+      <GlassSegmented options={END_OPTIONS} value={endMode} onChange={setEndMode} />
       {endMode === 'count' ? (
         <>
           <Text style={styles.label}>Number of months *</Text>
@@ -231,42 +225,27 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
       />
 
       <Text style={styles.label}>Notes</Text>
-      <TextInput style={styles.input} value={notes} onChangeText={setNotes} placeholder="optional" />
+      <TextInput style={styles.input} value={notes} onChangeText={setNotes} placeholder="optional" placeholderTextColor={colors.mist} />
 
-      <Pressable style={styles.saveButton} onPress={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
-        <Text style={styles.saveButtonText}>{saveMutation.isPending ? 'Saving…' : 'Save Recurring Rule'}</Text>
-      </Pressable>
+      <GlassButton
+        label={saveMutation.isPending ? 'Saving…' : 'Save Recurring Rule'}
+        onPress={() => saveMutation.mutate()}
+        disabled={saveMutation.isPending}
+        style={styles.saveButton}
+      />
     </ScrollView>
   );
 }
 
-function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
-  return (
-    <Pressable style={[styles.chip, active && styles.chipActive]} onPress={onPress}>
-      <Text style={active ? styles.chipTextActive : styles.chipText}>{label}</Text>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: { padding: 16, paddingBottom: 48 },
-  help: { ...type.label, marginBottom: 8, lineHeight: 18 },
+  container: { padding: space.lg, paddingBottom: 60 },
+  help: { ...type.label, marginBottom: space.sm, lineHeight: 20 },
   label: { ...ui.label },
-  chipStrip: { flexGrow: 0, flexShrink: 0 },
-  chipRow: { gap: 6, paddingVertical: 4 },
-  chip: { ...ui.chip },
-  chipActive: { ...ui.chipActive },
-  chipText: { ...ui.chipText },
-  chipTextActive: { ...ui.chipTextActive },
+  // Chips scroll edge to edge; the strip cancels the screen padding.
+  chipStrip: { flexGrow: 0, flexShrink: 0, marginHorizontal: -space.lg },
+  chipRow: { gap: space.sm, paddingVertical: space.xs, paddingHorizontal: space.lg },
   input: { ...ui.input },
-  amountInput: { ...money, fontSize: 24, fontWeight: '700' },
-  hint: { ...type.hint, marginTop: 4 },
-  segment: { flexDirection: 'row', borderRadius: 10, backgroundColor: colors.line, padding: 3 },
-  segmentButton: { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: 8 },
-  segmentButtonActive: { backgroundColor: colors.card },
-  segmentText: { color: colors.slate, fontSize: 14 },
-  segmentTextActive: { color: colors.ink, fontSize: 14, fontWeight: '600' },
-  saveButton: { ...ui.buttonPrimary, marginTop: 20 },
-  saveButtonText: { ...ui.buttonPrimaryText },
+  amountInput: { ...moneyDisplay, fontSize: 28 },
+  saveButton: { marginTop: space.xl },
   error: { ...ui.error },
 });

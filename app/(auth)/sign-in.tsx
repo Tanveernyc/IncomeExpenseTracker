@@ -1,16 +1,9 @@
 // Sign-in / sign-up screen (Phase 2). Validation happens locally first
 // (src/lib/auth-validation.ts); Supabase Auth errors surface below the form.
 import { useEffect, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { GlassButton, GlassSurface } from '@/components/glass';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { supabase } from '@/db/supabase';
 import { validateSignIn, type SignInValidation } from '@/lib/auth-validation';
@@ -22,7 +15,7 @@ import {
   signInWithGoogle,
   type SocialResult,
 } from '@/lib/social-auth';
-import { colors, type, ui } from '@/theme';
+import { backdrop, colors, space, type, ui } from '@/theme';
 
 type Mode = 'sign-in' | 'sign-up';
 
@@ -91,33 +84,37 @@ export default function SignInScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.form}>
+      <View style={styles.brand}>
+        <View style={styles.mark}>
+          <Ionicons name="book" size={26} color={colors.brassBright} />
+        </View>
         <Text style={styles.title}>PropertyLedger</Text>
         <Text style={styles.subtitle}>
           {mode === 'sign-in' ? 'Sign in to your ledger' : 'Create your account'}
         </Text>
+      </View>
+
+      <GlassSurface style={styles.form}>
 
         {appleAvailable ? (
           <AppleAuthentication.AppleAuthenticationButton
             testID="apple-sign-in"
             buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
             buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-            cornerRadius={10}
+            cornerRadius={27}
             style={styles.appleButton}
             onPress={() => runProvider(signInWithApple)}
           />
         ) : null}
 
         {googleAvailable ? (
-          <Pressable
+          <GlassButton
             testID="google-sign-in"
-            style={styles.googleButton}
+            variant="secondary"
+            label="Continue with Google"
             onPress={() => runProvider(signInWithGoogle)}
             disabled={submitting}
-            accessibilityRole="button"
-          >
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
-          </Pressable>
+          />
         ) : null}
 
         {appleAvailable || googleAvailable ? (
@@ -131,6 +128,7 @@ export default function SignInScreen() {
         <TextInput
           style={styles.input}
           placeholder="Email"
+          placeholderTextColor={colors.mist}
           autoCapitalize="none"
           autoComplete="email"
           keyboardType="email-address"
@@ -143,6 +141,7 @@ export default function SignInScreen() {
         <TextInput
           style={styles.input}
           placeholder="Password"
+          placeholderTextColor={colors.mist}
           secureTextEntry
           autoComplete={mode === 'sign-in' ? 'current-password' : 'new-password'}
           value={password}
@@ -153,15 +152,12 @@ export default function SignInScreen() {
 
         {authError ? <Text style={styles.error}>{authError}</Text> : null}
 
-        <Pressable style={styles.button} onPress={submit} disabled={submitting}>
-          {submitting ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>
-              {mode === 'sign-in' ? 'Sign In' : 'Sign Up'}
-            </Text>
-          )}
-        </Pressable>
+        <GlassButton
+          label={mode === 'sign-in' ? 'Sign In' : 'Sign Up'}
+          onPress={submit}
+          loading={submitting}
+          style={styles.button}
+        />
 
         <Pressable
           onPress={() => {
@@ -175,33 +171,33 @@ export default function SignInScreen() {
               : 'Already have an account? Sign in'}
           </Text>
         </Pressable>
-      </View>
+      </GlassSurface>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', backgroundColor: colors.paper },
-  form: { paddingHorizontal: 24, gap: 12 },
-  title: { ...type.display, textAlign: 'center' },
-  subtitle: { ...type.label, fontSize: 15, textAlign: 'center', marginBottom: 12 },
-  input: { ...ui.input, fontSize: 16, paddingVertical: 12 },
-  error: { ...ui.error, fontSize: 13 },
-  button: { ...ui.buttonPrimary, marginTop: 4 },
-  buttonText: { ...ui.buttonPrimaryText },
-  switchText: { ...ui.link, textAlign: 'center', marginTop: 8 },
-  appleButton: { height: 48 },
-  googleButton: {
-    height: 48,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.card,
+  // Shown outside the signed-in stack's chrome, so it paints its own backdrop.
+  container: { ...backdrop, flex: 1, justifyContent: 'center', padding: space.lg, gap: space.xl },
+  brand: { alignItems: 'center', gap: space.sm },
+  mark: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: colors.ink,
+    marginBottom: space.xs,
   },
-  googleButtonText: { color: colors.ink, fontSize: 16, fontWeight: '600' },
-  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 4 },
-  dividerLine: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: colors.line },
+  title: { ...type.display, textAlign: 'center' },
+  subtitle: { ...type.label, fontSize: 15, textAlign: 'center' },
+  form: { padding: space.xl, gap: space.md, borderRadius: 28 },
+  input: { ...ui.input },
+  error: { ...ui.error },
+  button: { marginTop: space.xs },
+  switchText: { ...ui.link, textAlign: 'center', marginTop: space.sm },
+  appleButton: { height: 54 },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginVertical: space.xs },
+  dividerLine: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: 'rgba(14, 26, 43, 0.14)' },
   dividerText: { ...type.hint },
 });

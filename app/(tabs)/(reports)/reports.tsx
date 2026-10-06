@@ -1,9 +1,10 @@
 // Reports tab (Phase 8): portfolio-wide and per-property P&L for
 // This Year / Last Year / All Time / Custom, plus expense-by-category totals.
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'expo-router';
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ScrollView, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { GlassChip, GlassPressable, GlassSurface } from '@/components/glass';
 import { listCategories } from '@/db/categories';
 import { listAllExpenses } from '@/db/expenses';
 import { listAllIncome } from '@/db/income';
@@ -22,7 +23,7 @@ import {
 import { todayISO } from '@/lib/dates';
 import { collectionNoun, kindsOf } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
-import { colors, money, type, ui } from '@/theme';
+import { colors, money, serif, space, type, ui } from '@/theme';
 
 type Preset = 'this-month' | 'last-month' | 'this-year' | 'last-year' | 'all-time' | 'custom';
 
@@ -73,8 +74,13 @@ export default function ReportsScreen() {
   const portfolioHasBudget = kindsOf(properties ?? []).includes('budget');
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.presets}>
+    <ScrollView contentContainerStyle={styles.container} contentInsetAdjustmentBehavior="automatic">
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.presets}
+        style={styles.presetStrip}
+      >
         {(
           [
             ['this-month', 'This Month'],
@@ -85,17 +91,9 @@ export default function ReportsScreen() {
             ['custom', 'Custom'],
           ] as const
         ).map(([value, label]) => (
-          <Pressable
-            key={value}
-            style={[styles.presetChip, preset === value && styles.presetChipActive]}
-            onPress={() => setPreset(value)}
-          >
-            <Text style={preset === value ? styles.presetTextActive : styles.presetText}>
-              {label}
-            </Text>
-          </Pressable>
+          <GlassChip key={value} label={label} selected={preset === value} onPress={() => setPreset(value)} />
         ))}
-      </View>
+      </ScrollView>
 
       {preset === 'custom' ? (
         <View style={styles.customRow}>
@@ -104,6 +102,7 @@ export default function ReportsScreen() {
             value={customFrom}
             onChangeText={setCustomFrom}
             placeholder="from YYYY-MM-DD"
+            placeholderTextColor={colors.mist}
             autoCapitalize="none"
           />
           <TextInput
@@ -111,12 +110,13 @@ export default function ReportsScreen() {
             value={customTo}
             onChangeText={setCustomTo}
             placeholder="to YYYY-MM-DD"
+            placeholderTextColor={colors.mist}
             autoCapitalize="none"
           />
         </View>
       ) : null}
 
-      <View style={styles.card}>
+      <GlassSurface style={styles.card}>
         <Text style={styles.cardTitle}>Portfolio</Text>
         <PLRow label="Income" value={portfolio.totalIncome} positive />
         <PLRow label="Expenses" value={portfolio.totalExpense} />
@@ -128,14 +128,14 @@ export default function ReportsScreen() {
             income
           </Text>
         ) : null}
-      </View>
+      </GlassSurface>
 
       <Text style={styles.sectionTitle}>By {collectionNoun(kindsOf(properties ?? [])).toLowerCase()}</Text>
       {perProperty.map((p) => {
         const isBudget = properties?.find((pr) => pr.id === p.propertyId)?.ledger_kind === 'budget';
         const cardRate = savingsRate(p);
         return (
-          <View key={p.propertyId} style={styles.card}>
+          <GlassSurface key={p.propertyId} style={styles.card}>
             <Text style={styles.cardTitle}>{p.name}</Text>
             <PLRow label="Income" value={p.totalIncome} positive />
             <PLRow label="Expenses" value={p.totalExpense} />
@@ -147,22 +147,26 @@ export default function ReportsScreen() {
                 {Math.abs(Math.round(cardRate * 100))}% of income
               </Text>
             ) : null}
-          </View>
+          </GlassSurface>
         );
       })}
 
-      <Link href="/history" style={styles.historyLink}>
-        History &amp; trends — “did my insurance go up?” →
-      </Link>
+      <GlassPressable onPress={() => router.push('/history')} contentStyle={styles.historyLink}>
+        <View style={styles.historyText}>
+          <Text style={styles.historyTitle}>History &amp; trends</Text>
+          <Text style={styles.historyHint}>“Did my insurance go up?”</Text>
+        </View>
+        <Text style={styles.historyChevron}>›</Text>
+      </GlassPressable>
 
       <Text style={styles.sectionTitle}>Expenses by category</Text>
-      <View style={styles.card}>
+      <GlassSurface style={styles.card}>
         {byCategory.length === 0 ? (
           <Text style={styles.emptyText}>No expenses in this range.</Text>
         ) : (
           byCategory.map((c) => <PLRow key={c.categoryId} label={c.name} value={c.total} />)
         )}
-      </View>
+      </GlassSurface>
     </ScrollView>
   );
 }
@@ -189,24 +193,26 @@ function PLRow({
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, paddingBottom: 48, gap: 10 },
-  presets: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  presetChip: { ...ui.chip },
-  presetChipActive: { ...ui.chipActive },
-  presetText: { ...ui.chipText },
-  presetTextActive: { ...ui.chipTextActive },
-  customRow: { flexDirection: 'row', gap: 8 },
+  container: { padding: space.lg, paddingBottom: 120, gap: space.md },
+  // Chips scroll edge to edge; the strip cancels the screen padding.
+  presetStrip: { marginHorizontal: -space.lg, flexGrow: 0 },
+  presets: { flexDirection: 'row', gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.xs },
+  customRow: { flexDirection: 'row', gap: space.sm },
   dateInput: { ...ui.input, flex: 1, fontSize: 14 },
-  card: { ...ui.card, padding: 14, gap: 6 },
-  cardTitle: { ...type.body, fontWeight: '700', marginBottom: 4 },
-  sectionTitle: { ...type.title, fontSize: 17, marginTop: 8 },
-  plRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  plLabel: { ...type.label, fontSize: 14 },
-  plValue: { ...money, fontSize: 14, fontWeight: '500' },
-  plPositive: { ...money, fontSize: 14, fontWeight: '500', color: colors.gain },
-  bold: { fontWeight: '700' },
-  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.line, marginVertical: 4 },
+  card: { padding: space.lg + 2, gap: space.sm },
+  cardTitle: { ...type.section, fontSize: 18, marginBottom: space.xs },
+  sectionTitle: { ...type.section, marginTop: space.md },
+  plRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
+  plLabel: { fontSize: 15, color: colors.slate },
+  plValue: { ...money, fontSize: 15, fontWeight: '500' },
+  plPositive: { ...money, fontSize: 15, fontWeight: '500', color: colors.gain },
+  bold: { fontWeight: '700', color: colors.ink, fontFamily: serif.bold, fontSize: 20 },
+  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.line, marginVertical: space.xs },
   emptyText: { ...type.hint },
-  historyLink: { ...ui.link, marginTop: 8 },
+  historyLink: { flexDirection: 'row', alignItems: 'center', padding: space.lg, gap: space.md },
+  historyText: { flex: 1, gap: 2 },
+  historyTitle: { ...type.body, fontWeight: '600' },
+  historyHint: { ...type.hint },
+  historyChevron: { fontSize: 24, color: colors.brass },
   savingsRate: { ...type.hint, textAlign: 'right' },
 });

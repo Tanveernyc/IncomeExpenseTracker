@@ -2,7 +2,7 @@
 // and a period table: total, change, % change. Math lives in calcCategoryTrend.
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { CartesianChart, Line } from 'victory-native';
 import { listCategories } from '@/db/categories';
 import { listPropertyExpenses } from '@/db/expenses';
@@ -11,7 +11,13 @@ import { calcCategoryTrend } from '@/lib/aggregate';
 import { categoriesForLedger } from '@/lib/categories';
 import { collectionNoun, kindsOf } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
-import { colors, money, ui } from '@/theme';
+import { GlassChip, GlassSegmented, GlassSurface } from '@/components/glass';
+import { colors, money, space, ui } from '@/theme';
+
+const GROUP_OPTIONS = [
+  { value: 'year', label: 'By year' },
+  { value: 'month', label: 'By month' },
+] as const;
 
 export default function HistoryScreen() {
   const [propertyId, setPropertyId] = useState<string | null>(null);
@@ -45,46 +51,22 @@ export default function HistoryScreen() {
   const chartData = trend.map((point, index) => ({ x: index, y: point.total }));
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} contentInsetAdjustmentBehavior="automatic">
       <Text style={styles.label}>{collectionNoun(kindsOf(properties ?? []))}</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow} style={styles.chipStrip}>
         {(properties ?? []).map((p) => (
-          <Pressable
-            key={p.id}
-            style={[styles.chip, propertyId === p.id && styles.chipActive]}
-            onPress={() => setPropertyId(p.id)}
-          >
-            <Text style={propertyId === p.id ? styles.chipTextActive : styles.chipText}>{p.name}</Text>
-          </Pressable>
+          <GlassChip key={p.id} label={p.name} selected={propertyId === p.id} onPress={() => setPropertyId(p.id)} />
         ))}
       </ScrollView>
 
       <Text style={styles.label}>Expense category</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow} style={styles.chipStrip}>
         {expenseCategories.map((c) => (
-          <Pressable
-            key={c.id}
-            style={[styles.chip, categoryId === c.id && styles.chipActive]}
-            onPress={() => setCategoryId(c.id)}
-          >
-            <Text style={categoryId === c.id ? styles.chipTextActive : styles.chipText}>{c.name}</Text>
-          </Pressable>
+          <GlassChip key={c.id} label={c.name} selected={categoryId === c.id} onPress={() => setCategoryId(c.id)} />
         ))}
       </ScrollView>
 
-      <View style={styles.groupByRow}>
-        {(['year', 'month'] as const).map((g) => (
-          <Pressable
-            key={g}
-            style={[styles.chip, groupBy === g && styles.chipActive]}
-            onPress={() => setGroupBy(g)}
-          >
-            <Text style={groupBy === g ? styles.chipTextActive : styles.chipText}>
-              By {g}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+      <GlassSegmented options={GROUP_OPTIONS} value={groupBy} onChange={setGroupBy} style={styles.groupBy} />
 
       {trend.length === 0 ? (
         <Text style={styles.empty}>
@@ -96,15 +78,15 @@ export default function HistoryScreen() {
         <>
           {/* Line chart needs 2+ points to draw a line */}
           {chartData.length >= 2 ? (
-            <View style={styles.chartBox}>
+            <GlassSurface style={styles.chartBox}>
               <CartesianChart data={chartData} xKey="x" yKeys={['y']}>
                 {({ points }) => <Line points={points.y} color={colors.brass} strokeWidth={3} />}
               </CartesianChart>
-            </View>
+            </GlassSurface>
           ) : null}
 
           {/* Period table: period / amount / change / % change */}
-          <View style={styles.table}>
+          <GlassSurface style={styles.table}>
             <View style={[styles.tableRow, styles.tableHead]}>
               <Text style={[styles.cell, styles.headText]}>Period</Text>
               <Text style={[styles.cellRight, styles.headText]}>Total</Text>
@@ -128,7 +110,7 @@ export default function HistoryScreen() {
                 </Text>
               </View>
             ))}
-          </View>
+          </GlassSurface>
         </>
       )}
     </ScrollView>
@@ -142,28 +124,26 @@ function changeStyle(change: number | null) {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, paddingBottom: 48, gap: 6 },
-  label: { ...ui.label, marginTop: 8 },
-  chipRow: { gap: 6, paddingVertical: 6 },
-  groupByRow: { flexDirection: 'row', gap: 6, marginTop: 8 },
-  chip: { ...ui.chip },
-  chipActive: { ...ui.chipActive },
-  chipText: { ...ui.chipText },
-  chipTextActive: { ...ui.chipTextActive },
+  container: { padding: space.lg, paddingBottom: 60, gap: space.xs },
+  label: { ...ui.label },
+  // Chips scroll edge to edge; the strip cancels the screen padding.
+  chipStrip: { marginHorizontal: -space.lg, flexGrow: 0 },
+  chipRow: { gap: space.sm, paddingVertical: space.xs, paddingHorizontal: space.lg },
+  groupBy: { marginTop: space.lg },
   empty: { ...ui.empty, marginTop: 32 },
-  chartBox: { height: 220, marginTop: 12 },
-  table: { ...ui.card, marginTop: 12, overflow: 'hidden' },
-  tableHead: { backgroundColor: colors.paper },
+  chartBox: { height: 240, marginTop: space.lg, padding: space.md },
+  table: { marginTop: space.md },
+  tableHead: { borderBottomColor: 'rgba(14, 26, 43, 0.14)' },
   tableRow: {
     flexDirection: 'row',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: space.lg,
+    paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.line,
   },
-  headText: { fontWeight: '700', color: colors.slate },
-  cell: { flex: 1.2, fontSize: 13, color: colors.ink },
-  cellRight: { ...money, flex: 1, fontSize: 13, fontWeight: '500', textAlign: 'right' },
+  headText: { fontWeight: '700', color: colors.slate, fontSize: 12, letterSpacing: 0.6, textTransform: 'uppercase' },
+  cell: { flex: 1.2, fontSize: 14, color: colors.ink },
+  cellRight: { ...money, flex: 1, fontSize: 14, fontWeight: '500', textAlign: 'right' },
   up: { color: colors.danger },
   down: { color: colors.gain },
 });

@@ -2,7 +2,7 @@
 // Delete (history kept via on delete set null). Edit → /recurring/[id] (amount/notes,
 // README §4.3). New rule → /recurring/new modal.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, Stack, useLocalSearchParams } from 'expo-router';
+import { Link, router, Stack, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { listCategories } from '@/db/categories';
 import { getProperty } from '@/db/properties';
@@ -12,7 +12,8 @@ import { monthKey } from '@/lib/dates';
 import { nounFor } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
 import type { RecurringRule } from '@/types';
-import { colors, money, type, ui } from '@/theme';
+import { GlassButton, GlassSurface } from '@/components/glass';
+import { colors, money, space, type, ui } from '@/theme';
 
 export default function PropertyRecurringScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -58,70 +59,84 @@ export default function PropertyRecurringScreen() {
     );
 
   return (
-    <View style={styles.container}>
+    <>
       <Stack.Screen
         options={{ title: `${property?.name ?? nounFor(property?.ledger_kind ?? 'property').one} · Recurring` }}
       />
-      <View style={styles.header}>
-        <Link href={{ pathname: '/recurring/new', params: { kind: 'expense', propertyId: id } }} style={styles.link}>
-          + Expense rule
-        </Link>
-        <Link href={{ pathname: '/recurring/new', params: { kind: 'income', propertyId: id } }} style={styles.link}>
-          + Income rule
-        </Link>
-      </View>
-      {isPending ? (
-        <ActivityIndicator style={styles.spinner} />
-      ) : (
-        <FlatList
-          contentContainerStyle={styles.listContent}
-          data={rules}
-          keyExtractor={(r) => r.id}
-          ListEmptyComponent={<Text style={styles.empty}>No recurring rules for this property yet.</Text>}
-          renderItem={({ item }) => (
-            <View style={[styles.row, !item.is_active && styles.rowInactive]}>
-              <View style={styles.rowText}>
-                <Text style={styles.rowTitle}>
-                  {categoryName(item.category_id)} · {item.kind === 'income' ? '+' : '−'}
-                  {formatMoney(item.amount)}/mo
-                </Text>
-                <Text style={styles.rowMeta}>
-                  from {monthKey(item.start_month)} · {endsLabel(item)}
-                  {item.notes ? ` · ${item.notes}` : ''}
-                </Text>
-              </View>
-              <View style={styles.actions}>
-                {item.is_active ? (
-                  <Link href={{ pathname: '/recurring/[id]', params: { id: item.id } }} style={styles.edit}>
-                    Edit
-                  </Link>
-                ) : null}
-                {item.is_active && item.end_mode === 'until_stopped' ? (
-                  <Pressable onPress={() => onStop(item)}>
-                    <Text style={styles.stop}>Stop</Text>
-                  </Pressable>
-                ) : null}
-                <Pressable onPress={() => onDelete(item)}>
-                  <Text style={styles.delete}>Delete</Text>
-                </Pressable>
-              </View>
+      <FlatList
+        style={ui.screen}
+        contentContainerStyle={styles.listContent}
+        contentInsetAdjustmentBehavior="automatic"
+        data={isPending ? [] : rules}
+        keyExtractor={(r) => r.id}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <GlassButton
+              variant="secondary"
+              label="+ Expense rule"
+              onPress={() => router.push({ pathname: '/recurring/new', params: { kind: 'expense', propertyId: id } })}
+              style={styles.headerButton}
+            />
+            <GlassButton
+              variant="secondary"
+              label="+ Income rule"
+              onPress={() => router.push({ pathname: '/recurring/new', params: { kind: 'income', propertyId: id } })}
+              style={styles.headerButton}
+            />
+          </View>
+        }
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ListEmptyComponent={
+          isPending ? (
+            <ActivityIndicator style={styles.spinner} />
+          ) : (
+            <Text style={styles.empty}>No recurring rules for this property yet.</Text>
+          )
+        }
+        renderItem={({ item }) => (
+          // Stopped rules dim their text, never the glass: opacity on a GlassView kills the effect.
+          <GlassSurface style={styles.row}>
+            <View style={styles.rowText}>
+              <Text style={[styles.rowTitle, !item.is_active && styles.inactiveText]}>
+                {categoryName(item.category_id)} · {item.kind === 'income' ? '+' : '−'}
+                {formatMoney(item.amount)}/mo
+              </Text>
+              <Text style={[styles.rowMeta, !item.is_active && styles.inactiveText]}>
+                from {monthKey(item.start_month)} · {endsLabel(item)}
+                {item.notes ? ` · ${item.notes}` : ''}
+              </Text>
             </View>
-          )}
-        />
-      )}
-    </View>
+            <View style={styles.actions}>
+              {item.is_active ? (
+                <Link href={{ pathname: '/recurring/[id]', params: { id: item.id } }} style={styles.edit}>
+                  Edit
+                </Link>
+              ) : null}
+              {item.is_active && item.end_mode === 'until_stopped' ? (
+                <Pressable onPress={() => onStop(item)}>
+                  <Text style={styles.stop}>Stop</Text>
+                </Pressable>
+              ) : null}
+              <Pressable onPress={() => onDelete(item)}>
+                <Text style={styles.delete}>Delete</Text>
+              </Pressable>
+            </View>
+          </GlassSurface>
+        )}
+      />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { ...ui.screen },
-  listContent: { paddingBottom: 40 },
-  header: { flexDirection: 'row', justifyContent: 'flex-end', gap: 16, paddingHorizontal: 16, paddingVertical: 10 },
-  link: { ...ui.link },
+  listContent: { padding: space.lg, paddingBottom: 60 },
+  header: { flexDirection: 'row', gap: space.md, marginBottom: space.lg },
+  headerButton: { flex: 1 },
   spinner: { marginTop: 32 },
   empty: { ...ui.empty },
-  row: { ...ui.row },
-  rowInactive: { opacity: 0.55 },
+  separator: { height: space.sm },
+  row: { flexDirection: 'row', alignItems: 'center', padding: space.lg, gap: space.md },
+  inactiveText: { color: colors.mist },
   rowText: { flex: 1 },
   rowTitle: { ...money, fontSize: 15 },
   rowMeta: { ...type.hint, marginTop: 2 },

@@ -1,11 +1,13 @@
 // Property transactions screen (Phase 7): expenses + income interleaved newest
 // first, category and date-range filters, tap to edit, swipe to delete (confirmed).
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, router, Stack, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Animated,
   FlatList,
   Pressable,
   ScrollView,
@@ -32,7 +34,8 @@ import {
   type TimelineEntry,
   type TimelineSort,
 } from '@/lib/timeline';
-import { colors, money, type, ui } from '@/theme';
+import { GlassChip, GlassPressable } from '@/components/glass';
+import { colors, money, radius, space, type, ui } from '@/theme';
 
 export default function PropertyTransactionsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -98,23 +101,8 @@ export default function PropertyTransactionsScreen() {
 
   const loading = loadingExpenses || loadingIncome;
 
-  return (
-    <View style={styles.container}>
-      <Stack.Screen options={{ title: property?.name ?? nounFor(property?.ledger_kind ?? 'property').one }} />
-
-      <View style={styles.header}>
-        <Link href={{ pathname: '/property/[id]/recurring', params: { id } }} asChild>
-          <Pressable>
-            <Text style={styles.editLink}>Recurring</Text>
-          </Pressable>
-        </Link>
-        <Link href={{ pathname: '/property/[id]/edit', params: { id } }} asChild>
-          <Pressable>
-            <Text style={styles.editLink}>Edit details</Text>
-          </Pressable>
-        </Link>
-      </View>
-
+  const filters = (
+    <View style={styles.filters}>
       {/* Filters: category chips + inclusive date range */}
       <ScrollView
         horizontal
@@ -122,27 +110,19 @@ export default function PropertyTransactionsScreen() {
         contentContainerStyle={styles.chipRow}
         style={styles.chipStrip}
       >
-        <Pressable
-          style={[styles.chip, !categoryId && styles.chipActive]}
-          onPress={() => setCategoryId(undefined)}
-        >
-          <Text style={!categoryId ? styles.chipTextActive : styles.chipText}>All</Text>
-        </Pressable>
+        <GlassChip label="All" selected={!categoryId} onPress={() => setCategoryId(undefined)} />
         {/* Until the property loads, show the categories every ledger shares rather
             than an empty row that also never recovers if the query fails. */}
         {(property
           ? categoriesVisibleToLedger(categories ?? [], property)
           : (categories ?? []).filter((c) => c.scope === 'both')
         ).map((c) => (
-          <Pressable
+          <GlassChip
             key={c.id}
-            style={[styles.chip, categoryId === c.id && styles.chipActive]}
+            label={c.name}
+            selected={categoryId === c.id}
             onPress={() => setCategoryId(categoryId === c.id ? undefined : c.id)}
-          >
-            <Text style={categoryId === c.id ? styles.chipTextActive : styles.chipText}>
-              {c.name}
-            </Text>
-          </Pressable>
+          />
         ))}
       </ScrollView>
       <View style={styles.dateRow}>
@@ -151,6 +131,7 @@ export default function PropertyTransactionsScreen() {
           value={from}
           onChangeText={setFrom}
           placeholder="from YYYY-MM-DD"
+          placeholderTextColor={colors.mist}
           autoCapitalize="none"
         />
         <TextInput
@@ -158,89 +139,132 @@ export default function PropertyTransactionsScreen() {
           value={to}
           onChangeText={setTo}
           placeholder="to YYYY-MM-DD"
+          placeholderTextColor={colors.mist}
           autoCapitalize="none"
         />
       </View>
       <View style={styles.sortRow}>
-        <Pressable style={[styles.chip, styles.chipActive]} onPress={nextSort} accessibilityRole="button">
-          <Text style={styles.chipTextActive}>↕ {TIMELINE_SORT_LABELS[sort]}</Text>
-        </Pressable>
+        <GlassChip label={`↕ ${TIMELINE_SORT_LABELS[sort]}`} selected onPress={nextSort} />
       </View>
+      {loading ? <ActivityIndicator style={styles.spinner} /> : null}
+    </View>
+  );
 
-      {loading ? (
-        <ActivityIndicator style={styles.spinner} />
-      ) : (
-        <FlatList
-          contentContainerStyle={styles.listContent}
-          data={timeline}
-          keyExtractor={(entry) => `${entry.kind}-${entry.id}`}
-          ListEmptyComponent={<Text style={styles.empty}>No transactions match.</Text>}
-          renderItem={({ item }) => (
-            <Swipeable
-              renderRightActions={() => (
+  return (
+    <>
+      <Stack.Screen
+        options={{
+          title: property?.name ?? nounFor(property?.ledger_kind ?? 'property').one,
+          // On iOS 26 these render as one liquid glass capsule in the header.
+          headerRight: () => (
+            <View style={styles.headerActions}>
+              <Pressable
+                onPress={() => router.push({ pathname: '/property/[id]/recurring', params: { id } })}
+                accessibilityLabel="Recurring"
+                accessibilityRole="button"
+                hitSlop={8}
+              >
+                <Ionicons name="repeat" size={22} color={colors.ink} />
+              </Pressable>
+              <Pressable
+                onPress={() => router.push({ pathname: '/property/[id]/edit', params: { id } })}
+                accessibilityLabel="Edit details"
+                accessibilityRole="button"
+                hitSlop={8}
+              >
+                <Ionicons name="create-outline" size={22} color={colors.ink} />
+              </Pressable>
+            </View>
+          ),
+        }}
+      />
+      <FlatList
+        style={ui.screen}
+        contentContainerStyle={styles.listContent}
+        contentInsetAdjustmentBehavior="automatic"
+        data={loading ? [] : timeline}
+        keyExtractor={(entry) => `${entry.kind}-${entry.id}`}
+        ListHeaderComponent={filters}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ListEmptyComponent={loading ? null : <Text style={styles.empty}>No transactions match.</Text>}
+        renderItem={({ item }) => (
+          <Swipeable
+            renderRightActions={(progress) => (
+              // Rows are translucent glass, so the action fades in with the swipe
+              // instead of showing red through the row at rest.
+              <Animated.View
+                style={[
+                  styles.deleteActionWrap,
+                  { opacity: progress.interpolate({ inputRange: [0, 0.3], outputRange: [0, 1], extrapolate: 'clamp' }) },
+                ]}
+              >
                 <Pressable style={styles.deleteAction} onPress={() => onDelete(item)}>
                   <Text style={styles.deleteActionText}>Delete</Text>
                 </Pressable>
-              )}
+              </Animated.View>
+            )}
+          >
+            <GlassPressable
+              contentStyle={styles.row}
+              accessibilityLabel={`${categoryName(item.category_id)} ${formatMoney(item.amount)}`}
+              onPress={() =>
+                router.push({
+                  pathname: '/transaction/[kind]/[id]',
+                  params: { kind: item.kind, id: item.id },
+                })
+              }
             >
-              <Pressable
-                style={styles.row}
-                onPress={() =>
-                  router.push({
-                    pathname: '/transaction/[kind]/[id]',
-                    params: { kind: item.kind, id: item.id },
-                  })
-                }
-              >
-                <View style={styles.rowText}>
-                  <Text style={styles.rowCategory}>
-                    {item.recurring_id ? '↻ ' : ''}
-                    {categoryName(item.category_id)}
-                  </Text>
-                  <Text style={styles.rowMeta}>
-                    {item.date}
-                    {item.party ? ` · ${item.party}` : ''}
-                  </Text>
-                </View>
-                <Text style={item.kind === 'income' ? styles.amountIn : styles.amountOut}>
-                  {item.kind === 'income' ? '+' : '−'}
-                  {formatMoney(item.amount)}
+              <View style={styles.rowText}>
+                <Text style={styles.rowCategory}>
+                  {item.recurring_id ? '↻ ' : ''}
+                  {categoryName(item.category_id)}
                 </Text>
-              </Pressable>
-            </Swipeable>
-          )}
-        />
-      )}
-    </View>
+                <Text style={styles.rowMeta}>
+                  {item.date}
+                  {item.party ? ` · ${item.party}` : ''}
+                </Text>
+              </View>
+              <Text style={item.kind === 'income' ? styles.amountIn : styles.amountOut}>
+                {item.kind === 'income' ? '+' : '−'}
+                {formatMoney(item.amount)}
+              </Text>
+            </GlassPressable>
+          </Swipeable>
+        )}
+      />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { ...ui.screen },
   // Home-indicator clearance so the last row is never cut off.
-  listContent: { paddingBottom: 40 },
-  header: { flexDirection: 'row', justifyContent: 'flex-end', gap: 16, paddingHorizontal: 16, paddingTop: 10 },
-  editLink: { ...ui.link },
-  // ScrollView defaults to flexShrink: 1, which lets the column squash the strip
-  // under the date row; pin it to its content height.
-  chipStrip: { flexGrow: 0, flexShrink: 0 },
-  chipRow: { gap: 6, paddingHorizontal: 12, paddingVertical: 8 },
-  chip: { ...ui.chip },
-  chipActive: { ...ui.chipActive },
-  chipText: { ...ui.chipText },
-  chipTextActive: { ...ui.chipTextActive },
-  dateRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 12, paddingBottom: 8 },
-  sortRow: { flexDirection: 'row', paddingHorizontal: 12, paddingBottom: 10 },
+  listContent: { padding: space.lg, paddingBottom: 60 },
+  headerActions: { flexDirection: 'row', gap: 18, paddingHorizontal: 4 },
+  filters: { gap: space.md, marginBottom: space.lg },
+  // Chips scroll edge to edge; the strip cancels the list padding.
+  chipStrip: { marginHorizontal: -space.lg, flexGrow: 0 },
+  chipRow: { gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.xs },
+  dateRow: { flexDirection: 'row', gap: space.sm },
+  sortRow: { flexDirection: 'row' },
   dateInput: { ...ui.input, flex: 1, fontSize: 14 },
   spinner: { marginTop: 32 },
   empty: { ...ui.empty },
-  // The ledger: hairline-ruled rows, amounts in a right-hand column of tabular figures.
-  row: { ...ui.row },
+  separator: { height: space.sm },
+  // The ledger: amounts in a right-hand column of tabular figures.
+  row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space.lg, paddingVertical: 14 },
   rowText: { flex: 1 },
   rowCategory: { ...type.body, fontWeight: '600' },
   rowMeta: { ...type.hint, marginTop: 2 },
   amountIn: { ...money, color: colors.gain },
   amountOut: { ...money },
-  deleteAction: { backgroundColor: colors.danger, justifyContent: 'center', alignItems: 'center', width: 84 },
-  deleteActionText: { color: colors.card, fontWeight: '700' },
+  deleteActionWrap: { width: 96, paddingLeft: space.sm },
+  deleteAction: {
+    flex: 1,
+    backgroundColor: colors.danger,
+    borderRadius: radius.card,
+    borderCurve: 'continuous',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deleteActionText: { color: colors.onInk, fontWeight: '700' },
 });

@@ -4,9 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -21,7 +19,9 @@ import { monthKey } from '@/lib/dates';
 import { validateTransactionForm, type TransactionValidation } from '@/lib/expense-validation';
 import { partyLabel } from '@/lib/ledger-copy';
 import type { Expense, Income } from '@/types';
-import { money, type, ui } from '@/theme';
+import { ScreenLoading } from '@/components/screen-state';
+import { GlassButton, GlassSurface } from '@/components/glass';
+import { colors, moneyDisplay, space, type, ui } from '@/theme';
 
 export default function EditTransactionScreen() {
   const { kind, id } = useLocalSearchParams<{ kind: 'expense' | 'income'; id: string }>();
@@ -34,7 +34,7 @@ export default function EditTransactionScreen() {
 
   // The editor mounts only once the row is here, so its fields start from the
   // transaction instead of being written in afterwards by an effect.
-  if (isPending || !transaction) return <ActivityIndicator style={styles.spinner} />;
+  if (isPending || !transaction) return <ScreenLoading />;
   return <TransactionEditor id={id} isExpense={isExpense} transaction={transaction} />;
 }
 
@@ -122,6 +122,7 @@ function TransactionEditor({
   return (
     <ScrollView
       contentContainerStyle={styles.container}
+      contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
       // Scroll the focused field (and the Save button) above the keyboard instead of hiding them.
       automaticallyAdjustKeyboardInsets
@@ -130,11 +131,13 @@ function TransactionEditor({
       <Stack.Screen options={{ title: isExpense ? 'Edit Expense' : 'Edit Income' }} />
 
       {transaction?.recurring_id ? (
-        <Text style={styles.recurringNote}>
-          ↻ Posted by a monthly rule. Changes here apply to this month only; the rule keeps posting
-          future months at its own amount. Moving it to another month leaves the original month
-          empty for good.
-        </Text>
+        <GlassSurface style={styles.recurringCard}>
+          <Text style={styles.recurringNote}>
+            ↻ Posted by a monthly rule. Changes here apply to this month only; the rule keeps posting
+            future months at its own amount. Moving it to another month leaves the original month
+            empty for good.
+          </Text>
+        </GlassSurface>
       ) : null}
 
       <Text style={styles.label}>Amount ($) *</Text>
@@ -152,6 +155,7 @@ function TransactionEditor({
         value={date}
         onChangeText={setDate}
         placeholder="YYYY-MM-DD"
+        placeholderTextColor={colors.mist}
         autoCapitalize="none"
       />
       {errors.date ? <Text style={styles.error}>{errors.date}</Text> : null}
@@ -165,6 +169,7 @@ function TransactionEditor({
               value={periodStart}
               onChangeText={setPeriodStart}
               placeholder="start YYYY-MM-DD"
+              placeholderTextColor={colors.mist}
               autoCapitalize="none"
             />
             <TextInput
@@ -172,6 +177,7 @@ function TransactionEditor({
               value={periodEnd}
               onChangeText={setPeriodEnd}
               placeholder="end YYYY-MM-DD"
+              placeholderTextColor={colors.mist}
               autoCapitalize="none"
             />
           </View>
@@ -185,29 +191,25 @@ function TransactionEditor({
       <Text style={styles.label}>Notes</Text>
       <TextInput style={styles.input} value={notes} onChangeText={setNotes} />
 
-      <Pressable
-        style={styles.saveButton}
+      <GlassButton
+        label={saveMutation.isPending ? 'Saving…' : 'Save Changes'}
         onPress={() => saveMutation.mutate()}
         disabled={saveMutation.isPending}
-      >
-        <Text style={styles.saveButtonText}>
-          {saveMutation.isPending ? 'Saving…' : 'Save Changes'}
-        </Text>
-      </Pressable>
+        style={styles.saveButton}
+      />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, paddingBottom: 48, gap: 4 },
-  spinner: { marginTop: 40 },
+  container: { padding: space.lg, paddingBottom: 60, gap: space.xs },
   label: { ...ui.label },
-  recurringNote: { ...type.label, fontSize: 12, marginBottom: 8, lineHeight: 16 },
-  input: { ...ui.input, fontSize: 16 },
-  amountInput: { ...money, fontSize: 26, fontWeight: '700' },
-  periodRow: { flexDirection: 'row', gap: 8 },
+  recurringCard: { padding: space.lg, marginBottom: space.sm },
+  recurringNote: { ...type.label, fontSize: 13, lineHeight: 19 },
+  input: { ...ui.input },
+  amountInput: { ...moneyDisplay, fontSize: 30 },
+  periodRow: { flexDirection: 'row', gap: space.sm },
   periodInput: { flex: 1 },
-  error: { ...ui.error, fontSize: 13 },
-  saveButton: { ...ui.buttonPrimary, marginTop: 20 },
-  saveButtonText: { ...ui.buttonPrimaryText },
+  error: { ...ui.error },
+  saveButton: { marginTop: space.xl },
 });

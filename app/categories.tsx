@@ -3,7 +3,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   Pressable,
   SectionList,
@@ -15,7 +14,9 @@ import {
 import { createCategory, deleteCategory, listCategories, renameCategory } from '@/db/categories';
 import { canDeleteCategory } from '@/lib/categories';
 import type { Category, CategoryKind, CategoryScope } from '@/types';
-import { colors, radius, type, ui } from '@/theme';
+import { ScreenError, ScreenLoading } from '@/components/screen-state';
+import { GlassButton, GlassChip, GlassSurface } from '@/components/glass';
+import { colors, space, type, ui } from '@/theme';
 
 const SCOPE_CYCLE: CategoryScope[] = ['both', 'property', 'budget'];
 const SCOPE_LABELS: Record<CategoryScope, string> = {
@@ -59,8 +60,8 @@ export default function CategoriesScreen() {
     onError,
   });
 
-  if (isPending) return <ActivityIndicator style={styles.spinner} />;
-  if (error) return <Text style={styles.error}>{(error as Error).message}</Text>;
+  if (isPending) return <ScreenLoading />;
+  if (error) return <ScreenError message={(error as Error).message} />;
 
   const scopes: { scope: CategoryScope; label: string }[] = [
     { scope: 'both', label: 'Shared' },
@@ -91,87 +92,85 @@ export default function CategoriesScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.addRow}>
-        <TextInput
-          style={styles.input}
-          value={newName}
-          onChangeText={setNewName}
-          placeholder="New category name"
-        />
-        <Pressable
-          style={styles.kindChip}
-          onPress={() => setNewKind(newKind === 'expense' ? 'income' : 'expense')}
-          accessibilityLabel="Toggle category kind"
-        >
-          <Text style={styles.kindChipText}>{newKind}</Text>
-        </Pressable>
-        <Pressable
-          style={styles.kindChip}
-          onPress={() =>
-            setNewScope(SCOPE_CYCLE[(SCOPE_CYCLE.indexOf(newScope) + 1) % SCOPE_CYCLE.length])
-          }
-          accessibilityLabel="Toggle category scope"
-        >
-          <Text style={styles.kindChipText}>{SCOPE_LABELS[newScope]}</Text>
-        </Pressable>
-        <Pressable
-          style={styles.addButton}
-          disabled={addMutation.isPending || newName.trim().length === 0}
-          onPress={() => addMutation.mutate()}
-        >
-          <Text style={styles.addButtonText}>Add</Text>
-        </Pressable>
-      </View>
-
-      <SectionList
-        sections={sections}
-        keyExtractor={(item) => item.id}
-        renderSectionHeader={({ section }) => (
-          <Text style={styles.sectionHeader}>{section.title}</Text>
-        )}
-        renderItem={({ item }) => (
-          <View style={styles.row}>
-            <Text style={styles.rowName}>{item.name}</Text>
-            {item.is_system ? (
-              <Text style={styles.systemBadge}>system</Text>
-            ) : (
-              <View style={styles.rowActions}>
-                <Pressable onPress={() => promptRename(item)}>
-                  <Text style={styles.action}>Rename</Text>
-                </Pressable>
-                <Pressable onPress={() => confirmDelete(item)} disabled={!canDeleteCategory(item)}>
-                  <Text style={[styles.action, styles.deleteAction]}>Delete</Text>
-                </Pressable>
-              </View>
-            )}
+    <SectionList
+      style={ui.screen}
+      contentContainerStyle={styles.listContent}
+      contentInsetAdjustmentBehavior="automatic"
+      stickySectionHeadersEnabled={false}
+      sections={sections}
+      keyExtractor={(item) => item.id}
+      ListHeaderComponent={
+        <GlassSurface style={styles.addCard}>
+          <TextInput
+            style={styles.input}
+            value={newName}
+            onChangeText={setNewName}
+            placeholder="New category name"
+            placeholderTextColor={colors.mist}
+          />
+          <View style={styles.addRow}>
+            <GlassChip
+              label={newKind === 'expense' ? 'Expense' : 'Income'}
+              selected
+              onPress={() => setNewKind(newKind === 'expense' ? 'income' : 'expense')}
+              accessibilityLabel="Toggle category kind"
+            />
+            <GlassChip
+              label={SCOPE_LABELS[newScope]}
+              selected
+              onPress={() =>
+                setNewScope(SCOPE_CYCLE[(SCOPE_CYCLE.indexOf(newScope) + 1) % SCOPE_CYCLE.length])
+              }
+              accessibilityLabel="Toggle category scope"
+            />
+            <GlassButton
+              label="Add"
+              disabled={addMutation.isPending || newName.trim().length === 0}
+              onPress={() => addMutation.mutate()}
+              style={styles.addButton}
+            />
           </View>
-        )}
-      />
-    </View>
+        </GlassSurface>
+      }
+      renderSectionHeader={({ section }) => <Text style={styles.sectionHeader}>{section.title}</Text>}
+      ItemSeparatorComponent={() => <View style={styles.separator} />}
+      renderItem={({ item }) => (
+        <GlassSurface style={styles.row}>
+          <Text style={styles.rowName}>{item.name}</Text>
+          {item.is_system ? (
+            <Text style={styles.systemBadge}>system</Text>
+          ) : (
+            <View style={styles.rowActions}>
+              <Pressable onPress={() => promptRename(item)}>
+                <Text style={styles.action}>Rename</Text>
+              </Pressable>
+              <Pressable onPress={() => confirmDelete(item)} disabled={!canDeleteCategory(item)}>
+                <Text style={[styles.action, styles.deleteAction]}>Delete</Text>
+              </Pressable>
+            </View>
+          )}
+        </GlassSurface>
+      )}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: { ...ui.screen },
-  spinner: { marginTop: 40 },
+  listContent: { padding: space.lg, paddingBottom: 60 },
   error: { ...ui.error, padding: 16 },
-  addRow: {
+  addCard: { padding: space.md, gap: space.md },
+  addRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  input: { ...ui.input },
+  addButton: { flex: 1 },
+  sectionHeader: { ...type.eyebrow, marginTop: space.xl, marginBottom: space.sm, marginLeft: space.xs },
+  separator: { height: space.sm },
+  row: {
     flexDirection: 'row',
-    gap: 8,
-    padding: 12,
-    backgroundColor: colors.card,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.line,
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: space.lg,
+    paddingVertical: 14,
   },
-  input: { ...ui.input, flex: 1, paddingVertical: 8 },
-  kindChip: { ...ui.chipActive, borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 6 },
-  kindChipText: { ...ui.chipTextActive },
-  addButton: { backgroundColor: colors.ink, borderRadius: radius.control, paddingHorizontal: 14, paddingVertical: 8 },
-  addButtonText: { color: colors.card, fontWeight: '600' },
-  sectionHeader: { ...type.label, fontWeight: '700', paddingHorizontal: 16, paddingTop: 14, paddingBottom: 6 },
-  row: { ...ui.row, justifyContent: 'space-between' },
   rowName: { ...type.body },
   rowActions: { flexDirection: 'row', gap: 16 },
   action: { ...ui.link },

@@ -6,9 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
-  Pressable,
   ScrollView,
   StyleSheet,
   Switch,
@@ -24,7 +22,14 @@ import { isValidISODate, monthKey, todayISO } from '@/lib/dates';
 import { collectionNoun, kindsOf, partyLabel } from '@/lib/ledger-copy';
 import { validateRecurringRuleForm, type RecurringRuleValidation } from '@/lib/recurring-rule-validation';
 import type { EndMode, RecurringRule } from '@/types';
-import { colors, money, type, ui } from '@/theme';
+import { ScreenLoading } from '@/components/screen-state';
+import { GlassButton, GlassChip, GlassSegmented, GlassSurface } from '@/components/glass';
+import { colors, moneyDisplay, space, type, ui } from '@/theme';
+
+const END_OPTIONS = [
+  { value: 'until_stopped', label: 'Until I stop it' },
+  { value: 'count', label: 'After N months' },
+] as const;
 
 export default function EditRecurringRuleScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -35,7 +40,7 @@ export default function EditRecurringRuleScreen() {
 
   // The editor mounts only once the rule is here, so its fields start from the
   // row instead of being written in afterwards by an effect.
-  if (isPending || !rule) return <ActivityIndicator style={styles.spinner} />;
+  if (isPending || !rule) return <ScreenLoading />;
   return <RuleEditor id={id} rule={rule} />;
 }
 
@@ -137,6 +142,7 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
   return (
     <ScrollView
       contentContainerStyle={styles.container}
+      contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
       automaticallyAdjustKeyboardInsets
       keyboardDismissMode="interactive"
@@ -151,7 +157,7 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
       <Text style={styles.label}>{collectionNoun(kindsOf(properties ?? []))} *</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow} style={styles.chipStrip}>
         {(properties ?? []).map((p) => (
-          <Chip key={p.id} label={p.name} active={propertyId === p.id} onPress={() => setPropertyId(p.id)} />
+          <GlassChip key={p.id} label={p.name} selected={propertyId === p.id} onPress={() => setPropertyId(p.id)} />
         ))}
       </ScrollView>
       {errors.property ? <Text style={styles.error}>{errors.property}</Text> : null}
@@ -159,7 +165,7 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
       <Text style={styles.label}>Category *</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow} style={styles.chipStrip}>
         {kindCategories.map((c) => (
-          <Chip key={c.id} label={c.name} active={categoryId === c.id} onPress={() => setCategoryId(c.id)} />
+          <GlassChip key={c.id} label={c.name} selected={categoryId === c.id} onPress={() => setCategoryId(c.id)} />
         ))}
       </ScrollView>
       {errors.category ? <Text style={styles.error}>{errors.category}</Text> : null}
@@ -188,7 +194,7 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
       />
 
       <Text style={styles.label}>Notes</Text>
-      <TextInput style={styles.input} value={notes} onChangeText={setNotes} placeholder="optional" />
+      <TextInput style={styles.input} value={notes} onChangeText={setNotes} placeholder="optional" placeholderTextColor={colors.mist} />
 
       <Text style={styles.label}>Start month *</Text>
       <TextInput
@@ -196,27 +202,13 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
         value={startMonthText}
         onChangeText={setStartMonthText}
         placeholder="YYYY-MM"
+        placeholderTextColor={colors.mist}
         autoCapitalize="none"
       />
       {errors.startMonth ? <Text style={styles.error}>{errors.startMonth}</Text> : null}
 
       <Text style={styles.label}>Ends *</Text>
-      <View style={styles.segment}>
-        {(
-          [
-            ['until_stopped', 'Until I stop it'],
-            ['count', 'After N months'],
-          ] as const
-        ).map(([mode, label]) => (
-          <Pressable
-            key={mode}
-            style={[styles.segmentButton, endMode === mode && styles.segmentButtonActive]}
-            onPress={() => setEndMode(mode)}
-          >
-            <Text style={endMode === mode ? styles.segmentTextActive : styles.segmentText}>{label}</Text>
-          </Pressable>
-        ))}
-      </View>
+      <GlassSegmented options={END_OPTIONS} value={endMode} onChange={setEndMode} />
       {endMode === 'count' ? (
         <>
           <Text style={styles.label}>Number of months *</Text>
@@ -230,7 +222,7 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
         </>
       ) : null}
 
-      <View style={styles.applyCard}>
+      <GlassSurface style={styles.applyCard}>
         <View style={styles.applyRow}>
           <View style={styles.applyText}>
             <Text style={styles.applyTitle}>Also update months already posted</Text>
@@ -249,52 +241,38 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
               value={applyFromText}
               onChangeText={setApplyFromText}
               placeholder="YYYY-MM"
+        placeholderTextColor={colors.mist}
               autoCapitalize="none"
             />
             {errors.applyFrom ? <Text style={styles.error}>{errors.applyFrom}</Text> : null}
           </>
         ) : null}
-      </View>
+      </GlassSurface>
 
-      <Pressable style={styles.saveButton} onPress={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
-        <Text style={styles.saveButtonText}>{saveMutation.isPending ? 'Saving…' : 'Save Changes'}</Text>
-      </Pressable>
+      <GlassButton
+        label={saveMutation.isPending ? 'Saving…' : 'Save Changes'}
+        onPress={() => saveMutation.mutate()}
+        disabled={saveMutation.isPending}
+        style={styles.saveButton}
+      />
     </ScrollView>
   );
 }
 
-function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
-  return (
-    <Pressable style={[styles.chip, active && styles.chipActive]} onPress={onPress}>
-      <Text style={active ? styles.chipTextActive : styles.chipText}>{label}</Text>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: { padding: 16, paddingBottom: 48 },
-  spinner: { marginTop: 32 },
-  help: { ...type.label, marginBottom: 8, lineHeight: 18 },
+  container: { padding: space.lg, paddingBottom: 60 },
+  help: { ...type.label, marginBottom: space.sm, lineHeight: 20 },
   label: { ...ui.label },
-  chipStrip: { flexGrow: 0, flexShrink: 0 },
-  chipRow: { gap: 6, paddingVertical: 4 },
-  chip: { ...ui.chip },
-  chipActive: { ...ui.chipActive },
-  chipText: { ...ui.chipText },
-  chipTextActive: { ...ui.chipTextActive },
+  // Chips scroll edge to edge; the strip cancels the screen padding.
+  chipStrip: { flexGrow: 0, flexShrink: 0, marginHorizontal: -space.lg },
+  chipRow: { gap: space.sm, paddingVertical: space.xs, paddingHorizontal: space.lg },
   input: { ...ui.input },
-  amountInput: { ...money, fontSize: 24, fontWeight: '700' },
-  segment: { flexDirection: 'row', borderRadius: 10, backgroundColor: colors.line, padding: 3 },
-  segmentButton: { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: 8 },
-  segmentButtonActive: { backgroundColor: colors.card },
-  segmentText: { color: colors.slate, fontSize: 14 },
-  segmentTextActive: { color: colors.ink, fontSize: 14, fontWeight: '600' },
-  applyCard: { ...ui.card, padding: 14, marginTop: 20 },
-  applyRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  amountInput: { ...moneyDisplay, fontSize: 28 },
+  applyCard: { padding: space.lg, marginTop: space.xl },
+  applyRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   applyText: { flex: 1 },
   applyTitle: { ...type.body, fontWeight: '600' },
   applyHint: { ...type.hint, marginTop: 2, lineHeight: 17 },
-  saveButton: { ...ui.buttonPrimary, marginTop: 20 },
-  saveButtonText: { ...ui.buttonPrimaryText },
+  saveButton: { marginTop: space.xl },
   error: { ...ui.error },
 });

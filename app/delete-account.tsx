@@ -2,18 +2,11 @@
 // Guideline 5.1.1(v). Deletion is immediate and permanent; the typed word is
 // the only thing standing between a tap and unrecoverable data loss.
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { GlassButton, GlassSurface } from '@/components/glass';
 import { deleteAccount } from '@/db/account';
 import { CONFIRM_WORD, isDeleteConfirmed } from '@/lib/delete-account';
-import { colors, type, ui } from '@/theme';
+import { colors, space, type, ui } from '@/theme';
 
 export default function DeleteAccountScreen() {
   const [confirmation, setConfirmation] = useState('');
@@ -37,16 +30,23 @@ export default function DeleteAccountScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      style={ui.screen}
+      contentContainerStyle={styles.container}
+      contentInsetAdjustmentBehavior="automatic"
+      keyboardShouldPersistTaps="handled"
+    >
       <Text style={styles.heading}>Delete your account</Text>
 
-      <Text style={styles.body}>This permanently deletes:</Text>
-      <View style={styles.list}>
-        <Text style={styles.listItem}>• Every property you have added</Text>
-        <Text style={styles.listItem}>• Every expense and income record</Text>
-        <Text style={styles.listItem}>• Your custom categories</Text>
-        <Text style={styles.listItem}>• Your sign-in credentials</Text>
-      </View>
+      <GlassSurface style={styles.card}>
+        <Text style={styles.body}>This permanently deletes:</Text>
+        <View style={styles.list}>
+          <Text style={styles.listItem}>• Every property and budget you have added</Text>
+          <Text style={styles.listItem}>• Every expense and income record</Text>
+          <Text style={styles.listItem}>• Your custom categories</Text>
+          <Text style={styles.listItem}>• Your sign-in credentials</Text>
+        </View>
+      </GlassSurface>
 
       <Text style={styles.warning}>
         This cannot be undone and there is no way to recover your records afterwards. Export your
@@ -63,40 +63,34 @@ export default function DeleteAccountScreen() {
         autoCorrect={false}
         editable={!submitting}
         placeholder={CONFIRM_WORD}
-        placeholderTextColor="#bbb"
+        placeholderTextColor={colors.mist}
       />
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <Pressable
+      <GlassButton
         testID="delete-button"
-        accessibilityRole="button"
-        accessibilityState={{ disabled: !canDelete }}
+        variant="destructive"
+        label="Delete my account"
         disabled={!canDelete}
+        loading={submitting}
         onPress={submit}
-        style={[styles.button, !canDelete && styles.buttonDisabled]}
-      >
-        {submitting ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Delete my account</Text>
-        )}
-      </Pressable>
+        style={styles.button}
+      />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 12 },
+  container: { padding: space.lg, gap: space.md },
   heading: { ...type.title },
-  body: { ...type.body },
-  list: { gap: 4, paddingLeft: 4 },
+  card: { padding: space.lg, gap: space.sm },
+  body: { ...type.body, fontWeight: '600' },
+  list: { gap: space.xs, paddingLeft: space.xs },
   listItem: { ...type.body },
   warning: { fontSize: 14, color: colors.danger, lineHeight: 20 },
-  label: { ...type.label, marginTop: 4 },
-  input: { ...ui.input, fontSize: 16 },
+  label: { ...ui.label },
+  input: { ...ui.input },
   error: { ...ui.error, fontSize: 14 },
-  button: { ...ui.buttonPrimary, backgroundColor: colors.danger, marginTop: 4 },
-  buttonDisabled: { backgroundColor: '#D9A6A6' },
-  buttonText: { ...ui.buttonPrimaryText },
+  button: { marginTop: space.sm },
 });
