@@ -79,9 +79,9 @@ Amount, date, category, property. That's the whole flow. Add a vendor or a note
 when it matters, skip them when it doesn't. Expenses and income use the same
 fast form.
 
-CATEGORIES THAT MATCH YOUR RETURN
+CATEGORIES FOR HOW OWNERS PAY
 Dozens of built-in categories covering the expense and income lines owners
-actually file — mortgage interest, repairs, insurance, property tax, management fees,
+actually track — mortgage interest, repairs, insurance, property tax, management fees,
 rent, deposits, and more. Add your own when your books need something specific.
 
 BILLS THAT SPAN A PERIOD
@@ -113,6 +113,9 @@ no trackers, and nothing sold to anyone.
 
 Built for landlords and homeowners with one property or twenty who want their
 numbers straight and their tax prep boring.
+
+The app keeps your records and adds them up. It is not tax, legal or financial
+advice; check anything you file with a tax professional.
 ```
 
 ---
@@ -120,7 +123,7 @@ numbers straight and their tax prep boring.
 ## What's New (1.2)
 
 ```
-PropertyLedger is now Income Expense Tracker App, with a fresh new look. Mark each property as a rental, your home, a flip, or an investment. Track your household's income and expenses next to your properties. Set up recurring rent and bills once and they are logged every month. Sign in with Apple or Google, and pick dates with the native date picker.
+PropertyLedger is now Income Expense Tracker App, with a fresh new look. Mark each property as a rental, your home, a flip, or an investment. Track your household's income and expenses next to your properties. Set up recurring rent and bills once and they are logged every month. Sign in with Apple or Google, reset a forgotten password right in the app, and pick dates with the native date picker. Your sign-in is now kept in the iOS Keychain.
 ```
 
 ---
@@ -192,6 +195,7 @@ the user's identity, and data is **not** used for tracking.
 | Category | Data Type | Why it applies |
 |---|---|---|
 | Contact Info | Email Address | Supabase Auth sign-up / sign-in |
+| Contact Info | Name | Google sign-in passes the user's name to Supabase Auth (stored in user metadata, never shown). Added 2026-10-06; Apple sign-in no longer requests a name. |
 | Contact Info | Physical Address | `properties.address` — optional property address |
 | Financial Info | Other Financial Info | `expenses.amount`, `income.amount`, `properties.purchase_price` |
 | User Content | Other User Content | property names, notes, vendor, source fields |

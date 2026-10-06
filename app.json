@@ -47,7 +47,13 @@
           ]
         }
       ],
-      "./plugins/withUiSceneLifecycle"
+      "./plugins/withUiSceneLifecycle",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": false
+        }
+      ]
     ],
     "extra": {
       "router": {},

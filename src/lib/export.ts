@@ -14,10 +14,16 @@ export interface ExportTables {
 /**
  * RFC 4180 CSV escaping: a field containing a comma, double quote, or newline
  * is wrapped in quotes, with inner quotes doubled (spec §5 Phase 10 test).
+ *
+ * Text that starts with = + - @ tab or carriage return is prefixed with an
+ * apostrophe. Excel, Numbers and Google Sheets would otherwise run it as a
+ * formula when the file is opened (CSV injection), and the file goes to an
+ * accountant. Numbers are written as numbers and never prefixed.
  */
 export function csvEscape(field: string | number | null): string {
   if (field === null || field === undefined) return '';
-  const text = String(field);
+  let text = String(field);
+  if (typeof field === 'string' && /^[=+\-@\t\r]/.test(text)) text = `'${text}`;
   if (/[",\n\r]/.test(text)) {
     return `"${text.replace(/"/g, '""')}"`;
   }

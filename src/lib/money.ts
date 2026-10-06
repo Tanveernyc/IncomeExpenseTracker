@@ -12,9 +12,12 @@ export function parseAmountInput(text: string): number | undefined {
   // Digits with an optional 1–2 digit decimal tail; rejects '1.234', '12x', '-5', ''.
   if (!/^\d+(\.\d{1,2})?$/.test(trimmed)) return undefined;
   const value = Number(trimmed);
-  if (!(value > 0)) return undefined;
+  if (!(value > 0) || value > MAX_AMOUNT) return undefined;
   return value;
 }
+
+/** The largest amount numeric(12,2) holds; anything above would fail on save. */
+export const MAX_AMOUNT = 9_999_999_999.99;
 
 /**
  * Formats dollars for display: 1234.5 → "$1,234.50".

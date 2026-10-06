@@ -2,6 +2,7 @@
 // empty email rejected, malformed email rejected, password < 6 rejected.
 import {
   MIN_PASSWORD_LENGTH,
+  NEW_PASSWORD_MIN_LENGTH,
   validateEmail,
   validatePassword,
   validateSignIn,
@@ -37,6 +38,18 @@ describe('validatePassword', () => {
   it(`accepts passwords of ${MIN_PASSWORD_LENGTH}+ characters`, () => {
     expect(validatePassword('123456')).toBeUndefined();
     expect(validatePassword('a-long-passphrase')).toBeUndefined();
+  });
+});
+
+describe('new-account passwords', () => {
+  it(`need ${NEW_PASSWORD_MIN_LENGTH}+ characters to sign up`, () => {
+    expect(validatePassword('1234567', 'sign-up')).toBeDefined();
+    expect(validatePassword('12345678', 'sign-up')).toBeUndefined();
+    expect(validateSignIn('owner@example.com', 'short1', 'sign-up').valid).toBe(false);
+  });
+
+  it('still let an existing 6-character password sign in', () => {
+    expect(validateSignIn('owner@example.com', '123456', 'sign-in').valid).toBe(true);
   });
 });
 

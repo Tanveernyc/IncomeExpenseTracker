@@ -2,11 +2,12 @@
 // (src/lib/auth-validation.ts); Supabase Auth errors surface below the form.
 import { useEffect, useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { GlassButton, GlassSurface } from '@/components/glass';
+import { PasswordResetForm } from '@/components/password-reset-form';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { supabase } from '@/db/supabase';
-import { validateSignIn, type SignInValidation } from '@/lib/auth-validation';
+import { validateSignIn, type AuthMode as Mode, type SignInValidation } from '@/lib/auth-validation';
 import {
   configureGoogleSignIn,
   isAppleSignInAvailable,
@@ -17,7 +18,8 @@ import {
 } from '@/lib/social-auth';
 import { backdrop, colors, space, type, ui } from '@/theme';
 
-type Mode = 'sign-in' | 'sign-up';
+const TERMS_URL = 'https://tanveernyc.github.io/PropertyLedger/terms.html';
+const PRIVACY_URL = 'https://tanveernyc.github.io/PropertyLedger/privacy.html';
 
 export default function SignInScreen() {
   const [mode, setMode] = useState<Mode>('sign-in');
@@ -25,6 +27,8 @@ export default function SignInScreen() {
   const [password, setPassword] = useState('');
   const [fieldErrors, setFieldErrors] = useState<SignInValidation['errors']>({});
   const [authError, setAuthError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [resetting, setResetting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [appleAvailable, setAppleAvailable] = useState(false);
   const googleAvailable = isGoogleSignInConfigured();
@@ -61,14 +65,15 @@ export default function SignInScreen() {
 
   const submit = async () => {
     setAuthError(null);
+    setNotice(null);
     // Local validation first — no network call for an obviously bad form.
-    const validation = validateSignIn(email, password);
+    const validation = validateSignIn(email, password, mode);
     setFieldErrors(validation.errors);
     if (!validation.valid) return;
 
     setSubmitting(true);
     const credentials = { email: email.trim(), password };
-    const { error } =
+    const { data, error } =
       mode === 'sign-in'
         ? await supabase.auth.signInWithPassword(credentials)
         : await supabase.auth.signUp(credentials);
@@ -76,7 +81,15 @@ export default function SignInScreen() {
 
     // On success the session change propagates through SessionProvider and the
     // root layout's guards route to (tabs) — no manual navigation needed here.
-    if (error) setAuthError(error.message);
+    if (error) {
+      setAuthError(error.message);
+    } else if (mode === 'sign-up' && !data.session) {
+      // Email confirmation is on: the account exists but has no session yet.
+      // Without this the button would just stop spinning and nothing would happen.
+      setNotice('Check your email and tap the link to confirm your account, then sign in here.');
+      setMode('sign-in');
+      setPassword('');
+    }
   };
 
   return (
@@ -94,84 +107,117 @@ export default function SignInScreen() {
         </Text>
       </View>
 
-      <GlassSurface style={styles.form}>
+      {resetting ? (
+        <PasswordResetForm initialEmail={email} onCancel={() => setResetting(false)} />
+      ) : (
+        <GlassSurface style={styles.form}>
 
-        {appleAvailable ? (
-          <AppleAuthentication.AppleAuthenticationButton
-            testID="apple-sign-in"
-            buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-            cornerRadius={27}
-            style={styles.appleButton}
-            onPress={() => runProvider(signInWithApple)}
+          {appleAvailable ? (
+            <AppleAuthentication.AppleAuthenticationButton
+              testID="apple-sign-in"
+              buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+              cornerRadius={27}
+              style={styles.appleButton}
+              onPress={() => runProvider(signInWithApple)}
+            />
+          ) : null}
+
+          {googleAvailable ? (
+            <GlassButton
+              testID="google-sign-in"
+              variant="secondary"
+              label="Continue with Google"
+              onPress={() => runProvider(signInWithGoogle)}
+              disabled={submitting}
+            />
+          ) : null}
+
+          {appleAvailable || googleAvailable ? (
+            <View style={styles.dividerRow}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
+            </View>
+          ) : null}
+
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor={colors.mist}
+            autoCapitalize="none"
+            autoComplete="email"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
+            accessibilityLabel="Email"
           />
-        ) : null}
+          {fieldErrors.email ? <Text style={styles.error}>{fieldErrors.email}</Text> : null}
 
-        {googleAvailable ? (
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor={colors.mist}
+            secureTextEntry
+            autoComplete={mode === 'sign-in' ? 'current-password' : 'new-password'}
+            value={password}
+            onChangeText={setPassword}
+            accessibilityLabel="Password"
+          />
+          {fieldErrors.password ? <Text style={styles.error}>{fieldErrors.password}</Text> : null}
+
+          {authError ? <Text style={styles.error}>{authError}</Text> : null}
+          {notice ? <Text style={styles.notice}>{notice}</Text> : null}
+
           <GlassButton
-            testID="google-sign-in"
-            variant="secondary"
-            label="Continue with Google"
-            onPress={() => runProvider(signInWithGoogle)}
-            disabled={submitting}
+            testID="email-submit"
+            label={mode === 'sign-in' ? 'Sign In' : 'Sign Up'}
+            onPress={submit}
+            loading={submitting}
+            style={styles.button}
           />
-        ) : null}
 
-        {appleAvailable || googleAvailable ? (
-          <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
-          </View>
-        ) : null}
+          {mode === 'sign-in' ? (
+            <Pressable
+              testID="forgot-password"
+              onPress={() => {
+                setResetting(true);
+                setAuthError(null);
+                setNotice(null);
+              }}
+            >
+              <Text style={styles.switchText}>Forgot password?</Text>
+            </Pressable>
+          ) : (
+            <Text style={styles.legal}>
+              By creating an account you agree to the{' '}
+              <Text style={styles.legalLink} onPress={() => Linking.openURL(TERMS_URL)}>
+                Terms of Use
+              </Text>{' '}
+              and{' '}
+              <Text style={styles.legalLink} onPress={() => Linking.openURL(PRIVACY_URL)}>
+                Privacy Policy
+              </Text>
+              .
+            </Text>
+          )}
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor={colors.mist}
-          autoCapitalize="none"
-          autoComplete="email"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-          accessibilityLabel="Email"
-        />
-        {fieldErrors.email ? <Text style={styles.error}>{fieldErrors.email}</Text> : null}
-
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor={colors.mist}
-          secureTextEntry
-          autoComplete={mode === 'sign-in' ? 'current-password' : 'new-password'}
-          value={password}
-          onChangeText={setPassword}
-          accessibilityLabel="Password"
-        />
-        {fieldErrors.password ? <Text style={styles.error}>{fieldErrors.password}</Text> : null}
-
-        {authError ? <Text style={styles.error}>{authError}</Text> : null}
-
-        <GlassButton
-          label={mode === 'sign-in' ? 'Sign In' : 'Sign Up'}
-          onPress={submit}
-          loading={submitting}
-          style={styles.button}
-        />
-
-        <Pressable
-          onPress={() => {
-            setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in');
-            setAuthError(null);
-          }}
-        >
-          <Text style={styles.switchText}>
-            {mode === 'sign-in'
-              ? 'No account yet? Sign up'
-              : 'Already have an account? Sign in'}
-          </Text>
-        </Pressable>
-      </GlassSurface>
+          <Pressable
+            testID="auth-mode-toggle"
+            onPress={() => {
+              setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in');
+              setAuthError(null);
+              setNotice(null);
+            }}
+          >
+            <Text style={styles.switchText}>
+              {mode === 'sign-in'
+                ? 'No account yet? Sign up'
+                : 'Already have an account? Sign in'}
+            </Text>
+          </Pressable>
+        </GlassSurface>
+      )}
     </KeyboardAvoidingView>
   );
 }
@@ -194,6 +240,9 @@ const styles = StyleSheet.create({
   form: { padding: space.xl, gap: space.md, borderRadius: 28 },
   input: { ...ui.input },
   error: { ...ui.error },
+  legal: { ...type.label, fontSize: 12, textAlign: 'center' },
+  legalLink: { color: colors.brass, fontWeight: '600' },
+  notice: { ...type.label, fontSize: 14, color: colors.gain, textAlign: 'center' },
   button: { marginTop: space.xs },
   switchText: { ...ui.link, textAlign: 'center', marginTop: space.sm },
   appleButton: { height: 54 },

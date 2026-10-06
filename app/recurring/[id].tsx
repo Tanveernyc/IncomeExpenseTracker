@@ -186,6 +186,7 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
       <TextInput
         style={styles.input}
         value={party}
+        maxLength={200}
         onChangeText={setParty}
         placeholder={
           isExpense
@@ -197,7 +198,7 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
       />
 
       <Text style={styles.label}>Notes</Text>
-      <TextInput style={styles.input} value={notes} onChangeText={setNotes} placeholder="optional" placeholderTextColor={colors.mist} />
+      <TextInput style={styles.input} value={notes} onChangeText={setNotes} maxLength={5000} placeholder="optional" placeholderTextColor={colors.mist} />
 
       <Text style={styles.label}>Start month *</Text>
       <DateField

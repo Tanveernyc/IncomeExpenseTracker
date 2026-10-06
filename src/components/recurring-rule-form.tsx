@@ -216,6 +216,7 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
       <TextInput
         style={styles.input}
         value={party}
+        maxLength={200}
         onChangeText={setParty}
         placeholder={
           isExpense
@@ -227,7 +228,7 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
       />
 
       <Text style={styles.label}>Notes</Text>
-      <TextInput style={styles.input} value={notes} onChangeText={setNotes} placeholder="optional" placeholderTextColor={colors.mist} />
+      <TextInput style={styles.input} value={notes} onChangeText={setNotes} maxLength={5000} placeholder="optional" placeholderTextColor={colors.mist} />
 
       <GlassButton
         label={saveMutation.isPending ? 'Saving…' : 'Save Recurring Rule'}

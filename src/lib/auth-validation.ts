@@ -1,8 +1,12 @@
 // Sign-in/sign-up form validation — pure functions, no React, no network (spec §4 rule).
 // Phase 2 tests: empty email rejected, malformed email rejected, password < 6 rejected.
 
-/** Minimum password length enforced by the form (matches Supabase's default). */
+/** Minimum password length to sign in (Supabase's default, so older accounts still work). */
 export const MIN_PASSWORD_LENGTH = 6;
+/** Minimum for a new account: the books hold financial records, so 6 is too weak. */
+export const NEW_PASSWORD_MIN_LENGTH = 8;
+
+export type AuthMode = 'sign-in' | 'sign-up';
 
 // Deliberately simple shape check (something@something.tld) — the real arbiter is
 // Supabase Auth; this only catches obvious typos before a network round trip.
@@ -17,10 +21,11 @@ export function validateEmail(email: string): string | undefined {
 }
 
 /** Returns an error message for a bad password, or undefined when acceptable. */
-export function validatePassword(password: string): string | undefined {
+export function validatePassword(password: string, mode: AuthMode = 'sign-in'): string | undefined {
   if (password.length === 0) return 'Password is required.';
-  if (password.length < MIN_PASSWORD_LENGTH) {
-    return `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`;
+  const min = mode === 'sign-up' ? NEW_PASSWORD_MIN_LENGTH : MIN_PASSWORD_LENGTH;
+  if (password.length < min) {
+    return `Password must be at least ${min} characters.`;
   }
   return undefined;
 }
@@ -31,10 +36,14 @@ export interface SignInValidation {
 }
 
 /** Validates the whole form at once; the screen shows per-field errors from this. */
-export function validateSignIn(email: string, password: string): SignInValidation {
+export function validateSignIn(
+  email: string,
+  password: string,
+  mode: AuthMode = 'sign-in'
+): SignInValidation {
   const errors: SignInValidation['errors'] = {};
   const emailError = validateEmail(email);
-  const passwordError = validatePassword(password);
+  const passwordError = validatePassword(password, mode);
   if (emailError) errors.email = emailError;
   if (passwordError) errors.password = passwordError;
   return { valid: !emailError && !passwordError, errors };

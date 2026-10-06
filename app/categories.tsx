@@ -80,7 +80,8 @@ export default function CategoriesScreen() {
   const promptRename = (category: Category) => {
     // Alert.prompt is iOS-only; this app is iOS-first (spec §1).
     Alert.prompt('Rename category', category.name, (name) => {
-      if (name && name.trim()) renameMutation.mutate({ id: category.id, name });
+      const trimmed = name?.trim().slice(0, 100) ?? '';
+      if (trimmed) renameMutation.mutate({ id: category.id, name: trimmed });
     });
   };
 
@@ -104,6 +105,7 @@ export default function CategoriesScreen() {
           <TextInput
             style={styles.input}
             value={newName}
+            maxLength={100}
             onChangeText={setNewName}
             placeholder="New category name"
             placeholderTextColor={colors.mist}

@@ -11,6 +11,8 @@ import { colors, radius, serif, space, type } from '@/theme';
 
 const SUPPORT_EMAIL = 'support@trueorganichub.com';
 const SUPPORT_URL = 'https://tanveernyc.github.io/PropertyLedger/support.html';
+const PRIVACY_URL = 'https://tanveernyc.github.io/PropertyLedger/privacy.html';
+const TERMS_URL = 'https://tanveernyc.github.io/PropertyLedger/terms.html';
 
 /** Email first; if no mail app is set up, fall back to the support page. */
 async function contactSupport() {
@@ -48,6 +50,18 @@ export default function SettingsScreen() {
           label="Contact support"
           trailing="external"
           onPress={contactSupport}
+        />
+        <Row
+          icon="shield-checkmark-outline"
+          label="Privacy Policy"
+          trailing="external"
+          onPress={() => Linking.openURL(PRIVACY_URL)}
+        />
+        <Row
+          icon="document-text-outline"
+          label="Terms of Use"
+          trailing="external"
+          onPress={() => Linking.openURL(TERMS_URL)}
           last
         />
       </Section>

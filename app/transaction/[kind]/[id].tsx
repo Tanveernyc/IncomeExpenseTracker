@@ -185,10 +185,10 @@ function TransactionEditor({
       ) : null}
 
       <Text style={styles.label}>{partyLabel(ledgerKind ?? 'property', isExpense ? 'expense' : 'income')}</Text>
-      <TextInput style={styles.input} value={party} onChangeText={setParty} />
+      <TextInput style={styles.input} value={party} onChangeText={setParty} maxLength={200} />
 
       <Text style={styles.label}>Notes</Text>
-      <TextInput style={styles.input} value={notes} onChangeText={setNotes} />
+      <TextInput style={styles.input} value={notes} onChangeText={setNotes} maxLength={5000} />
 
       <GlassButton
         label={saveMutation.isPending ? 'Saving…' : 'Save Changes'}

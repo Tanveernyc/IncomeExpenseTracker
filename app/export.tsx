@@ -12,6 +12,7 @@ import { listCategories } from '@/db/categories';
 import { listAllExpenses } from '@/db/expenses';
 import { listAllIncome } from '@/db/income';
 import { listProperties } from '@/db/properties';
+import { todayISO } from '@/lib/dates';
 import { buildTransactionsCsv } from '@/lib/export';
 import { colors, space, type, ui } from '@/theme';
 
@@ -31,17 +32,25 @@ export default function ExportScreen() {
   const exportAll = async () => {
     if (!ready) return;
     setBusy(true);
+    let csvFile: File | null = null;
     try {
       const tables = { properties, categories, expenses, income };
-      const stamp = new Date().toISOString().slice(0, 10);
+      const stamp = todayISO();
 
       // Write the file to the app cache, then hand it to the share sheet.
-      const csvFile = new File(Paths.cache, `propertyledger-transactions-${stamp}.csv`);
+      csvFile = new File(Paths.cache, `income-expense-transactions-${stamp}.csv`);
       csvFile.write(buildTransactionsCsv(tables));
       await Sharing.shareAsync(csvFile.uri, { mimeType: 'text/csv' });
     } catch (e) {
       Alert.alert('Export failed', (e as Error).message);
     } finally {
+      // The share sheet has finished with it (it copies what it sends), so do not
+      // leave a full copy of someone's books sitting in the cache.
+      try {
+        if (csvFile?.exists) csvFile.delete();
+      } catch {
+        // The OS clears the cache eventually; never fail an export over this.
+      }
       setBusy(false);
     }
   };

@@ -73,6 +73,18 @@ describe('csvEscape', () => {
     expect(csvEscape('line1\nline2')).toBe('"line1\nline2"');
     expect(csvEscape(null)).toBe('');
   });
+
+  it('defuses text a spreadsheet would run as a formula', () => {
+    expect(csvEscape('=HYPERLINK("http://evil.example","x")')).toBe(
+      `"'=HYPERLINK(""http://evil.example"",""x"")"`
+    );
+    expect(csvEscape('+1 555')).toBe("'+1 555");
+    expect(csvEscape('-refund')).toBe("'-refund");
+    expect(csvEscape('@SUM(A1)')).toBe("'@SUM(A1)");
+    expect(csvEscape('\tcmd')).toBe("'\tcmd");
+    expect(csvEscape('Plumber = urgent')).toBe('Plumber = urgent');
+    expect(csvEscape(-12.5)).toBe('-12.5');
+  });
 });
 
 describe('buildTransactionsCsv', () => {

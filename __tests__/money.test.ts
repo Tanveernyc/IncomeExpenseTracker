@@ -15,6 +15,12 @@ describe('parseAmountInput', () => {
     }
   });
 
+  it('rejects amounts the database cannot store', () => {
+    expect(parseAmountInput('9999999999.99')).toBe(9999999999.99);
+    expect(parseAmountInput('10000000000')).toBeUndefined();
+    expect(parseAmountInput('99999999999999999999')).toBeUndefined();
+  });
+
   it('rejects more than 2 decimal places', () => {
     expect(parseAmountInput('12.345')).toBeUndefined();
     expect(parseAmountInput('0.001')).toBeUndefined();

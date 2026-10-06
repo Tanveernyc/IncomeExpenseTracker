@@ -33,10 +33,9 @@ export async function signInWithApple(): Promise<SocialResult> {
   try {
     const nonce = await createNoncePair();
     const credential = await AppleAuthentication.signInAsync({
-      requestedScopes: [
-        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-        AppleAuthentication.AppleAuthenticationScope.EMAIL,
-      ],
+      // Email only. The app never shows a name, so it does not ask for one:
+      // data it does not collect is data it can never leak.
+      requestedScopes: [AppleAuthentication.AppleAuthenticationScope.EMAIL],
       nonce: nonce.hashed,
     });
 
@@ -53,19 +52,6 @@ export async function signInWithApple(): Promise<SocialResult> {
       nonce: nonce.raw,
     });
     if (error) return { ok: false, outcome: { kind: 'error', message: error.message } };
-
-    // Apple sends the name only on the first authorization, so capture it now or never.
-    // A failure here must not cost the user their session.
-    const fullName = [credential.fullName?.givenName, credential.fullName?.familyName]
-      .filter(Boolean)
-      .join(' ');
-    if (fullName) {
-      try {
-        await supabase.auth.updateUser({ data: { full_name: fullName } });
-      } catch {
-        // Signed in regardless; the name is a nicety we can live without.
-      }
-    }
     return { ok: true };
   } catch (e) {
     return { ok: false, outcome: classifyProviderError(e) };

@@ -132,6 +132,7 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel, foote
           <TextInput
             style={styles.input}
             value={name}
+            maxLength={200}
             onChangeText={setName}
             placeholder={isProperty ? 'e.g. 12 Maple St' : 'e.g. Household'}
             placeholderTextColor={colors.mist}
@@ -145,6 +146,7 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel, foote
             <TextInput
               style={styles.input}
               value={address}
+              maxLength={500}
               onChangeText={setAddress}
               placeholder="Street, city, state"
               placeholderTextColor={colors.mist}
@@ -193,6 +195,7 @@ export function PropertyForm({ initial, onSubmit, submitting, submitLabel, foote
         <TextInput
           style={[styles.input, styles.notes]}
           value={notes}
+          maxLength={5000}
           onChangeText={setNotes}
           placeholder="Anything worth remembering"
           placeholderTextColor={colors.mist}

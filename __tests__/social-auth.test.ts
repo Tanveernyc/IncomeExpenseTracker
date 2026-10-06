@@ -35,25 +35,16 @@ describe('signInWithApple', () => {
     expect(appleArgs.nonce).not.toBe(supabaseArgs.nonce);
   });
 
-  it('stores the full name Apple only ever sends once', async () => {
+  it('asks Apple for the email only and stores no name', async () => {
     mockAppleSignIn.mockResolvedValue({
       identityToken: 'apple-token',
       fullName: { givenName: 'Ada', familyName: 'Lovelace' },
     });
 
-    await signInWithApple();
-
-    expect(mockUpdateUser).toHaveBeenCalledWith({ data: { full_name: 'Ada Lovelace' } });
-  });
-
-  it('still signs in when storing the name fails', async () => {
-    mockAppleSignIn.mockResolvedValue({
-      identityToken: 'apple-token',
-      fullName: { givenName: 'Ada', familyName: null },
-    });
-    mockUpdateUser.mockRejectedValue(new Error('offline'));
-
     await expect(signInWithApple()).resolves.toEqual({ ok: true });
+
+    expect(mockAppleSignIn.mock.calls[0][0].requestedScopes).toEqual([1]);
+    expect(mockUpdateUser).not.toHaveBeenCalled();
   });
 
   it('reports a missing identity token instead of passing null on', async () => {

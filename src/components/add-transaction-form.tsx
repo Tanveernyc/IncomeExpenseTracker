@@ -145,7 +145,7 @@ export function AddTransactionForm({ kind, header }: { kind: CategoryKind; heade
   const promptNewCategory = () => {
     // Alert.prompt is iOS-only; this app is iOS-first (same convention as the Categories screen).
     Alert.prompt(`New ${kind} category`, undefined, (name) => {
-      const trimmed = name?.trim() ?? '';
+      const trimmed = name?.trim().slice(0, 100) ?? '';
       if (trimmed) newCategoryMutation.mutate(trimmed);
     });
   };
@@ -243,6 +243,7 @@ export function AddTransactionForm({ kind, header }: { kind: CategoryKind; heade
       <TextInput
         style={styles.input}
         value={state.vendor}
+        maxLength={200}
         onChangeText={(vendor) => set({ vendor })}
         placeholder={
           isExpense
@@ -257,6 +258,7 @@ export function AddTransactionForm({ kind, header }: { kind: CategoryKind; heade
       <TextInput
         style={styles.input}
         value={state.notes}
+        maxLength={5000}
         onChangeText={(notes) => set({ notes })}
         placeholder="optional"
         placeholderTextColor={colors.mist}

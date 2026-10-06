@@ -37,7 +37,7 @@ export function validateRecurringRuleForm(input: RecurringRuleFormInput): Recurr
 
   const amount = parseAmountInput(input.amountText);
   if (amount === undefined) {
-    errors.amount = 'Amount must be a positive number with at most 2 decimal places.';
+    errors.amount = 'Amount must be a positive number up to 9,999,999,999.99, with at most 2 decimal places.';
   }
 
   const monthText = input.startMonthText.trim();
