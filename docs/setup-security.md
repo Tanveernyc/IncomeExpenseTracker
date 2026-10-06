@@ -39,10 +39,19 @@ Supabase's default email only contains a link, which does not work for an app.
 Dashboard → Authentication → Emails → **Reset Password** → set the body to:
 
 ```html
-<h2>Reset your password</h2>
-<p>Enter this code in Income Expense Tracker App:</p>
-<p style="font-size:28px;font-weight:bold;letter-spacing:4px">{{ .Token }}</p>
-<p>If you didn't ask to reset your password, ignore this email. Your password stays the same.</p>
+<div style="font-family:-apple-system,Helvetica,Arial,sans-serif;max-width:480px;color:#1f2937;line-height:1.5">
+  <h2 style="margin:0 0 12px">Reset your password</h2>
+  <p>Someone asked to reset the password for your Income Expense Tracker App account. Enter this code in the app:</p>
+  <p style="font-size:28px;font-weight:bold;letter-spacing:4px;margin:20px 0">{{ .Token }}</p>
+  <p>The code works once and expires in 1 hour.</p>
+  <p>If you didn't ask for this, you can ignore this email. Your password stays the same, and no one can change it without this code.</p>
+  <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0">
+  <p style="font-size:12px;color:#6b7280">
+    You received this email because a password reset was requested for {{ .Email }} in Income Expense Tracker App.<br>
+    Income Expense Tracker App is made by True Organic Hub LLC, Pennsylvania, USA.<br>
+    Questions? Reply to this email or write to support@trueorganichub.com.
+  </p>
+</div>
 ```
 
 Subject: `Your Income Expense Tracker App reset code`
