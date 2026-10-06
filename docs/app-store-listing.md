@@ -143,23 +143,28 @@ repeating them wastes the field.
 
 ## Screenshots
 
-**1.2 set, captured 2026-10-05** on the iPhone 18 Pro Max simulator (iOS 27) at
-1320×2868, the 6.9" size, with a 9:41 status bar. They replace the whole 1.0
-set, which shows the old design. `ios.supportsTablet` is `false`, so no iPad
-set is required. EAS Metadata does not manage screenshots: drag them into App
-Store Connect by hand, in this order.
+**1.2 set, captured 2026-10-06** on the iPhone 18 Pro Max simulator (iOS 27) at
+1320×2868, the 6.9" size, with a 9:41 status bar, from the App Review demo
+account. Each is framed with a caption by `scripts/frame-screenshots.py`: Apple
+has indexed screenshot caption text for search since June 2025, so every
+caption leads with words people search for. The framed set is in
+`store-screenshots/1.2/` and the raw captures are in `store-screenshots/1.2/raw/`.
+That folder is gitignored, so re-run the script from the raw captures if it is
+missing. `ios.supportsTablet` is `false`, so no iPad set is required. EAS
+Metadata does not manage screenshots: drag them into App Store Connect by hand,
+in this order.
 
-1. Dashboard: net this year, ledger cards
-2. New ledger: Property / Household, and the four property types
-3. Ledgers: properties and households
-4. Maple Street Duplex: transactions, newest first
-5. Add: amount, ledger and category chips, native date picker
-6. Reports: portfolio and per-ledger P&L
-7. Household: transactions
+| # | Screen | Caption |
+|---|---|---|
+| 1 | Dashboard: net this year, ledger cards | Track income & expenses / for every property |
+| 2 | New ledger: Property / Household, and the four property types | Rentals, your home, / flips and investments |
+| 3 | Ledgers: properties and households | Properties and household / side by side |
+| 4 | Maple Street Duplex: transactions, newest first | Every rent payment / and bill in one place |
+| 5 | Add: amount, ledger and category chips, native date picker | Log an expense / in seconds |
+| 6 | Reports: portfolio and per-ledger P&L | Profit and loss / for each property |
+| 7 | Household: transactions, newest first | Household income / and expenses too |
 
-Captured from the App Review demo account after its entries were shifted
-forward one month (2026-10-05) so October is the live month. Retake them if the
-demo data is reseeded.
+Retake them if the demo data is reseeded.
 
 ---
 
@@ -282,9 +287,12 @@ copy the wrapped form into ASC by hand.
    income like Rent and Late Fee is hidden on a flip or a primary home; account
    actions moved to a Settings screen). Edit the Description / What's New
    sections above and re-run `npm run store-config` if they should ride along.
-7. **Retake screenshots 2, 3 and 7.** On 2026-10-06 the in-app "Budget"
-   label became "Household", so the 2026-10-05 set shows the old word.
-8. The 1.2 binary still does not exist. `npx eas-cli@latest build -p ios
+7. ~~Retake screenshots 2, 3 and 7.~~ Done 2026-10-06: the whole set was
+   retaken with the "Household" label and captioned (see Screenshots).
+8. ~~The 1.2 binary still does not exist.~~ 1.2.0 (27) was built on EAS on
+   2026-10-06 and auto-submitted to TestFlight for the owner to test before
+   review. The note below is kept for the record.
+   The 1.2 binary still does not exist. `npx eas-cli@latest build -p ios
    --profile production --auto-submit` is owner-gated and has not been run; the
    free-plan iOS build quota was exhausted as of 2026-10-01, so check it before
    assuming a cloud build will start.
