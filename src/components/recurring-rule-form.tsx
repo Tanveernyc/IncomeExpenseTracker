@@ -17,6 +17,7 @@ import {
 } from '@/lib/recurring-rule-validation';
 import type { CategoryKind, EndMode } from '@/types';
 import { colors, moneyDisplay, space, type, ui } from '@/theme';
+import { CategoryHint } from './category-hint';
 import { DateField } from './date-field';
 import { GlassButton, GlassChip, GlassSegmented } from './glass';
 
@@ -172,6 +173,7 @@ export function RecurringRuleForm({ kind, initialPropertyId, onSaved }: Props) {
         ))}
       </ScrollView>
       {errors.category ? <Text style={styles.error}>{errors.category}</Text> : null}
+      <CategoryHint category={kindCategories.find((c) => c.id === categoryId)} />
 
       <Text style={styles.label}>Amount ($) each month *</Text>
       <TextInput

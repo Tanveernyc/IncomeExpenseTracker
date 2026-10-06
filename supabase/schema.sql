@@ -243,3 +243,8 @@ alter table categories alter column scope set default 'property';
 alter table categories add constraint categories_scope_check
   check (scope in ('property', 'budget', 'both'));
 
+
+-- CATEGORY DESCRIPTIONS + CATALOG — one line under the picker for names that are
+-- easy to mix up. The system rows themselves come from src/lib/category-catalog.ts
+-- (seed_categories.sql and migrations/2026-10-06-category-catalog.sql are generated).
+alter table categories add column if not exists description text;

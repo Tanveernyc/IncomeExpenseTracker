@@ -22,6 +22,7 @@ import { validateTransactionForm, type TransactionValidation } from '@/lib/expen
 import { collectionNoun, kindsOf, partyLabel } from '@/lib/ledger-copy';
 import type { CategoryKind } from '@/types';
 import { colors, moneyDisplay, space, ui } from '@/theme';
+import { CategoryHint } from './category-hint';
 import { DateField } from './date-field';
 import { GlassButton, GlassChip, GlassSurface } from './glass';
 
@@ -199,6 +200,7 @@ export function AddTransactionForm({ kind, header }: { kind: CategoryKind; heade
         ))}
       </ScrollView>
       {errors.category ? <Text style={styles.error}>{errors.category}</Text> : null}
+      <CategoryHint category={kindCategories.find((c) => c.id === categoryId)} />
 
       <Text style={styles.label}>{dateLabel} *</Text>
       <DateField

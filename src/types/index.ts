@@ -45,6 +45,8 @@ export interface Category {
   scope: CategoryScope;
   /** Only meaningful with a tenant in place — hidden from flips and the owner's own home. */
   tenant_only: boolean;
+  /** One line under the picker for system categories whose name could be misread; null otherwise. */
+  description: string | null;
   created_at: string;
 }
 

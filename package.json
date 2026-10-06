@@ -37,6 +37,7 @@
     "victory-native": "^41.26.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@react-native/jest-preset": "0.86.3",
     "@testing-library/react-native": "^14.0.1",
     "@types/jest": "^30.0.0",
@@ -53,11 +54,13 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "test": "jest",
+    "test": "jest && npm run test:db",
     "test:integration": "jest --testPathIgnorePatterns=/node_modules/ --testPathPattern=__tests__/integration",
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
-    "store-config": "node scripts/build-store-config.mjs"
+    "store-config": "node scripts/build-store-config.mjs",
+    "categories:sql": "node --no-warnings scripts/build-category-sql.mjs",
+    "test:db": "npm run categories:sql -- --check && node --no-warnings --test __tests__/db/"
   },
   "jest": {
     "preset": "jest-expo",
@@ -70,7 +73,8 @@
     "testTimeout": 120000,
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules/",
-      "<rootDir>/__tests__/integration/"
+      "<rootDir>/__tests__/integration/",
+      "<rootDir>/__tests__/db/"
     ]
   },
   "private": true

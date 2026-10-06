@@ -1,0 +1,374 @@
+[
+  {
+    "name": "Advertising/Listing",
+    "kind": "expense",
+    "scope": "property",
+    "tenant_only": false
+  },
+  {
+    "name": "Appliances",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Bank/Loan Fees",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Capital Improvement",
+    "kind": "expense",
+    "scope": "property",
+    "tenant_only": false
+  },
+  {
+    "name": "Car Insurance",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Car Payment",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Charity",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Childcare",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "City/Township Tax",
+    "kind": "expense",
+    "scope": "property",
+    "tenant_only": false
+  },
+  {
+    "name": "Cleaning",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Clothing",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "County Tax",
+    "kind": "expense",
+    "scope": "property",
+    "tenant_only": false
+  },
+  {
+    "name": "Debt Payment",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Dining Out",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Education",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Electric",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Entertainment",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Fuel",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Garbage",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Gas/Heating",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Gifts",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Groceries",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Health/Medical",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "HOA Fees",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Insurance",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Internet/Cable",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Landscaping/Snow",
+    "kind": "expense",
+    "scope": "property",
+    "tenant_only": false
+  },
+  {
+    "name": "Legal/Professional Fees",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Maintenance",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Mortgage Interest",
+    "kind": "expense",
+    "scope": "property",
+    "tenant_only": false
+  },
+  {
+    "name": "Mortgage Principal",
+    "kind": "expense",
+    "scope": "property",
+    "tenant_only": false
+  },
+  {
+    "name": "Other Expense",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Permits/Licenses",
+    "kind": "expense",
+    "scope": "property",
+    "tenant_only": false
+  },
+  {
+    "name": "Personal Care",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Pest Control",
+    "kind": "expense",
+    "scope": "property",
+    "tenant_only": false
+  },
+  {
+    "name": "Phone",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Property Management Fee",
+    "kind": "expense",
+    "scope": "property",
+    "tenant_only": false
+  },
+  {
+    "name": "Public Transit",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Rent/Mortgage",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Repairs",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Savings Transfer",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "School Tax",
+    "kind": "expense",
+    "scope": "property",
+    "tenant_only": false
+  },
+  {
+    "name": "Sewer",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Subscriptions",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Supplies",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Travel",
+    "kind": "expense",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Travel/Mileage",
+    "kind": "expense",
+    "scope": "property",
+    "tenant_only": false
+  },
+  {
+    "name": "Water",
+    "kind": "expense",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Bonus",
+    "kind": "income",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Freelance",
+    "kind": "income",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Gift Received",
+    "kind": "income",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Insurance Payout",
+    "kind": "income",
+    "scope": "property",
+    "tenant_only": false
+  },
+  {
+    "name": "Interest/Dividends",
+    "kind": "income",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Late Fee",
+    "kind": "income",
+    "scope": "property",
+    "tenant_only": true
+  },
+  {
+    "name": "Laundry/Vending",
+    "kind": "income",
+    "scope": "property",
+    "tenant_only": true
+  },
+  {
+    "name": "Other Income",
+    "kind": "income",
+    "scope": "both",
+    "tenant_only": false
+  },
+  {
+    "name": "Parking",
+    "kind": "income",
+    "scope": "property",
+    "tenant_only": true
+  },
+  {
+    "name": "Pet Fee",
+    "kind": "income",
+    "scope": "property",
+    "tenant_only": true
+  },
+  {
+    "name": "Refund",
+    "kind": "income",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Rent",
+    "kind": "income",
+    "scope": "property",
+    "tenant_only": true
+  },
+  {
+    "name": "Salary",
+    "kind": "income",
+    "scope": "budget",
+    "tenant_only": false
+  },
+  {
+    "name": "Security Deposit Retained",
+    "kind": "income",
+    "scope": "property",
+    "tenant_only": true
+  }
+]

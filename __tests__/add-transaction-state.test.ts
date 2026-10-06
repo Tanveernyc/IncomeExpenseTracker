@@ -43,7 +43,7 @@ describe('recent-first category ordering', () => {
     kind,
     is_system: true,
     scope: 'property',
-    tenant_only: false,
+    tenant_only: false, description: null,
     created_at: '2026-07-15T00:00:00Z',
   });
   const categories = [
@@ -76,7 +76,7 @@ describe('orderCategoriesByRecent with a ledger', () => {
     kind: 'expense',
     is_system: true,
     scope: 'property',
-    tenant_only: false,
+    tenant_only: false, description: null,
     created_at: '2026-07-15T00:00:00Z',
     ...overrides,
   });

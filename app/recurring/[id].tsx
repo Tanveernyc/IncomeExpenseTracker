@@ -23,6 +23,7 @@ import { collectionNoun, kindsOf, partyLabel } from '@/lib/ledger-copy';
 import { validateRecurringRuleForm, type RecurringRuleValidation } from '@/lib/recurring-rule-validation';
 import type { EndMode, RecurringRule } from '@/types';
 import { ScreenLoading } from '@/components/screen-state';
+import { CategoryHint } from '@/components/category-hint';
 import { DateField } from '@/components/date-field';
 import { GlassButton, GlassChip, GlassSegmented, GlassSurface } from '@/components/glass';
 import { colors, moneyDisplay, space, type, ui } from '@/theme';
@@ -170,6 +171,7 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
         ))}
       </ScrollView>
       {errors.category ? <Text style={styles.error}>{errors.category}</Text> : null}
+      <CategoryHint category={kindCategories.find((c) => c.id === categoryId)} />
 
       <Text style={styles.label}>Amount ($) each month *</Text>
       <TextInput

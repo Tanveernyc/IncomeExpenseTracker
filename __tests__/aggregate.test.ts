@@ -123,8 +123,8 @@ describe('calcPL', () => {
 
 describe('calcByCategory', () => {
   const categories: Category[] = [
-    { id: 'c-ins', user_id: null, name: 'Insurance', kind: 'expense', is_system: true, scope: 'property', tenant_only: false, created_at: '' },
-    { id: 'c-rep', user_id: null, name: 'Repairs', kind: 'expense', is_system: true, scope: 'property', tenant_only: false, created_at: '' },
+    { id: 'c-ins', user_id: null, name: 'Insurance', kind: 'expense', is_system: true, scope: 'property', tenant_only: false, description: null, created_at: '' },
+    { id: 'c-rep', user_id: null, name: 'Repairs', kind: 'expense', is_system: true, scope: 'property', tenant_only: false, description: null, created_at: '' },
   ];
 
   it('returns empty for no expenses', () => {

@@ -136,7 +136,10 @@ export default function CategoriesScreen() {
       ItemSeparatorComponent={() => <View style={styles.separator} />}
       renderItem={({ item }) => (
         <GlassSurface style={styles.row}>
-          <Text style={styles.rowName}>{item.name}</Text>
+          <View style={styles.rowText}>
+            <Text style={styles.rowName}>{item.name}</Text>
+            {item.description ? <Text style={styles.rowDescription}>{item.description}</Text> : null}
+          </View>
           {item.is_system ? (
             <Text style={styles.systemBadge}>system</Text>
           ) : (
@@ -171,7 +174,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.lg,
     paddingVertical: 14,
   },
+  rowText: { flex: 1, gap: 2, paddingRight: space.md },
   rowName: { ...type.body },
+  rowDescription: { ...type.hint, fontSize: 12, lineHeight: 16 },
   rowActions: { flexDirection: 'row', gap: 16 },
   action: { ...ui.link },
   deleteAction: { color: colors.danger },
