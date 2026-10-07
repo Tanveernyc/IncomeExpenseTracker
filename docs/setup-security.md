@@ -25,7 +25,15 @@ still works afterwards.
 Supabase dashboard → SQL Editor → paste the whole file → Run. It is safe to run
 more than once, and existing rows are untouched.
 
-## 2. Password reset email (required for "Forgot password?")
+## 2. ~~Password reset email~~ Done 2026-10-06
+
+Resend connected as custom SMTP for `trueorganichub.com` (verified through
+Cloudflare; tracking off), DMARC added (`_dmarc` TXT, `p=none`), and the
+template below saved. Test emails arrive with the code and footer. Gmail first
+filed them as spam because the domain had never sent mail; that clears as the
+domain builds a history. Track it in Google Postmaster Tools if it persists.
+
+Original instructions, kept for a rebuild:
 
 **Blocked on custom SMTP.** Supabase only lets you edit email templates after
 connecting your own sender, and its built-in sender only reaches team members.
