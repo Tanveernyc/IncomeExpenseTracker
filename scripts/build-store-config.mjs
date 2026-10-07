@@ -72,6 +72,19 @@ const keywords = blockAfter(/^## Keywords/)[0].trim();
 
 const existing = JSON.parse(readFileSync('store.config.json', 'utf8'));
 
+// The framed 6.9" set from scripts/frame-screenshots.py, in listing order. APP_IPHONE_67
+// is App Store Connect's 6.7"/6.9" slot, which takes 1320x2868. The files are
+// gitignored, so refuse to write a config that points at screenshots that aren't there.
+const SCREENSHOT_DIR = 'store-screenshots/1.2';
+const SCREENSHOTS = [
+  '1-dashboard', '2-new-ledger', '3-ledgers', '4-property', '5-add', '6-reports', '7-household',
+].map((name) => `${SCREENSHOT_DIR}/${name}.png`);
+const missing = SCREENSHOTS.filter((path) => !existsSync(path));
+if (missing.length) {
+  console.error(`missing screenshots (run scripts/frame-screenshots.py): ${missing.join(', ')}`);
+  process.exit(1);
+}
+
 const config = {
   configVersion: existing.configVersion,
   apple: {
@@ -89,6 +102,7 @@ const config = {
         releaseNotes,
         privacyPolicyUrl: 'https://tanveernyc.github.io/PropertyLedger/privacy.html',
         supportUrl: 'https://tanveernyc.github.io/PropertyLedger/support.html',
+        screenshots: { APP_IPHONE_67: SCREENSHOTS },
       },
     },
     advisory: existing.apple.advisory,

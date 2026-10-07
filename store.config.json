@@ -21,7 +21,18 @@
         ],
         "releaseNotes": "PropertyLedger is now Income Expense Tracker App, with a fresh new look. Mark each property as a rental, your home, a flip, or an investment. Track your household's income and expenses next to your properties. Set up recurring rent and bills once and they are logged every month. Sign in with Apple or Google, reset a forgotten password right in the app, and pick dates with the native date picker. Your sign-in is now kept in the iOS Keychain.",
         "privacyPolicyUrl": "https://tanveernyc.github.io/PropertyLedger/privacy.html",
-        "supportUrl": "https://tanveernyc.github.io/PropertyLedger/support.html"
+        "supportUrl": "https://tanveernyc.github.io/PropertyLedger/support.html",
+        "screenshots": {
+          "APP_IPHONE_67": [
+            "store-screenshots/1.2/1-dashboard.png",
+            "store-screenshots/1.2/2-new-ledger.png",
+            "store-screenshots/1.2/3-ledgers.png",
+            "store-screenshots/1.2/4-property.png",
+            "store-screenshots/1.2/5-add.png",
+            "store-screenshots/1.2/6-reports.png",
+            "store-screenshots/1.2/7-household.png"
+          ]
+        }
       }
     },
     "advisory": {

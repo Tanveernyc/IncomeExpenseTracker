@@ -157,9 +157,9 @@ has indexed screenshot caption text for search since June 2025, so every
 caption leads with words people search for. The framed set is in
 `store-screenshots/1.2/` and the raw captures are in `store-screenshots/1.2/raw/`.
 That folder is gitignored, so re-run the script from the raw captures if it is
-missing. `ios.supportsTablet` is `false`, so no iPad set is required. EAS
-Metadata does not manage screenshots: drag them into App Store Connect by hand,
-in this order.
+missing. `ios.supportsTablet` is `false`, so no iPad set is required. `npm run store-config` lists them in `store.config.json`
+under `APP_IPHONE_67` (eas-cli 24+ uploads screenshots), so `metadata:push`
+replaces the set in this order. Pushed 2026-10-06.
 
 | # | Screen | Caption |
 |---|---|---|
@@ -256,7 +256,6 @@ Two things are deliberately **not** in the file:
 
 - **`review`** (App Review contact and demo credentials). The demo password would
   be committed in plain text. Keep entering it in App Store Connect by hand.
-- **Screenshots.** EAS Metadata does not manage them; see the Screenshots section.
 
 The prose in this document is hard-wrapped at ~78 columns for reading. App Store
 Connect renders newlines literally, so the generator rejoins each paragraph onto
