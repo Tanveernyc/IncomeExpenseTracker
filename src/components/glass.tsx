@@ -163,6 +163,8 @@ interface ButtonProps {
   accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
   testID?: string;
+  /** Optional leading element, e.g. a provider logo. */
+  icon?: ReactNode;
 }
 
 const BUTTON_TINT: Record<ButtonVariant, ColorValue | undefined> = {
@@ -187,6 +189,7 @@ export function GlassButton({
   accessibilityLabel,
   style,
   testID,
+  icon,
 }: ButtonProps) {
   return (
     <GlassPressable
@@ -201,7 +204,10 @@ export function GlassButton({
       {loading ? (
         <ActivityIndicator color={BUTTON_TEXT[variant]} />
       ) : (
-        <Text style={[styles.buttonText, { color: BUTTON_TEXT[variant] }]}>{label}</Text>
+        <View style={styles.buttonRow}>
+          {icon}
+          <Text style={[styles.buttonText, { color: BUTTON_TEXT[variant] }]}>{label}</Text>
+        </View>
       )}
     </GlassPressable>
   );
@@ -285,6 +291,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  buttonRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   buttonText: { fontSize: 16, fontWeight: '600', letterSpacing: 0.3 },
   chip: {
     flexDirection: 'row',

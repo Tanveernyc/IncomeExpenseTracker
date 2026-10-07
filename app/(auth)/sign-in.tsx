@@ -2,7 +2,7 @@
 // (src/lib/auth-validation.ts); Supabase Auth errors surface below the form.
 import { useEffect, useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { GlassButton, GlassSurface } from '@/components/glass';
 import { PasswordResetForm } from '@/components/password-reset-form';
 import * as AppleAuthentication from 'expo-apple-authentication';
@@ -128,6 +128,8 @@ export default function SignInScreen() {
               testID="google-sign-in"
               variant="secondary"
               label="Continue with Google"
+            // Google's own "G", unmodified, as its sign-in branding guidelines require.
+            icon={<Image source={require('../../assets/google-g.png')} style={styles.googleLogo} />}
               onPress={() => runProvider(signInWithGoogle)}
               disabled={submitting}
             />
@@ -245,6 +247,7 @@ const styles = StyleSheet.create({
   notice: { ...type.label, fontSize: 14, color: colors.gain, textAlign: 'center' },
   button: { marginTop: space.xs },
   switchText: { ...ui.link, textAlign: 'center', marginTop: space.sm },
+  googleLogo: { width: 20, height: 20 },
   appleButton: { height: 54 },
   dividerRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginVertical: space.xs },
   dividerLine: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: 'rgba(14, 26, 43, 0.14)' },
