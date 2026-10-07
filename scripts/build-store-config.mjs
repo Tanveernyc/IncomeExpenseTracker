@@ -5,7 +5,7 @@
 // `eas metadata:pull` against the live 1.0 listing and are not duplicated in prose.
 //
 // Deliberately omitted: `apple.review` (its demo password would be committed in
-// plain text) and screenshots (EAS Metadata does not manage them).
+// plain text).
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { existsSync } from 'node:fs';
