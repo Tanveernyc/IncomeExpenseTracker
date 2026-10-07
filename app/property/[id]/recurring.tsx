@@ -2,13 +2,13 @@
 // Delete (history kept via on delete set null). Edit → /recurring/[id] (amount/notes,
 // README §4.3). New rule → /recurring/new modal.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, router, Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { listCategories } from '@/db/categories';
 import { getProperty } from '@/db/properties';
 import { deleteRecurringRule, listRecurringRules, stopRecurringRule } from '@/db/recurring';
 import { confirmDelete } from '@/lib/confirm-delete';
-import { monthKey } from '@/lib/dates';
+import { formatDateLabel, formatMonthShort } from '@/lib/dates';
 import { nounFor } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
 import type { RecurringRule } from '@/types';
@@ -44,7 +44,7 @@ export default function PropertyRecurringScreen() {
 
   const categoryName = (catId: string) => categories?.find((c) => c.id === catId)?.name ?? 'Unknown';
   const endsLabel = (r: RecurringRule) =>
-    r.end_mode === 'count' ? `for ${r.occurrences} months` : r.stopped_on ? `stopped ${r.stopped_on}` : 'until stopped';
+    r.end_mode === 'count' ? `for ${r.occurrences} months` : r.stopped_on ? `stopped ${formatDateLabel(r.stopped_on)}` : 'until stopped';
 
   const onStop = (r: RecurringRule) =>
     Alert.alert('Stop this rule?', 'No more months will be posted. Past entries are kept.', [
@@ -90,7 +90,10 @@ export default function PropertyRecurringScreen() {
           isPending ? (
             <ActivityIndicator style={styles.spinner} />
           ) : (
-            <Text style={styles.empty}>No recurring rules for this property yet.</Text>
+            <Text style={styles.empty}>
+              No recurring rules yet. Add one for anything that repeats every month, like rent or a
+              mortgage, and it will be filled in for you.
+            </Text>
           )
         }
         renderItem={({ item }) => (
@@ -102,22 +105,26 @@ export default function PropertyRecurringScreen() {
                 {formatMoney(item.amount)}/mo
               </Text>
               <Text style={[styles.rowMeta, !item.is_active && styles.inactiveText]}>
-                from {monthKey(item.start_month)} · {endsLabel(item)}
+                from {formatMonthShort(item.start_month)} · {endsLabel(item)}
                 {item.notes ? ` · ${item.notes}` : ''}
               </Text>
             </View>
             <View style={styles.actions}>
               {item.is_active ? (
-                <Link href={{ pathname: '/recurring/[id]', params: { id: item.id } }} style={styles.edit}>
-                  Edit
-                </Link>
+                <Pressable
+                  onPress={() => router.push({ pathname: '/recurring/[id]', params: { id: item.id } })}
+                  hitSlop={10}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.edit}>Edit</Text>
+                </Pressable>
               ) : null}
               {item.is_active && item.end_mode === 'until_stopped' ? (
-                <Pressable onPress={() => onStop(item)}>
+                <Pressable onPress={() => onStop(item)} hitSlop={10} accessibilityRole="button">
                   <Text style={styles.stop}>Stop</Text>
                 </Pressable>
               ) : null}
-              <Pressable onPress={() => onDelete(item)}>
+              <Pressable onPress={() => onDelete(item)} hitSlop={10} accessibilityRole="button">
                 <Text style={styles.delete}>Delete</Text>
               </Pressable>
             </View>
@@ -140,7 +147,8 @@ const styles = StyleSheet.create({
   rowText: { flex: 1 },
   rowTitle: { ...money, fontSize: 15 },
   rowMeta: { ...type.hint, marginTop: 2 },
-  actions: { flexDirection: 'row', gap: 14 },
+  // Wide gaps so each small text button has its own tap area.
+  actions: { flexDirection: 'row', gap: 22 },
   edit: { ...ui.link },
   stop: { color: colors.brass, fontSize: 14, fontWeight: '600' },
   delete: { color: colors.danger, fontSize: 14, fontWeight: '600' },

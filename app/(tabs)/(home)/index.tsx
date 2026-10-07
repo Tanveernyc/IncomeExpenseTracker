@@ -11,7 +11,7 @@ import { listAllIncome } from '@/db/income';
 import { listProperties } from '@/db/properties';
 import { buildDashboardModel } from '@/lib/dashboard';
 import { todayISO } from '@/lib/dates';
-import { collectionTitle, kindsOf } from '@/lib/ledger-copy';
+import { collectionTitle, kindsOf, netLabel } from '@/lib/ledger-copy';
 import { shouldOnboard } from '@/lib/onboarding';
 
 export default function DashboardScreen() {
@@ -40,6 +40,7 @@ export default function DashboardScreen() {
       model={model}
       categoryNames={categoryNames}
       collectionTitle={collectionTitle(kindsOf(properties ?? []))}
+      netLabel={netLabel(properties ?? [])}
       onQuickAdd={() => router.push('/add')}
       onOpenProperty={(id) => router.push({ pathname: '/property/[id]', params: { id } })}
       onOpenTransaction={(entry) =>

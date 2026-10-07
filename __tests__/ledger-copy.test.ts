@@ -4,6 +4,7 @@ import {
   collectionTitle,
   kindsOf,
   ledgerMetaLabel,
+  netLabel,
   nounFor,
   partyLabel,
   propertySubtypeLabel,
@@ -94,5 +95,25 @@ describe('collectionTitle / collectionNoun', () => {
     expect(collectionTitle(['property', 'budget'])).toBe('Ledgers');
     expect(collectionTitle([])).toBe('Ledgers');
     expect(collectionNoun([])).toBe('Ledger');
+  });
+});
+
+describe('netLabel', () => {
+  const ledger = (
+    ledger_kind: 'property' | 'budget',
+    property_subtype: PropertySubtype | null = null,
+    is_archived = false
+  ) => ({ ledger_kind, property_subtype, is_archived });
+
+  it('says Profit only when every active ledger earns money', () => {
+    expect(netLabel([ledger('property', 'rental'), ledger('property', 'flip')])).toBe('Profit');
+    // An archived household does not change the wording for active rentals.
+    expect(netLabel([ledger('property', 'rental'), ledger('budget', null, true)])).toBe('Profit');
+  });
+  it('says Left over for a home you live in, households, mixed, or nothing yet', () => {
+    expect(netLabel([ledger('property', 'primary_residence')])).toBe('Left over');
+    expect(netLabel([ledger('budget')])).toBe('Left over');
+    expect(netLabel([ledger('property', 'rental'), ledger('budget')])).toBe('Left over');
+    expect(netLabel([])).toBe('Left over');
   });
 });

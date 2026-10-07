@@ -22,7 +22,7 @@ import { validateTransactionForm, type TransactionValidation } from '@/lib/expen
 import { collectionNoun, kindsOf, partyLabel } from '@/lib/ledger-copy';
 import { recordSavedEntry } from '@/lib/review-prompt';
 import type { CategoryKind } from '@/types';
-import { colors, moneyDisplay, space, ui } from '@/theme';
+import { colors, moneyDisplay, space, type, ui } from '@/theme';
 import { CategoryHint } from './category-hint';
 import { DateField } from './date-field';
 import { GlassButton, GlassChip, GlassSurface } from './glass';
@@ -217,6 +217,7 @@ export function AddTransactionForm({ kind, header }: { kind: CategoryKind; heade
       {isExpense && ledgerKind !== 'budget' ? (
         <>
           <Text style={styles.label}>Covers period (optional)</Text>
+          <Text style={styles.hint}>For one bill that pays for several months, like yearly insurance.</Text>
           <View style={styles.periodRow}>
             <DateField
               value={state.periodStart}
@@ -288,6 +289,7 @@ const styles = StyleSheet.create({
   amountCurrency: { ...moneyDisplay, fontSize: 30, color: colors.brass },
   amountInput: { ...moneyDisplay, flex: 1, paddingVertical: space.xs },
   periodRow: { flexDirection: 'row', gap: space.sm },
+  hint: { ...type.hint, marginTop: -space.xs, marginBottom: space.sm, marginLeft: space.xs },
   periodInput: { flex: 1 },
   error: { ...ui.error },
   saveButton: { marginTop: space.xl },

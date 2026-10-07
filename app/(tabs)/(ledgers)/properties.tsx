@@ -3,13 +3,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { SectionList, StyleSheet, Switch, Text, View } from 'react-native';
-import { GlassButton, GlassPressable, GlassSurface } from '@/components/glass';
+import { Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import { GlassButton, GlassPressable } from '@/components/glass';
 import { listProperties } from '@/db/properties';
 import { collectionTitle, kindsOf, ledgerMetaLabel, nounFor } from '@/lib/ledger-copy';
 import { LEDGER_KINDS } from '@/lib/property-validation';
 import type { Property } from '@/types';
-import { colors, radius, space, type, ui } from '@/theme';
+import { colors, space, type, ui } from '@/theme';
 
 export default function PropertiesScreen() {
   const [showArchived, setShowArchived] = useState(false);
@@ -46,12 +46,19 @@ export default function PropertiesScreen() {
             accessibilityLabel="Add property"
             onPress={() => router.push('/property/new')}
           />
-          <GlassSurface style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>Show archived</Text>
-            <Switch value={showArchived} onValueChange={setShowArchived} trackColor={{ true: colors.brass }} />
-          </GlassSurface>
           {error ? <Text style={styles.error}>{(error as Error).message}</Text> : null}
         </View>
+      }
+      // Rarely needed, so it waits at the bottom instead of sitting above every list.
+      ListFooterComponent={
+        <Pressable
+          onPress={() => setShowArchived((v) => !v)}
+          style={styles.archivedToggle}
+          accessibilityRole="button"
+          hitSlop={8}
+        >
+          <Text style={styles.archivedToggleText}>{showArchived ? 'Hide archived' : 'Show archived'}</Text>
+        </Pressable>
       }
       renderSectionHeader={({ section }) =>
         section.title === '' ? null : <Text style={styles.sectionHeader}>{section.title}</Text>
@@ -105,15 +112,8 @@ function sentenceCase(text: string): string {
 const styles = StyleSheet.create({
   listContent: { padding: space.lg, paddingBottom: 120 },
   header: { gap: space.md, marginBottom: space.lg },
-  toggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: space.lg,
-    paddingVertical: space.sm,
-    borderRadius: radius.pill,
-  },
-  toggleLabel: { ...type.label, color: colors.ink },
+  archivedToggle: { alignSelf: 'center', marginTop: space.xl, paddingVertical: space.sm, paddingHorizontal: space.lg },
+  archivedToggleText: { ...ui.link, fontSize: 14 },
   sectionHeader: { ...type.section, marginTop: space.md, marginBottom: space.md },
   separator: { height: space.md },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg },

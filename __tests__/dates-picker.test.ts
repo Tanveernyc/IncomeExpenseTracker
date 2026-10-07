@@ -1,6 +1,6 @@
 // Native date pickers hand back local Dates; the app stores ISO strings. These
 // conversions must never shift a day, whatever the device timezone.
-import { formatDateLabel, isoToPickerDate, pickerDateToISO } from '../src/lib/dates';
+import { formatDateLabel, formatMonthShort, isoToPickerDate, pickerDateToISO } from '../src/lib/dates';
 
 describe('isoToPickerDate', () => {
   it('reads a day as local midnight, not UTC', () => {
@@ -39,5 +39,15 @@ describe('formatDateLabel', () => {
 
   it('shows anything unparseable as-is rather than hiding it', () => {
     expect(formatDateLabel('garbage')).toBe('garbage');
+  });
+});
+
+describe('formatMonthShort', () => {
+  it('shortens a month or a first-of-month date', () => {
+    expect(formatMonthShort('2026-03')).toBe('Mar 2026');
+    expect(formatMonthShort('2026-03-01')).toBe('Mar 2026');
+  });
+  it('passes a bare year through', () => {
+    expect(formatMonthShort('2026')).toBe('2026');
   });
 });

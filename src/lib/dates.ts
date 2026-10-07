@@ -59,3 +59,9 @@ export function formatDateLabel(value: string): string {
   if (!date) return value;
   return value.trim().length === 7 ? format(date, 'MMMM yyyy') : format(date, 'MMM d, yyyy');
 }
+
+/** A month in a compact list or table: '2026-03' or '2026-03-01' → 'Mar 2026'; a bare year passes through. */
+export function formatMonthShort(value: string): string {
+  const date = isoToPickerDate(value.slice(0, 7));
+  return date ? format(date, 'MMM yyyy') : value;
+}

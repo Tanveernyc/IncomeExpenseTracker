@@ -22,6 +22,7 @@ import { deleteIncome, listPropertyIncome } from '@/db/income';
 import { getProperty } from '@/db/properties';
 import { skipRecurringMonth } from '@/db/recurring';
 import { categoriesVisibleToLedger } from '@/lib/categories';
+import { formatDateLabel } from '@/lib/dates';
 import { confirmDelete } from '@/lib/confirm-delete';
 import { nounFor } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
@@ -93,8 +94,8 @@ export default function PropertyTransactionsScreen() {
     confirmDelete(
       `Delete this ${entry.kind}?`,
       entry.recurring_id
-        ? `${formatMoney(entry.amount)} on ${entry.date} — this month will not be posted again by its rule.`
-        : `${formatMoney(entry.amount)} on ${entry.date} — this cannot be undone.`,
+        ? `${formatMoney(entry.amount)} on ${formatDateLabel(entry.date)} — this month will not be posted again by its rule.`
+        : `${formatMoney(entry.amount)} on ${formatDateLabel(entry.date)} — this cannot be undone.`,
       () => deleteMutation.mutate(entry)
     );
   };
@@ -145,6 +146,14 @@ export default function PropertyTransactionsScreen() {
       </View>
       <View style={styles.sortRow}>
         <GlassChip label={`⇅ ${TIMELINE_SORT_LABELS[sort]}`} selected onPress={nextSort} />
+        {/* Lives here rather than beside Edit in the header, where the two small
+            icons sat too close to tap reliably. */}
+        <GlassChip
+          label="Recurring"
+          selected={false}
+          icon={<Ionicons name="repeat" size={16} color={colors.ink} />}
+          onPress={() => router.push({ pathname: '/property/[id]/recurring', params: { id } })}
+        />
       </View>
       {loading ? <ActivityIndicator style={styles.spinner} /> : null}
     </View>
@@ -155,26 +164,15 @@ export default function PropertyTransactionsScreen() {
       <Stack.Screen
         options={{
           title: property?.name ?? nounFor(property?.ledger_kind ?? 'property').one,
-          // On iOS 26 these render as one liquid glass capsule in the header.
           headerRight: () => (
-            <View style={styles.headerActions}>
-              <Pressable
-                onPress={() => router.push({ pathname: '/property/[id]/recurring', params: { id } })}
-                accessibilityLabel="Recurring"
-                accessibilityRole="button"
-                hitSlop={8}
-              >
-                <Ionicons name="repeat" size={22} color={colors.ink} />
-              </Pressable>
-              <Pressable
-                onPress={() => router.push({ pathname: '/property/[id]/edit', params: { id } })}
-                accessibilityLabel="Edit details"
-                accessibilityRole="button"
-                hitSlop={8}
-              >
-                <Ionicons name="create-outline" size={22} color={colors.ink} />
-              </Pressable>
-            </View>
+            <Pressable
+              onPress={() => router.push({ pathname: '/property/[id]/edit', params: { id } })}
+              accessibilityLabel="Edit details"
+              accessibilityRole="button"
+              hitSlop={12}
+            >
+              <Ionicons name="create-outline" size={22} color={colors.ink} />
+            </Pressable>
           ),
         }}
       />
@@ -186,7 +184,21 @@ export default function PropertyTransactionsScreen() {
         keyExtractor={(entry) => `${entry.kind}-${entry.id}`}
         ListHeaderComponent={filters}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
-        ListEmptyComponent={loading ? null : <Text style={styles.empty}>No transactions match.</Text>}
+        ListEmptyComponent={
+          loading ? null : (
+            <Text style={styles.empty}>
+              {(expenses?.length ?? 0) + (income?.length ?? 0) === 0
+                ? 'Nothing recorded yet. Tap Add below to log an expense or income.'
+                : 'No transactions match these filters.'}
+            </Text>
+          )
+        }
+        // Swipe-to-delete is otherwise invisible, so say it once under the list.
+        ListFooterComponent={
+          !loading && timeline.length > 0 ? (
+            <Text style={styles.footerHint}>Tap an entry to edit it. Swipe left to delete.</Text>
+          ) : null
+        }
         renderItem={({ item }) => (
           <Swipeable
             renderRightActions={(progress) => (
@@ -220,7 +232,7 @@ export default function PropertyTransactionsScreen() {
                   {categoryName(item.category_id)}
                 </Text>
                 <Text style={styles.rowMeta}>
-                  {item.date}
+                  {formatDateLabel(item.date)}
                   {item.party ? ` · ${item.party}` : ''}
                 </Text>
               </View>
@@ -239,16 +251,16 @@ export default function PropertyTransactionsScreen() {
 const styles = StyleSheet.create({
   // Home-indicator clearance so the last row is never cut off.
   listContent: { padding: space.lg, paddingBottom: 60 },
-  headerActions: { flexDirection: 'row', gap: 18, paddingHorizontal: 4 },
   filters: { gap: space.md, marginBottom: space.lg },
   // Chips scroll edge to edge; the strip cancels the list padding.
   chipStrip: { marginHorizontal: -space.lg, flexGrow: 0 },
   chipRow: { gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.xs },
   dateRow: { flexDirection: 'row', gap: space.sm },
-  sortRow: { flexDirection: 'row' },
+  sortRow: { flexDirection: 'row', justifyContent: 'space-between' },
   dateInput: { flex: 1 },
   spinner: { marginTop: 32 },
   empty: { ...ui.empty },
+  footerHint: { ...type.hint, textAlign: 'center', marginTop: space.lg },
   separator: { height: space.sm },
   // The ledger: amounts in a right-hand column of tabular figures.
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space.lg, paddingVertical: 14 },

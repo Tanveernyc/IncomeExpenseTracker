@@ -9,6 +9,7 @@ import { listPropertyExpenses } from '@/db/expenses';
 import { listProperties } from '@/db/properties';
 import { calcCategoryTrend } from '@/lib/aggregate';
 import { categoriesForLedger } from '@/lib/categories';
+import { formatMonthShort } from '@/lib/dates';
 import { collectionNoun, kindsOf } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
 import { GlassChip, GlassSegmented, GlassSurface } from '@/components/glass';
@@ -95,7 +96,7 @@ export default function HistoryScreen() {
             </View>
             {trend.map((point) => (
               <View key={point.period} style={styles.tableRow}>
-                <Text style={styles.cell}>{point.period}</Text>
+                <Text style={styles.cell}>{formatMonthShort(point.period)}</Text>
                 <Text style={styles.cellRight}>{formatMoney(point.total)}</Text>
                 <Text style={[styles.cellRight, changeStyle(point.changeFromPrev)]}>
                   {/* Em dash, not a hyphen: "no previous period", never a minus. */}

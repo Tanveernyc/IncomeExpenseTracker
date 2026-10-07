@@ -4,6 +4,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { DashboardModel } from '@/lib/dashboard';
+import { formatDateLabel } from '@/lib/dates';
 import { ledgerMetaLabel } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
 import type { TimelineEntry } from '@/lib/timeline';
@@ -16,6 +17,8 @@ interface Props {
   categoryNames: Map<string, string>;
   /** "Properties" / "Households" / "Ledgers" — matches the tab's title (spec §3). */
   collectionTitle: string;
+  /** "Profit" / "Left over" — plain words for income minus expenses. */
+  netLabel: string;
   onQuickAdd: () => void;
   onOpenProperty: (propertyId: string) => void;
   onOpenTransaction: (entry: TimelineEntry) => void;
@@ -25,6 +28,7 @@ export function DashboardView({
   model,
   categoryNames,
   collectionTitle,
+  netLabel,
   onQuickAdd,
   onOpenProperty,
   onOpenTransaction,
@@ -39,7 +43,9 @@ export function DashboardView({
     >
       {/* Portfolio net this year: the one loud thing on the screen, midnight glass. */}
       <GlassSurface tint={glass.inkTint} style={styles.hero}>
-        <Text style={styles.heroLabel}>Net this year · all {collectionTitle.toLowerCase()}</Text>
+        <Text style={styles.heroLabel}>
+          {netLabel} this year · all {collectionTitle.toLowerCase()}
+        </Text>
         <Text
           style={[styles.heroValue, yearPL.net < 0 && styles.heroNegative]}
           adjustsFontSizeToFit
@@ -60,7 +66,7 @@ export function DashboardView({
           </View>
         </View>
         <Text style={styles.heroMonth}>
-          This month {formatMoney(monthPL.net)}
+          {netLabel} this month {formatMoney(monthPL.net)}
           {monthSavingsRate !== null
             ? // Tracking language, not budgeting: what share of income was kept, or how
               // far spending ran past it. -0.62 means spending was 162% of income.
@@ -139,7 +145,7 @@ export function DashboardView({
                   {categoryNames.get(entry.category_id) ?? entry.category_id}
                 </Text>
                 <Text style={styles.recentMeta}>
-                  {entry.date}
+                  {formatDateLabel(entry.date)}
                   {entry.party ? ` · ${entry.party}` : ''}
                 </Text>
               </View>

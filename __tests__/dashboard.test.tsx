@@ -120,6 +120,7 @@ describe('DashboardView', () => {
         model={model}
         categoryNames={new Map()}
         collectionTitle="Ledgers"
+        netLabel="Profit"
         onQuickAdd={() => {}}
         onOpenProperty={() => {}}
         onOpenTransaction={() => {}}
@@ -142,6 +143,7 @@ describe('DashboardView', () => {
         model={model}
         categoryNames={new Map([['c-ins', 'Insurance'], ['c-rent', 'Rent']])}
         collectionTitle="Ledgers"
+        netLabel="Profit"
         onQuickAdd={() => {}}
         onOpenProperty={() => {}}
         onOpenTransaction={() => {}}
@@ -151,6 +153,6 @@ describe('DashboardView', () => {
     // Net appears on the portfolio card and the (only) property card.
     expect(getAllByText('$1,500.00').length).toBeGreaterThanOrEqual(1);
     expect(getByText('Insurance')).toBeTruthy(); // recent row category name
-    expect(getByText(/This month/)).toBeTruthy();
+    expect(getByText(/Profit this month/)).toBeTruthy();
   });
 });

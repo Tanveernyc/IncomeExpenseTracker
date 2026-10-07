@@ -22,7 +22,7 @@ import {
   type DateRange,
 } from '@/lib/aggregate';
 import { todayISO } from '@/lib/dates';
-import { collectionNoun, kindsOf } from '@/lib/ledger-copy';
+import { collectionNoun, kindsOf, netLabel } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
 import { colors, money, serif, space, type } from '@/theme';
 
@@ -122,7 +122,7 @@ export default function ReportsScreen() {
         <PLRow label="Income" value={portfolio.totalIncome} positive />
         <PLRow label="Expenses" value={portfolio.totalExpense} />
         <View style={styles.divider} />
-        <PLRow label="Net" value={portfolio.net} positive={portfolio.net >= 0} bold />
+        <PLRow label={netLabel(properties ?? [])} value={portfolio.net} positive={portfolio.net >= 0} bold />
         {portfolioHasBudget && rate !== null ? (
           <Text style={styles.savingsRate}>
             {rate >= 0 ? 'Savings rate' : 'Overspent by'} {Math.abs(Math.round(rate * 100))}% of
@@ -133,7 +133,10 @@ export default function ReportsScreen() {
 
       <Text style={styles.sectionTitle}>By {collectionNoun(kindsOf(properties ?? [])).toLowerCase()}</Text>
       {perProperty.map((p) => {
-        const isBudget = properties?.find((pr) => pr.id === p.propertyId)?.ledger_kind === 'budget';
+        const ledger = properties?.find((pr) => pr.id === p.propertyId);
+        const isBudget = ledger?.ledger_kind === 'budget';
+        // Archived ledgers still report, so judge this one as if active.
+        const label = netLabel(ledger ? [{ ...ledger, is_archived: false }] : []);
         const cardRate = savingsRate(p);
         return (
           <GlassSurface key={p.propertyId} style={styles.card}>
@@ -141,7 +144,7 @@ export default function ReportsScreen() {
             <PLRow label="Income" value={p.totalIncome} positive />
             <PLRow label="Expenses" value={p.totalExpense} />
             <View style={styles.divider} />
-            <PLRow label="Net" value={p.net} positive={p.net >= 0} bold />
+            <PLRow label={label} value={p.net} positive={p.net >= 0} bold />
             {isBudget && cardRate !== null ? (
               <Text style={styles.savingsRate}>
                 {cardRate >= 0 ? 'Savings rate' : 'Overspent by'}{' '}

@@ -71,3 +71,16 @@ export function collectionTitle(kinds: LedgerKind[]): string {
 export function collectionNoun(kinds: LedgerKind[]): string {
   return kinds.length === 1 ? NOUNS[kinds[0]].one : 'Ledger';
 }
+
+/**
+ * Plain-language name for income minus expenses: "Profit" only when every active
+ * ledger in view earns money (a rental, investment or flip). A household or the
+ * home you live in is not a business, so anything else says "Left over".
+ */
+export function netLabel(ledgers: Pick<Property, 'ledger_kind' | 'property_subtype' | 'is_archived'>[]): string {
+  const active = ledgers.filter((l) => !l.is_archived);
+  const allEarning =
+    active.length > 0 &&
+    active.every((l) => l.ledger_kind === 'property' && l.property_subtype !== 'primary_residence');
+  return allEarning ? 'Profit' : 'Left over';
+}
