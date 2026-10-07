@@ -116,3 +116,17 @@ tells anyone they may copy the app's code. Either make the repo private (GitHub
 Pages then needs a paid plan, or move the three pages elsewhere), or replace
 `LICENSE` with your own all-rights-reserved notice. No secrets are in the repo
 or its history: the 2026-10-06 scan found none.
+
+## 8. Google sign-in: skip nonce checks (required)
+
+Found 2026-10-06 in TestFlight build 27: "Continue with Google" failed with
+"Passed nonce and nonce in id_token should either both exist or not." Google's
+iOS SDK now puts a random nonce in every ID token, and the free
+`@react-native-google-signin/google-signin` (v16) gives the app no way to read
+or set it, so the app cannot pass it on to Supabase.
+
+Fix, no new build needed: Supabase → Authentication → Sign In / Providers →
+Google → turn on **Skip nonce checks** → Save. Supabase still verifies the
+token's Google signature, that it was issued to this app's client IDs, and that
+it has not expired (about an hour); the nonce only added replay protection on
+top. Apple sign-in is unaffected and keeps its own nonce check.
