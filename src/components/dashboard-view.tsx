@@ -62,7 +62,11 @@ export function DashboardView({
         <Text style={styles.heroMonth}>
           This month {formatMoney(monthPL.net)}
           {monthSavingsRate !== null
-            ? ` · ${monthSavingsRate >= 0 ? 'saved' : 'over by'} ${Math.abs(Math.round(monthSavingsRate * 100))}%`
+            ? // Tracking language, not budgeting: what share of income was kept, or how
+              // far spending ran past it. -0.62 means spending was 162% of income.
+              monthSavingsRate >= 0
+              ? ` · kept ${Math.round(monthSavingsRate * 100)}%`
+              : ` · spent ${Math.abs(Math.round(monthSavingsRate * 100))}% more than came in`
             : ''}
         </Text>
       </GlassSurface>

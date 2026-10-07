@@ -1,7 +1,6 @@
 // Sign-in / sign-up screen (Phase 2). Validation happens locally first
 // (src/lib/auth-validation.ts); Supabase Auth errors surface below the form.
 import { useEffect, useRef, useState } from 'react';
-import { Ionicons } from '@expo/vector-icons';
 import { Image, KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { GlassButton, GlassSurface } from '@/components/glass';
 import { PasswordResetForm } from '@/components/password-reset-form';
@@ -98,9 +97,8 @@ export default function SignInScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.brand}>
-        <View style={styles.mark}>
-          <Ionicons name="book" size={26} color={colors.brassBright} />
-        </View>
+        {/* The app icon itself, so sign-in looks like the app people tapped. */}
+        <Image source={require('../../assets/brand-mark.png')} style={styles.mark} accessibilityIgnoresInvertColors />
         <Text style={styles.title}>Income Expense Tracker</Text>
         <Text style={styles.subtitle}>
           {mode === 'sign-in' ? 'Sign in to your ledger' : 'Create your account'}
@@ -228,15 +226,7 @@ const styles = StyleSheet.create({
   // Shown outside the signed-in stack's chrome, so it paints its own backdrop.
   container: { ...backdrop, flex: 1, justifyContent: 'center', padding: space.lg, gap: space.xl },
   brand: { alignItems: 'center', gap: space.sm },
-  mark: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.ink,
-    marginBottom: space.xs,
-  },
+  mark: { width: 72, height: 72, marginBottom: space.xs },
   title: { ...type.display, textAlign: 'center' },
   subtitle: { ...type.label, fontSize: 15, textAlign: 'center' },
   form: { padding: space.xl, gap: space.md, borderRadius: 28 },
