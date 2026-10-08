@@ -164,6 +164,13 @@ export const SYSTEM_CATEGORIES: readonly CatalogCategory[] = [
     scope: 'budget',
     description: 'Your housing payment. Tracking the home as a property? Log the mortgage on that property instead.',
   },
+  {
+    name: 'Credit Card Bill',
+    kind: 'expense',
+    scope: 'budget',
+    description:
+      'The monthly payment on a card. It covers everything you bought with it, so there is no need to log each purchase as well.',
+  },
   { name: 'Car Payment', kind: 'expense', scope: 'budget' },
   { name: 'Car Insurance', kind: 'expense', scope: 'budget' },
   { name: 'Fuel', kind: 'expense', scope: 'budget' },
@@ -178,9 +185,14 @@ export const SYSTEM_CATEGORIES: readonly CatalogCategory[] = [
   { name: 'Pets', kind: 'expense', scope: 'budget' },
   { name: 'Entertainment', kind: 'expense', scope: 'budget' },
   { name: 'Gifts', kind: 'expense', scope: 'budget' },
-  { name: 'Travel', kind: 'expense', scope: 'budget' },
+  { name: 'Travel/Vacation', kind: 'expense', scope: 'budget' },
   { name: 'Charity', kind: 'expense', scope: 'budget' },
-  { name: 'Debt Payment', kind: 'expense', scope: 'budget', description: 'Credit cards, student loans and other personal loans.' },
+  {
+    name: 'Loan Payment',
+    kind: 'expense',
+    scope: 'budget',
+    description: 'Student, personal and other loans. A credit card payment goes under Credit Card Bill.',
+  },
 
   // --- Property income ---
   { name: 'Rent', kind: 'income', scope: 'property', tenantOnly: true },
@@ -226,6 +238,10 @@ export const CATEGORY_RENAMES: Readonly<Record<string, string>> = {
   Garbage: 'Trash/Recycling',
   'Capital Improvement': 'Renovation/Improvements',
   'Laundry/Vending': 'Other Rental Income',
+  // Household bills named the way people pay them: cards have their own category,
+  // and a trip reads as a vacation, not a business expense.
+  'Debt Payment': 'Loan Payment',
+  Travel: 'Travel/Vacation',
 };
 
 /** Old system rows folded into another category; their entries move to the target. */

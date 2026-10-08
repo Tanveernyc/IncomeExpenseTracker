@@ -54,3 +54,113 @@ export function categoriesForLedger(
 ): Category[] {
   return categoriesVisibleToLedger(categories, ledger).filter((c) => c.kind === entryKind);
 }
+
+// The categories people reach for most, per kind of ledger, most common first.
+// Names match the system catalog (src/lib/category-catalog.ts); a category the
+// user renamed or created simply falls into the alphabetical rest.
+const RENTAL_EXPENSES = [
+  'Mortgage Payment (with Escrow)',
+  'Mortgage Payment (no Escrow)',
+  'Repairs',
+  'Maintenance',
+  'Property Tax (Combined)',
+  'Home Insurance',
+  'Property Management Fee',
+  'Electric',
+  'Water & Sewer',
+  'Gas/Heating',
+  'Trash/Recycling',
+  'HOA Fees',
+  'Landscaping/Snow',
+  'Cleaning',
+  'Advertising/Listing',
+];
+export const COMMON_CATEGORIES: Record<string, Record<CategoryKind, string[]>> = {
+  rental: {
+    expense: RENTAL_EXPENSES,
+    income: ['Rent', 'Late Fee', 'Pet Fee', 'Other Rental Income', 'Security Deposit Retained'],
+  },
+  investment: {
+    expense: RENTAL_EXPENSES,
+    income: ['Rent', 'Late Fee', 'Pet Fee', 'Other Rental Income', 'Security Deposit Retained'],
+  },
+  primary_residence: {
+    expense: [
+      'Mortgage Payment (with Escrow)',
+      'Mortgage Payment (no Escrow)',
+      'Electric',
+      'Gas/Heating',
+      'Water & Sewer',
+      'Internet/Cable',
+      'Home Insurance',
+      'Property Tax (Combined)',
+      'HOA Fees',
+      'Repairs',
+      'Maintenance',
+      'Trash/Recycling',
+      'Landscaping/Snow',
+    ],
+    income: ['Insurance Payout', 'Sale Proceeds'],
+  },
+  flip: {
+    expense: [
+      'Closing Costs',
+      'Renovation/Improvements',
+      'Repairs',
+      'Supplies',
+      'Permits/Licenses',
+      'Mortgage Payment (no Escrow)',
+      'HELOC / Second Mortgage',
+      'Electric',
+      'Water & Sewer',
+      'Property Tax (Combined)',
+      'Home Insurance',
+      'Selling Costs',
+    ],
+    income: ['Sale Proceeds', 'Insurance Payout'],
+  },
+  budget: {
+    // Bills, not receipts: people log what they pay each month (one card payment
+    // covers the shopping), so itemised spending like groceries waits further back.
+    expense: [
+      'Rent/Mortgage',
+      'Credit Card Bill',
+      'Electric',
+      'Gas/Heating',
+      'Water & Sewer',
+      'Phone',
+      'Internet/Cable',
+      'Subscriptions',
+      'Car Payment',
+      'Car Insurance',
+      'Health/Medical',
+      'Loan Payment',
+      'Childcare',
+      'Travel/Vacation',
+    ],
+    income: ['Salary', 'Freelance', 'Bonus', 'Interest/Dividends', 'Refund', 'Gift Received'],
+  },
+};
+
+const isCatchAll = (c: Category) => c.name === 'Other Expense' || c.name === 'Other Income';
+
+/**
+ * Orders a ledger's categories for a picker: the common ones for its kind of
+ * ledger first (Rent before Insurance Payout on a rental), then the rest in their
+ * given order, with the "Other …" catch-alls last.
+ */
+export function rankCategoriesForLedger(
+  categories: Category[],
+  ledger: LedgerCategoryScope,
+  entryKind: CategoryKind
+): Category[] {
+  const key = ledger.ledger_kind === 'budget' ? 'budget' : (ledger.property_subtype ?? 'rental');
+  const common = COMMON_CATEGORIES[key]?.[entryKind] ?? [];
+  const rank = new Map(common.map((name, i) => [name, i]));
+  const first = categories
+    .filter((c) => c.is_system && rank.has(c.name))
+    .sort((a, b) => rank.get(a.name)! - rank.get(b.name)!);
+  const firstIds = new Set(first.map((c) => c.id));
+  const rest = categories.filter((c) => !firstIds.has(c.id));
+  return [...first, ...rest.filter((c) => !isCatchAll(c)), ...rest.filter(isCatchAll)];
+}

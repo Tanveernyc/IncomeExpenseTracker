@@ -2,7 +2,7 @@
 // Phase 5 test: post-save state retains property/category so entering ten bills
 // is ten taps of "amount → save", not ten round trips.
 import type { Category, CategoryKind } from '@/types';
-import { categoriesForLedger, type LedgerCategoryScope } from './categories';
+import { categoriesForLedger, rankCategoriesForLedger, type LedgerCategoryScope } from './categories';
 import { todayISO } from './dates';
 
 export interface AddTransactionState {
@@ -56,7 +56,7 @@ export function orderCategoriesByRecent(
   ledger?: LedgerCategoryScope
 ): Category[] {
   const ofKind = ledger
-    ? categoriesForLedger(categories, ledger, kind)
+    ? rankCategoriesForLedger(categoriesForLedger(categories, ledger, kind), ledger, kind)
     : categories.filter((c) => c.kind === kind);
   const byId = new Map(ofKind.map((c) => [c.id, c]));
   const recent = recentIds.map((id) => byId.get(id)).filter((c): c is Category => !!c);

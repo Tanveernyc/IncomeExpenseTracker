@@ -56,8 +56,8 @@ export async function updateProperty(
 }
 
 /**
- * Archives/unarchives a property. This is an UPDATE of is_archived — properties
- * are never deleted (sell a property, keep the records; spec §3 design note).
+ * Archives/unarchives a property. This is an UPDATE of is_archived: archiving
+ * keeps the records (sell a property, keep its history; spec §3 design note).
  */
 export async function setPropertyArchived(id: string, archived: boolean): Promise<Property> {
   const { data, error } = await supabase
@@ -68,4 +68,31 @@ export async function setPropertyArchived(id: string, archived: boolean): Promis
     .single();
   if (error) throw error;
   return data as Property;
+}
+
+/**
+ * Deletes an archived ledger for good. Its entries and recurring rules go with it
+ * (on delete cascade). Only archived ledgers qualify: the filter is part of the
+ * DELETE itself, so an active ledger can never be removed by this call.
+ */
+export async function deleteArchivedProperty(id: string): Promise<void> {
+  const { data, error } = await supabase
+    .from('properties')
+    .delete()
+    .eq('id', id)
+    .eq('is_archived', true)
+    .select('id');
+  if (error) throw error;
+  if (!data || data.length === 0) throw new Error('Only an archived ledger can be deleted. Archive it first.');
+}
+
+/** How many entries (expenses + income) a ledger holds, for a delete warning. */
+export async function countLedgerEntries(id: string): Promise<number> {
+  const [expenses, income] = await Promise.all([
+    supabase.from('expenses').select('id', { count: 'exact', head: true }).eq('property_id', id),
+    supabase.from('income').select('id', { count: 'exact', head: true }).eq('property_id', id),
+  ]);
+  if (expenses.error) throw expenses.error;
+  if (income.error) throw income.error;
+  return (expenses.count ?? 0) + (income.count ?? 0);
 }

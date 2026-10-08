@@ -164,7 +164,7 @@ function RuleEditor({ id, rule }: { id: string; rule: RecurringRule }) {
       </ScrollView>
       {errors.property ? <Text style={styles.error}>{errors.property}</Text> : null}
 
-      <Text style={styles.label}>Category *</Text>
+      <Text style={styles.label}>{isExpense ? 'Expense' : 'Income'} category *</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow} style={styles.chipStrip}>
         {kindCategories.map((c) => (
           <GlassChip key={c.id} label={c.name} selected={categoryId === c.id} onPress={() => setCategoryId(c.id)} />

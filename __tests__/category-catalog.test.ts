@@ -112,6 +112,7 @@ describe('the cleanup', () => {
     expect(brandNew.sort()).toEqual(
       [
         'Closing Costs',
+        'Credit Card Bill',
         'Flood Insurance',
         'HELOC / Second Mortgage',
         'Home Warranty',

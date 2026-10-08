@@ -6,7 +6,19 @@
 import { BlurView } from 'expo-blur';
 import { GlassView, isGlassEffectAPIAvailable, isLiquidGlassAvailable } from 'expo-glass-effect';
 import * as Haptics from 'expo-haptics';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, {
+  Easing,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+  withTiming,
+  type SharedValue,
+} from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import {
   AccessibilityInfo,
   ActivityIndicator,
@@ -246,30 +258,168 @@ interface SegmentedProps<T extends string> {
   style?: StyleProp<ViewStyle>;
 }
 
-/** A glass track with a midnight thumb on the selected option. */
+/**
+ * A glass track with a midnight thumb on the selected option. Built to feel like
+ * the old slide to unlock: the thumb lifts under your finger, follows it 1:1,
+ * resists past the ends, ticks as it crosses into the other option, and lands
+ * with a soft bounce, a tap and a glint. A plain tap glides it over too.
+ */
 export function GlassSegmented<T extends string>({ options, value, onChange, style }: SegmentedProps<T>) {
+  const [trackWidth, setTrackWidth] = useState(0);
+  const segmentWidth = trackWidth > 0 ? (trackWidth - SEGMENT_INSET * 2) / options.length : 0;
+  const index = Math.max(0, options.findIndex((o) => o.value === value));
+  const offset = useSharedValue(0);
+  const dragStart = useSharedValue(0);
+  const lastSegment = useSharedValue(0);
+  const lift = useSharedValue(1);
+  const stretch = useSharedValue(1);
+  const glint = useSharedValue(0);
+  const placed = useRef(false);
+
+  // Follow the selection however it changed: a tap, a drag, or the parent. The
+  // first placement jumps, so the thumb never slides in as a screen opens.
+  useEffect(() => {
+    if (segmentWidth === 0) return;
+    const target = index * segmentWidth;
+    if (placed.current) {
+      offset.set(withSpring(target, SEGMENT_SPRING));
+      glint.set(0);
+      glint.set(withDelay(140, withTiming(1, { duration: 700, easing: Easing.out(Easing.quad) })));
+    } else {
+      offset.set(target);
+      placed.current = true;
+    }
+  }, [index, segmentWidth, offset, glint]);
+
+  const choose = (i: number) => {
+    const option = options[i];
+    if (option.value !== value) onChange(option.value);
+  };
+  const tapped = (i: number) => {
+    if (i !== index) tapFeedback();
+    choose(i);
+  };
+  // Letting go is the "unlock" moment, so it gets a firmer tap than a tick.
+  const landed = (i: number) => {
+    landFeedback();
+    choose(i);
+  };
+
+  // Horizontal only, so a vertical scroll that starts on the control still scrolls.
+  const pan = Gesture.Pan()
+    .activeOffsetX([-8, 8])
+    .failOffsetY([-10, 10])
+    .onStart(() => {
+      dragStart.set(offset.get());
+      lastSegment.set(Math.round(offset.get() / Math.max(segmentWidth, 1)));
+      lift.set(withSpring(1.04, LIFT_SPRING));
+    })
+    .onUpdate((e) => {
+      const max = segmentWidth * (options.length - 1);
+      const raw = dragStart.get() + e.translationX;
+      // Past either end the thumb gives a little, like pulling against a spring.
+      const resisted = raw < 0 ? raw * 0.2 : raw > max ? max + (raw - max) * 0.2 : raw;
+      offset.set(resisted);
+      // Moving fast, the thumb stretches along its path, like a drop of glass.
+      stretch.set(1 + Math.min(Math.abs(e.velocityX) / 5000, 0.1));
+      const segment = Math.min(options.length - 1, Math.max(0, Math.round(resisted / Math.max(segmentWidth, 1))));
+      if (segment !== lastSegment.get()) {
+        lastSegment.set(segment);
+        scheduleOnRN(tapFeedback);
+      }
+    })
+    .onEnd((e) => {
+      lift.set(withSpring(1, LIFT_SPRING));
+      stretch.set(withSpring(1, LIFT_SPRING));
+      if (segmentWidth === 0) return;
+      // A quick flick counts even if the thumb has not crossed halfway.
+      const projected = offset.get() + e.velocityX * 0.1;
+      const target = Math.min(options.length - 1, Math.max(0, Math.round(projected / segmentWidth)));
+      offset.set(withSpring(target * segmentWidth, { ...SEGMENT_SPRING, velocity: e.velocityX }));
+      scheduleOnRN(landed, target);
+    });
+
+  const thumbStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: offset.get() },
+      { scaleX: lift.get() * stretch.get() },
+      { scaleY: lift.get() / Math.sqrt(stretch.get()) },
+    ],
+  }));
+  const glintStyle = useAnimatedStyle(() => {
+    const g = glint.get();
+    return {
+      opacity: g > 0 && g < 1 ? Math.sin(g * Math.PI) * 0.9 : 0,
+      transform: [{ translateX: -segmentWidth * 0.6 + g * segmentWidth * 1.6 }, { skewX: '-20deg' }],
+    };
+  });
+
   return (
-    <GlassSurface style={[styles.segmentTrack, style]}>
-      {options.map((option) => {
-        const selected = option.value === value;
-        return (
-          <Pressable
-            key={option.value}
-            onPress={() => {
-              if (!selected) tapFeedback();
-              onChange(option.value);
-            }}
-            accessibilityRole="tab"
-            accessibilityState={{ selected }}
-            style={[styles.segment, selected && styles.segmentSelected]}
-          >
-            <Text style={selected ? styles.segmentTextSelected : styles.segmentText}>{option.label}</Text>
-          </Pressable>
-        );
-      })}
-    </GlassSurface>
+    <GestureDetector gesture={pan}>
+      <GlassSurface style={[styles.segmentTrack, style]}>
+        <View style={StyleSheet.absoluteFill} onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)} />
+        {segmentWidth > 0 ? (
+          <Animated.View style={[styles.segmentThumb, { width: segmentWidth }, thumbStyle]}>
+            <Animated.View style={[styles.segmentGlint, { width: segmentWidth * 0.35 }, glintStyle]} />
+          </Animated.View>
+        ) : null}
+        {options.map((option, i) => {
+          const selected = option.value === value;
+          return (
+            <Pressable
+              key={option.value}
+              onPress={() => tapped(i)}
+              accessibilityRole="tab"
+              accessibilityState={{ selected }}
+              // Before the track is measured there is no thumb, so the option paints its own.
+              style={[styles.segment, selected && segmentWidth === 0 && styles.segmentSelected]}
+            >
+              <SegmentLabel
+                label={option.label}
+                index={i}
+                offset={offset}
+                segmentWidth={segmentWidth}
+                selected={selected}
+              />
+            </Pressable>
+          );
+        })}
+      </GlassSurface>
+    </GestureDetector>
   );
 }
+
+/** A label that turns white as the thumb slides under it, not only once it lands. */
+function SegmentLabel({
+  label,
+  index,
+  offset,
+  segmentWidth,
+  selected,
+}: {
+  label: string;
+  index: number;
+  offset: SharedValue<number>;
+  segmentWidth: number;
+  selected: boolean;
+}) {
+  const colorStyle = useAnimatedStyle(() => {
+    if (segmentWidth === 0) return { color: selected ? colors.onInk : colors.slate };
+    const distance = Math.min(1, Math.abs(offset.get() - index * segmentWidth) / segmentWidth);
+    return { color: interpolateColor(distance, [0, 0.6], [colors.onInk, colors.slate]) };
+  });
+  return <Animated.Text style={[styles.segmentText, colorStyle]}>{label}</Animated.Text>;
+}
+
+/** The firmer tap for a thumb let go into place. */
+function landFeedback() {
+  if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+}
+
+const SEGMENT_INSET = 4;
+// A little underdamped, so a landing thumb settles with one soft bounce.
+const SEGMENT_SPRING = { damping: 16, stiffness: 240, mass: 0.9 };
+const LIFT_SPRING = { damping: 18, stiffness: 320 };
 
 const styles = StyleSheet.create({
   solid: {
@@ -303,7 +453,18 @@ const styles = StyleSheet.create({
   chipSelected: { boxShadow: `0 0 0 1px ${colors.brassBright}` },
   chipText: { color: colors.slate, fontSize: 14, fontWeight: '500' },
   chipTextSelected: { color: colors.ink, fontSize: 14, fontWeight: '700' },
-  segmentTrack: { flexDirection: 'row', padding: 4, borderRadius: radius.pill },
+  segmentTrack: { flexDirection: 'row', padding: SEGMENT_INSET, borderRadius: radius.pill },
+  segmentThumb: {
+    position: 'absolute',
+    top: SEGMENT_INSET,
+    bottom: SEGMENT_INSET,
+    left: SEGMENT_INSET,
+    borderRadius: radius.pill,
+    borderCurve: 'continuous',
+    backgroundColor: colors.ink,
+    // Clips the glint to the thumb's capsule.
+    overflow: 'hidden',
+  },
   segment: {
     flex: 1,
     alignItems: 'center',
@@ -311,6 +472,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
   },
   segmentSelected: { backgroundColor: colors.ink },
-  segmentText: { color: colors.slate, fontSize: 15, fontWeight: '500' },
-  segmentTextSelected: { color: colors.onInk, fontSize: 15, fontWeight: '600' },
+  segmentText: { fontSize: 15, fontWeight: '600' },
+  segmentGlint: {
+    position: 'absolute',
+    top: -4,
+    bottom: -4,
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+  },
 });

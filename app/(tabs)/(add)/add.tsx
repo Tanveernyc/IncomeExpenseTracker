@@ -1,5 +1,5 @@
 // Add tab — expense (Phase 5) and income (Phase 6) rapid entry behind one toggle.
-import { Link } from 'expo-router';
+import { Link, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { AddTransactionForm } from '@/components/add-transaction-form';
@@ -14,13 +14,16 @@ const KIND_OPTIONS = [
 
 export default function AddScreen() {
   const [kind, setKind] = useState<CategoryKind>('expense');
+  // Set when a ledger's screen sends the user here to add to that ledger.
+  const { propertyId } = useLocalSearchParams<{ propertyId?: string }>();
 
-  // key remounts the form on switch so per-kind state starts clean. The switch
-  // rides inside the form's scroll view so it scrolls under the glass header.
+  // The form resets itself on a switch, so it is not remounted and the switch
+  // keeps its slide. It rides inside the form's scroll view so it scrolls under
+  // the glass header.
   return (
     <AddTransactionForm
-      key={kind}
       kind={kind}
+      propertyId={propertyId}
       header={
         <>
           <GlassSegmented options={KIND_OPTIONS} value={kind} onChange={setKind} />

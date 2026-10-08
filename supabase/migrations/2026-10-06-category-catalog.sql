@@ -26,6 +26,10 @@ update categories set name = 'Renovation/Improvements' where is_system and name 
   and not exists (select 1 from categories t where t.is_system and t.name = 'Renovation/Improvements' and t.kind = 'expense');
 update categories set name = 'Other Rental Income' where is_system and name = 'Laundry/Vending' and kind = 'income'
   and not exists (select 1 from categories t where t.is_system and t.name = 'Other Rental Income' and t.kind = 'income');
+update categories set name = 'Loan Payment' where is_system and name = 'Debt Payment' and kind = 'expense'
+  and not exists (select 1 from categories t where t.is_system and t.name = 'Loan Payment' and t.kind = 'expense');
+update categories set name = 'Travel/Vacation' where is_system and name = 'Travel' and kind = 'expense'
+  and not exists (select 1 from categories t where t.is_system and t.name = 'Travel/Vacation' and t.kind = 'expense');
 
 -- 2. Merges (move entries and rules, then drop the old row). Make sure each
 --    target exists first; usually it already does, or a rename above made it.
@@ -99,6 +103,7 @@ insert into catalog values
   ('Groceries', 'expense', 'budget', false, null),
   ('Dining Out', 'expense', 'budget', false, null),
   ('Rent/Mortgage', 'expense', 'budget', false, 'Your housing payment. Tracking the home as a property? Log the mortgage on that property instead.'),
+  ('Credit Card Bill', 'expense', 'budget', false, 'The monthly payment on a card. It covers everything you bought with it, so there is no need to log each purchase as well.'),
   ('Car Payment', 'expense', 'budget', false, null),
   ('Car Insurance', 'expense', 'budget', false, null),
   ('Fuel', 'expense', 'budget', false, null),
@@ -113,9 +118,9 @@ insert into catalog values
   ('Pets', 'expense', 'budget', false, null),
   ('Entertainment', 'expense', 'budget', false, null),
   ('Gifts', 'expense', 'budget', false, null),
-  ('Travel', 'expense', 'budget', false, null),
+  ('Travel/Vacation', 'expense', 'budget', false, null),
   ('Charity', 'expense', 'budget', false, null),
-  ('Debt Payment', 'expense', 'budget', false, 'Credit cards, student loans and other personal loans.'),
+  ('Loan Payment', 'expense', 'budget', false, 'Student, personal and other loans. A credit card payment goes under Credit Card Bill.'),
   ('Rent', 'income', 'property', true, null),
   ('Late Fee', 'income', 'property', true, null),
   ('Pet Fee', 'income', 'property', true, null),

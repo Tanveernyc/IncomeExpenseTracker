@@ -45,3 +45,7 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
   },
   statusCodes: { SIGN_IN_CANCELLED: '-5', IN_PROGRESS: 'IN_PROGRESS' },
 }));
+
+// Reanimated and its worklets runtime are native; both ship Jest mocks.
+jest.mock('react-native-worklets', () => require('react-native-worklets/lib/module/mock'));
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));

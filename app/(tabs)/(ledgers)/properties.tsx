@@ -1,33 +1,72 @@
-// Properties tab (Phase 3): list with archived toggle, links to create and edit.
+// Properties tab (Phase 3): active ledgers, then an Archived bucket whose ledgers
+// can be deleted for good; links to create and edit.
 import { Ionicons } from '@expo/vector-icons';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 import { GlassButton, GlassPressable } from '@/components/glass';
-import { listProperties } from '@/db/properties';
-import { collectionTitle, kindsOf, ledgerMetaLabel, nounFor } from '@/lib/ledger-copy';
+import { countLedgerEntries, deleteArchivedProperty, listProperties } from '@/db/properties';
+import { confirmDelete } from '@/lib/confirm-delete';
+import { kindsOf, ledgerMetaLabel, nounFor } from '@/lib/ledger-copy';
 import { LEDGER_KINDS } from '@/lib/property-validation';
 import type { Property } from '@/types';
 import { colors, space, type, ui } from '@/theme';
 
 export default function PropertiesScreen() {
+  const queryClient = useQueryClient();
   const [showArchived, setShowArchived] = useState(false);
 
-  // Query key includes the toggle so both views cache independently.
+  // One query for everything; archived ledgers are split off into their own bucket.
   const { data, isPending, error, refetch } = useQuery({
-    queryKey: ['properties', { includeArchived: showArchived }],
-    queryFn: () => listProperties({ includeArchived: showArchived }),
+    queryKey: ['properties', { includeArchived: true }],
+    queryFn: () => listProperties({ includeArchived: true }),
+  });
+  const active = (data ?? []).filter((p) => !p.is_archived);
+  const archived = (data ?? []).filter((p) => p.is_archived);
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteArchivedProperty(id),
+    onSuccess: () => {
+      for (const key of ['properties', 'property', 'expenses', 'income', 'recurring']) {
+        queryClient.invalidateQueries({ queryKey: [key] });
+      }
+    },
+    onError: (e: Error) => Alert.alert('Could not delete', e.message),
   });
 
-  const kinds = kindsOf(data ?? []);
-  const sections =
+  const onDelete = async (ledger: Property) => {
+    let entries: number;
+    try {
+      entries = await countLedgerEntries(ledger.id);
+    } catch (e) {
+      Alert.alert('Could not delete', (e as Error).message);
+      return;
+    }
+    const noun = nounFor(ledger.ledger_kind).one.toLowerCase();
+    const what =
+      entries === 0
+        ? `the ${noun} and any recurring rules`
+        : `the ${noun}, its ${entries === 1 ? '1 entry' : `${entries} entries`} and any recurring rules`;
+    confirmDelete(
+      `Delete ${ledger.name} for good?`,
+      `This removes ${what}. It cannot be undone.`,
+      () => deleteMutation.mutate(ledger.id)
+    );
+  };
+
+  const kinds = kindsOf(active);
+  const sections: { title: string; archived?: boolean; data: Property[] }[] =
     kinds.length > 1
       ? LEDGER_KINDS.map((k) => ({
           title: nounFor(k).many,
-          data: (data ?? []).filter((p) => p.ledger_kind === k),
+          data: active.filter((p) => p.ledger_kind === k),
         }))
-      : [{ title: '', data: data ?? [] }];
+      : [{ title: '', data: active }];
+  // The archived bucket: a header that always shows the count, rows only when opened.
+  if (archived.length > 0) {
+    sections.push({ title: 'Archived', archived: true, data: showArchived ? archived : [] });
+  }
 
   return (
     <SectionList
@@ -49,36 +88,40 @@ export default function PropertiesScreen() {
           {error ? <Text style={styles.error}>{(error as Error).message}</Text> : null}
         </View>
       }
-      // Rarely needed, so it waits at the bottom instead of sitting above every list.
-      ListFooterComponent={
-        <Pressable
-          onPress={() => setShowArchived((v) => !v)}
-          style={styles.archivedToggle}
-          accessibilityRole="button"
-          hitSlop={8}
-        >
-          <Text style={styles.archivedToggleText}>{showArchived ? 'Hide archived' : 'Show archived'}</Text>
-        </Pressable>
-      }
       renderSectionHeader={({ section }) =>
-        section.title === '' ? null : <Text style={styles.sectionHeader}>{section.title}</Text>
+        section.archived ? (
+          <Pressable
+            onPress={() => setShowArchived((v) => !v)}
+            style={styles.archivedHeader}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: showArchived }}
+          >
+            <View style={styles.archivedTitleRow}>
+              <Text style={styles.sectionHeaderText}>Archived ({archived.length})</Text>
+              <Ionicons name={showArchived ? 'chevron-up' : 'chevron-down'} size={18} color={colors.slate} />
+            </View>
+            <Text style={styles.archivedHint}>
+              Not counted in your Dashboard or report totals.
+            </Text>
+          </Pressable>
+        ) : section.title === '' ? null : (
+          <Text style={[styles.sectionHeaderText, styles.sectionHeader]}>{section.title}</Text>
+        )
       }
       ItemSeparatorComponent={() => <View style={styles.separator} />}
       ListEmptyComponent={
         isPending ? null : (
-          <Text style={styles.empty}>
-            {showArchived
-              ? 'Nothing here yet.'
-              : `No active ${collectionTitle(kinds).toLowerCase()}. Add one to start.`}
-          </Text>
+          <Text style={styles.empty}>No ledgers yet. Add a property or household to start.</Text>
         )
       }
-      renderItem={({ item }) => <PropertyRow property={item} />}
+      renderItem={({ item }) => (
+        <PropertyRow property={item} onDelete={item.is_archived ? () => onDelete(item) : undefined} />
+      )}
     />
   );
 }
 
-function PropertyRow({ property }: { property: Property }) {
+function PropertyRow({ property, onDelete }: { property: Property; onDelete?: () => void }) {
   const isBudget = property.ledger_kind === 'budget';
   return (
     <GlassPressable
@@ -98,8 +141,13 @@ function PropertyRow({ property }: { property: Property }) {
           {property.address ? ` · ${property.address}` : ''}
         </Text>
       </View>
-      {property.is_archived ? <Text style={styles.archivedBadge}>Archived</Text> : null}
-      <Ionicons name="chevron-forward" size={18} color={colors.mist} />
+      {onDelete ? (
+        <Pressable onPress={onDelete} hitSlop={10} accessibilityRole="button" accessibilityLabel={`Delete ${property.name}`}>
+          <Text style={styles.deleteText}>Delete</Text>
+        </Pressable>
+      ) : (
+        <Ionicons name="chevron-forward" size={18} color={colors.mist} />
+      )}
     </GlassPressable>
   );
 }
@@ -112,9 +160,12 @@ function sentenceCase(text: string): string {
 const styles = StyleSheet.create({
   listContent: { padding: space.lg, paddingBottom: 120 },
   header: { gap: space.md, marginBottom: space.lg },
-  archivedToggle: { alignSelf: 'center', marginTop: space.xl, paddingVertical: space.sm, paddingHorizontal: space.lg },
-  archivedToggleText: { ...ui.link, fontSize: 14 },
-  sectionHeader: { ...type.section, marginTop: space.md, marginBottom: space.md },
+  sectionHeaderText: { ...type.section },
+  sectionHeader: { marginTop: space.md, marginBottom: space.md },
+  archivedHeader: { marginTop: space.xl, marginBottom: space.md, gap: 2 },
+  archivedTitleRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  archivedHint: { ...type.hint },
+  deleteText: { color: colors.danger, fontSize: 14, fontWeight: '600' },
   separator: { height: space.md },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg },
   rowIcon: {
@@ -128,7 +179,6 @@ const styles = StyleSheet.create({
   rowText: { flex: 1, gap: 2 },
   rowName: { ...type.body, fontSize: 17, fontWeight: '600' },
   rowMeta: { ...type.hint },
-  archivedBadge: { fontSize: 12, color: colors.mist, fontStyle: 'italic' },
   empty: { ...ui.empty, paddingHorizontal: 24 },
   error: { ...ui.error },
 });

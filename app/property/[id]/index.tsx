@@ -16,12 +16,12 @@ import {
   View,
 } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { listCategories } from '@/db/categories';
 import { deleteExpense, listPropertyExpenses } from '@/db/expenses';
 import { deleteIncome, listPropertyIncome } from '@/db/income';
 import { getProperty } from '@/db/properties';
 import { skipRecurringMonth } from '@/db/recurring';
-import { categoriesVisibleToLedger } from '@/lib/categories';
 import { formatDateLabel } from '@/lib/dates';
 import { confirmDelete } from '@/lib/confirm-delete';
 import { nounFor } from '@/lib/ledger-copy';
@@ -35,12 +35,13 @@ import {
   type TimelineSort,
 } from '@/lib/timeline';
 import { DateField } from '@/components/date-field';
-import { GlassChip, GlassPressable } from '@/components/glass';
+import { GlassButton, GlassChip, GlassPressable } from '@/components/glass';
 import { colors, money, radius, space, type, ui } from '@/theme';
 
 export default function PropertyTransactionsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const queryClient = useQueryClient();
+  const insets = useSafeAreaInsets();
   const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -102,8 +103,22 @@ export default function PropertyTransactionsScreen() {
 
   const loading = loadingExpenses || loadingIncome;
 
+  // Only categories this ledger has entries in, expenses before income, so every
+  // chip finds something and the two kinds never interleave.
+  const filterCategories = useMemo(() => {
+    const used = new Set([...(expenses ?? []), ...(income ?? [])].map((e) => e.category_id));
+    return (categories ?? [])
+      .filter((c) => used.has(c.id))
+      .sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'expense' ? -1 : 1));
+  }, [categories, expenses, income]);
+
   const filters = (
     <View style={styles.filters}>
+      {property?.is_archived ? (
+        <Text style={styles.archivedNote}>
+          Archived. Not counted in your totals. To add entries, unarchive it from the edit button.
+        </Text>
+      ) : null}
       {/* Filters: category chips + inclusive date range */}
       <ScrollView
         horizontal
@@ -112,12 +127,7 @@ export default function PropertyTransactionsScreen() {
         style={styles.chipStrip}
       >
         <GlassChip label="All" selected={!categoryId} onPress={() => setCategoryId(undefined)} />
-        {/* Until the property loads, show the categories every ledger shares rather
-            than an empty row that also never recovers if the query fails. */}
-        {(property
-          ? categoriesVisibleToLedger(categories ?? [], property)
-          : (categories ?? []).filter((c) => c.scope === 'both')
-        ).map((c) => (
+        {filterCategories.map((c) => (
           <GlassChip
             key={c.id}
             label={c.name}
@@ -188,7 +198,9 @@ export default function PropertyTransactionsScreen() {
           loading ? null : (
             <Text style={styles.empty}>
               {(expenses?.length ?? 0) + (income?.length ?? 0) === 0
-                ? 'Nothing recorded yet. Tap Add below to log an expense or income.'
+                ? property?.is_archived
+                  ? 'Nothing recorded.'
+                  : 'Nothing recorded yet. Tap Add expense or income below to start.'
                 : 'No transactions match these filters.'}
             </Text>
           )
@@ -244,13 +256,26 @@ export default function PropertyTransactionsScreen() {
           </Swipeable>
         )}
       />
+      {/* This screen sits above the tab bar, so it carries its own way to add,
+          straight into this ledger. */}
+      {/* An archived ledger takes no new entries; it is kept for the record. */}
+      {property?.is_archived ? null : (
+        <View style={[styles.addBar, { bottom: insets.bottom + space.sm }]} pointerEvents="box-none">
+          <GlassButton
+            label="Add expense or income"
+            icon={<Ionicons name="add" size={20} color={colors.onInk} />}
+            onPress={() => router.navigate({ pathname: '/add', params: { propertyId: id } })}
+            style={styles.addButton}
+          />
+        </View>
+      )}
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  // Home-indicator clearance so the last row is never cut off.
-  listContent: { padding: space.lg, paddingBottom: 60 },
+  // Clears the floating Add button so the last row and the hint are never under it.
+  listContent: { padding: space.lg, paddingBottom: 140 },
   filters: { gap: space.md, marginBottom: space.lg },
   // Chips scroll edge to edge; the strip cancels the list padding.
   chipStrip: { marginHorizontal: -space.lg, flexGrow: 0 },
@@ -260,6 +285,9 @@ const styles = StyleSheet.create({
   dateInput: { flex: 1 },
   spinner: { marginTop: 32 },
   empty: { ...ui.empty },
+  archivedNote: { ...type.hint, textAlign: 'center' },
+  addBar: { position: 'absolute', left: space.lg, right: space.lg },
+  addButton: { boxShadow: '0 6px 20px rgba(14, 26, 43, 0.18)' },
   footerHint: { ...type.hint, textAlign: 'center', marginTop: space.lg },
   separator: { height: space.sm },
   // The ledger: amounts in a right-hand column of tabular figures.

@@ -31,7 +31,16 @@ import { GlassButton, GlassChip, GlassSurface } from './glass';
 const LAST_PROPERTY_KEY = 'add:last-property-id';
 const recentCategoriesKey = (kind: CategoryKind) => `add:recent-${kind}-category-ids`;
 
-export function AddTransactionForm({ kind, header }: { kind: CategoryKind; header?: ReactNode }) {
+export function AddTransactionForm({
+  kind,
+  header,
+  propertyId,
+}: {
+  kind: CategoryKind;
+  header?: ReactNode;
+  /** Preselects this ledger, e.g. when opened from a ledger's own screen. */
+  propertyId?: string;
+}) {
   const queryClient = useQueryClient();
   const [state, setState] = useState<AddTransactionState>(initialAddState);
   // Declared here, not further down: the effects below call it, and a const
@@ -40,6 +49,17 @@ export function AddTransactionForm({ kind, header }: { kind: CategoryKind; heade
   const [recentCategoryIds, setRecentCategoryIds] = useState<string[]>([]);
   const [errors, setErrors] = useState<TransactionValidation['errors']>({});
   const [savedFlash, setSavedFlash] = useState(false);
+
+  // Switching expense ↔ income starts the form clean but keeps the ledger. Done
+  // here rather than by remounting, so the Expense/Income switch above stays
+  // mounted and its thumb can slide.
+  const [formKind, setFormKind] = useState(kind);
+  if (formKind !== kind) {
+    setFormKind(kind);
+    setState((s) => ({ ...initialAddState(), propertyId: s.propertyId }));
+    setErrors({});
+    setSavedFlash(false);
+  }
 
   const isExpense = kind === 'expense';
   const dateLabel = isExpense ? 'Paid on' : 'Received on';
@@ -50,19 +70,21 @@ export function AddTransactionForm({ kind, header }: { kind: CategoryKind; heade
   });
   const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: listCategories });
 
-  // Restore last-used property + this kind's recent categories on mount/kind switch.
+  // Restore last-used property (unless one was passed in) + this kind's recent
+  // categories on mount, kind switch, or a new ledger handed over.
   useEffect(() => {
     (async () => {
       const [lastProperty, recentJson] = await Promise.all([
         AsyncStorage.getItem(LAST_PROPERTY_KEY),
         AsyncStorage.getItem(recentCategoriesKey(kind)),
       ]);
-      if (lastProperty) setState((s) => ({ ...s, propertyId: lastProperty }));
+      const pick = propertyId ?? lastProperty;
+      if (pick) setState((s) => ({ ...s, propertyId: pick }));
       setRecentCategoryIds(recentJson ? JSON.parse(recentJson) : []);
       // Category selection does not carry across kinds (expense ids ≠ income ids).
       setState((s) => ({ ...s, categoryId: null }));
     })();
-  }, [kind]);
+  }, [kind, propertyId]);
 
   const selectedLedger = (properties ?? []).find((p) => p.id === state.propertyId);
   const ledgerKind = selectedLedger?.ledger_kind;
@@ -190,8 +212,11 @@ export function AddTransactionForm({ kind, header }: { kind: CategoryKind; heade
       </ScrollView>
       {errors.property ? <Text style={styles.error}>{errors.property}</Text> : null}
 
-      <Text style={styles.label}>Category · recent first</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow} style={styles.chipStrip}>
+      <Text style={styles.label}>{isExpense ? 'Expense' : 'Income'} category</Text>
+      {/* Keyed so a new kind or ledger starts the strip at its most likely categories. */}
+      <ScrollView
+        key={`${kind}-${state.propertyId}`}
+        horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow} style={styles.chipStrip}>
         <GlassChip label="+ New" selected={false} onPress={promptNewCategory} />
         {kindCategories.map((c) => (
           <GlassChip

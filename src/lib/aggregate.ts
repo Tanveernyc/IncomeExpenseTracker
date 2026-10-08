@@ -191,3 +191,27 @@ export function savingsRate(pl: PL): number | null {
   if (pl.totalIncome <= 0) return null;
   return toCents(pl.net) / toCents(pl.totalIncome);
 }
+
+export interface ActiveSplit {
+  active: Property[];
+  archived: Property[];
+  /** Entries on active ledgers only: what every current total is built from. */
+  activeExpenses: Expense[];
+  activeIncome: Income[];
+}
+
+/**
+ * Splits ledgers into active and archived, and keeps only active ledgers' entries.
+ * An archived ledger's money never mixes into current totals; anything that
+ * reports it does so on its own. Entries whose ledger is unknown are kept.
+ */
+export function splitActive(properties: Property[], expenses: Expense[], income: Income[]): ActiveSplit {
+  const archived = properties.filter((p) => p.is_archived);
+  const archivedIds = new Set(archived.map((p) => p.id));
+  return {
+    active: properties.filter((p) => !p.is_archived),
+    archived,
+    activeExpenses: expenses.filter((e) => !archivedIds.has(e.property_id)),
+    activeIncome: income.filter((i) => !archivedIds.has(i.property_id)),
+  };
+}

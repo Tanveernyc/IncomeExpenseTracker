@@ -89,6 +89,21 @@ describe('buildDashboardModel', () => {
     expect(model.recent[0].date).toBe('2026-06-08'); // newest first
   });
 
+  it('leaves an archived ledger out of every figure, not only its card', () => {
+    const model = buildDashboardModel(
+      properties,
+      [
+        expense({ id: 'live', property_id: 'p1', amount: 100, paid_on: '2026-07-03' }),
+        expense({ id: 'gone', property_id: 'p2', amount: 5000, paid_on: '2026-07-04' }),
+      ],
+      [income({ id: 'gone-in', property_id: 'p2', amount: 9000, received_on: '2026-07-05' })],
+      TODAY
+    );
+    expect(model.yearPL).toEqual({ totalIncome: 0, totalExpense: 100, net: -100 });
+    expect(model.monthPL).toEqual({ totalIncome: 0, totalExpense: 100, net: -100 });
+    expect(model.recent.map((r) => r.id)).toEqual(['live']);
+  });
+
   it('empty inputs produce a zeroed model', () => {
     const model = buildDashboardModel([], [], [], TODAY);
     expect(model.yearPL).toEqual({ totalIncome: 0, totalExpense: 0, net: 0 });

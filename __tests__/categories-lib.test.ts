@@ -3,10 +3,13 @@
 import {
   canDeleteCategory,
   categoriesForLedger,
+  COMMON_CATEGORIES,
   filterCategoriesByKind,
   ledgerHasTenants,
+  rankCategoriesForLedger,
   splitCategoriesByKind,
 } from '../src/lib/categories';
+import { SYSTEM_CATEGORIES } from '../src/lib/category-catalog';
 import type { Category, PropertySubtype } from '../src/types';
 
 const cat = (overrides: Partial<Category>): Category => ({
@@ -112,5 +115,48 @@ describe('tenant-only categories', () => {
     expect(
       categoriesForLedger(income, property('rental'), 'income').map((c) => c.id)
     ).toEqual(['rent', 'payout']);
+  });
+});
+
+describe('rankCategoriesForLedger', () => {
+  const income = ['Insurance Payout', 'Late Fee', 'Other Income', 'Pet Fee', 'Rent', 'Sale Proceeds'].map((name) =>
+    cat({ id: name, name, kind: 'income', is_system: true })
+  );
+
+  it('puts what a rental usually earns first and the catch-all last', () => {
+    const ranked = rankCategoriesForLedger(income, { ledger_kind: 'property', property_subtype: 'rental' }, 'income');
+    expect(ranked.map((c) => c.name)).toEqual([
+      'Rent',
+      'Late Fee',
+      'Pet Fee',
+      'Insurance Payout',
+      'Sale Proceeds',
+      'Other Income',
+    ]);
+  });
+
+  it('leads a flip with its sale', () => {
+    const ranked = rankCategoriesForLedger(income, { ledger_kind: 'property', property_subtype: 'flip' }, 'income');
+    expect(ranked[0].name).toBe('Sale Proceeds');
+  });
+
+  it('does not promote a custom category that shares a system name', () => {
+    const custom = cat({ id: 'mine', name: 'Rent', kind: 'income', is_system: false });
+    const ranked = rankCategoriesForLedger(
+      [custom, ...income.filter((c) => c.name !== 'Rent')],
+      { ledger_kind: 'property', property_subtype: 'rental' },
+      'income'
+    );
+    expect(ranked[0].name).toBe('Late Fee');
+  });
+
+  it('only names real catalog categories of the right kind', () => {
+    for (const byKind of Object.values(COMMON_CATEGORIES)) {
+      for (const kind of ['expense', 'income'] as const) {
+        for (const name of byKind[kind]) {
+          expect(SYSTEM_CATEGORIES.find((c) => c.name === name)?.kind).toBe(kind);
+        }
+      }
+    }
   });
 });

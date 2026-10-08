@@ -12,7 +12,9 @@ jest.mock('../src/db/supabase', () => ({
 
 import { supabase } from '../src/db/supabase';
 import {
+  countLedgerEntries,
   createProperty,
+  deleteArchivedProperty,
   listProperties,
   setPropertyArchived,
 } from '../src/db/properties';
@@ -127,5 +129,37 @@ describe('setPropertyArchived', () => {
     await setPropertyArchived('p1', false);
 
     expect(builder.calls).toContainEqual({ method: 'update', args: [{ is_archived: false }] });
+  });
+});
+
+describe('deleteArchivedProperty', () => {
+  it('deletes only when the row is archived, as one statement', async () => {
+    const builder = createBuilder({ data: [{ id: 'p1' }], error: null });
+    mockFrom.mockReturnValue(builder);
+
+    await deleteArchivedProperty('p1');
+
+    expect(builder.calls).toContainEqual({ method: 'delete', args: [] });
+    expect(builder.calls).toContainEqual({ method: 'eq', args: ['id', 'p1'] });
+    expect(builder.calls).toContainEqual({ method: 'eq', args: ['is_archived', true] });
+  });
+
+  it('refuses an active ledger (nothing matched the archived filter)', async () => {
+    mockFrom.mockReturnValue(createBuilder({ data: [], error: null }));
+
+    await expect(deleteArchivedProperty('p1')).rejects.toThrow('Only an archived ledger can be deleted');
+  });
+});
+
+describe('countLedgerEntries', () => {
+  it('adds the expense and income counts for one ledger', async () => {
+    // A head-only count query resolves with { count } rather than rows.
+    const expenses = createBuilder({ count: 3, error: null } as never);
+    const income = createBuilder({ count: 2, error: null } as never);
+    mockFrom.mockImplementation((table: string) => (table === 'expenses' ? expenses : income));
+
+    await expect(countLedgerEntries('p1')).resolves.toBe(5);
+    expect(expenses.calls).toContainEqual({ method: 'eq', args: ['property_id', 'p1'] });
+    expect(income.calls).toContainEqual({ method: 'eq', args: ['property_id', 'p1'] });
   });
 });

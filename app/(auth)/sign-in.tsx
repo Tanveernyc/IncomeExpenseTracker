@@ -1,7 +1,7 @@
 // Sign-in / sign-up screen (Phase 2). Validation happens locally first
 // (src/lib/auth-validation.ts); Supabase Auth errors surface below the form.
 import { useEffect, useRef, useState } from 'react';
-import { Image, KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { GlassButton, GlassSurface } from '@/components/glass';
 import { PasswordResetForm } from '@/components/password-reset-form';
 import * as AppleAuthentication from 'expo-apple-authentication';
@@ -92,9 +92,15 @@ export default function SignInScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    // Scrolls rather than squeezing: on a small phone with the keyboard up, a fixed
+    // centred column pushed the title up under the status bar.
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.container}
+      contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustKeyboardInsets
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="interactive"
     >
       <View style={styles.brand}>
         {/* The app icon itself, so sign-in looks like the app people tapped. */}
@@ -218,13 +224,14 @@ export default function SignInScreen() {
           </Pressable>
         </GlassSurface>
       )}
-    </KeyboardAvoidingView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   // Shown outside the signed-in stack's chrome, so it paints its own backdrop.
-  container: { ...backdrop, flex: 1, justifyContent: 'center', padding: space.lg, gap: space.xl },
+  screen: { ...backdrop, flex: 1 },
+  container: { flexGrow: 1, justifyContent: 'center', padding: space.lg, gap: space.xl },
   brand: { alignItems: 'center', gap: space.sm },
   mark: { width: 72, height: 72, marginBottom: space.xs },
   title: { ...type.display, textAlign: 'center' },

@@ -17,13 +17,16 @@ import {
   lastMonthRange,
   lastYearRange,
   savingsRate,
+  splitActive,
   thisMonthRange,
   thisYearRange,
   type DateRange,
+  type PropertyPL,
 } from '@/lib/aggregate';
 import { todayISO } from '@/lib/dates';
 import { collectionNoun, kindsOf, netLabel } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
+import type { Property } from '@/types';
 import { colors, money, serif, space, type } from '@/theme';
 
 type Preset = 'this-month' | 'last-month' | 'this-year' | 'last-year' | 'all-time' | 'custom';
@@ -68,11 +71,15 @@ export default function ReportsScreen() {
   }, [preset, customFrom, customTo]);
 
   // All math is delegated to src/lib/aggregate.ts (spec §4: no inline arithmetic).
-  const portfolio = calcPL(expenses ?? [], income ?? [], range);
-  const perProperty = calcPLByProperty(properties ?? [], expenses ?? [], income ?? [], range);
-  const byCategory = calcByCategory(expenses ?? [], range, categories ?? []);
+  // Archived ledgers are reported on their own, below, and never mixed into the
+  // portfolio, the per-ledger cards or the category totals.
+  const { active, archived, activeExpenses, activeIncome } = splitActive(properties ?? [], expenses ?? [], income ?? []);
+  const portfolio = calcPL(activeExpenses, activeIncome, range);
+  const perProperty = calcPLByProperty(active, activeExpenses, activeIncome, range);
+  const perArchived = calcPLByProperty(archived, expenses ?? [], income ?? [], range);
+  const byCategory = calcByCategory(activeExpenses, range, categories ?? []);
   const rate = savingsRate(portfolio);
-  const portfolioHasBudget = kindsOf(properties ?? []).includes('budget');
+  const portfolioHasBudget = kindsOf(active).includes('budget');
 
   return (
     <ScrollView contentContainerStyle={styles.container} contentInsetAdjustmentBehavior="automatic">
@@ -122,7 +129,7 @@ export default function ReportsScreen() {
         <PLRow label="Income" value={portfolio.totalIncome} positive />
         <PLRow label="Expenses" value={portfolio.totalExpense} />
         <View style={styles.divider} />
-        <PLRow label={netLabel(properties ?? [])} value={portfolio.net} positive={portfolio.net >= 0} bold />
+        <PLRow label={netLabel(active)} value={portfolio.net} positive={portfolio.net >= 0} bold />
         {portfolioHasBudget && rate !== null ? (
           <Text style={styles.savingsRate}>
             {rate >= 0 ? 'Savings rate' : 'Overspent by'} {Math.abs(Math.round(rate * 100))}% of
@@ -132,28 +139,19 @@ export default function ReportsScreen() {
       </GlassSurface>
 
       <Text style={styles.sectionTitle}>By {collectionNoun(kindsOf(properties ?? [])).toLowerCase()}</Text>
-      {perProperty.map((p) => {
-        const ledger = properties?.find((pr) => pr.id === p.propertyId);
-        const isBudget = ledger?.ledger_kind === 'budget';
-        // Archived ledgers still report, so judge this one as if active.
-        const label = netLabel(ledger ? [{ ...ledger, is_archived: false }] : []);
-        const cardRate = savingsRate(p);
-        return (
-          <GlassSurface key={p.propertyId} style={styles.card}>
-            <Text style={styles.cardTitle}>{p.name}</Text>
-            <PLRow label="Income" value={p.totalIncome} positive />
-            <PLRow label="Expenses" value={p.totalExpense} />
-            <View style={styles.divider} />
-            <PLRow label={label} value={p.net} positive={p.net >= 0} bold />
-            {isBudget && cardRate !== null ? (
-              <Text style={styles.savingsRate}>
-                {cardRate >= 0 ? 'Savings rate' : 'Overspent by'}{' '}
-                {Math.abs(Math.round(cardRate * 100))}% of income
-              </Text>
-            ) : null}
-          </GlassSurface>
-        );
-      })}
+      {perProperty.map((p) => (
+        <LedgerCard key={p.propertyId} pl={p} ledger={properties?.find((pr) => pr.id === p.propertyId)} />
+      ))}
+
+      {perArchived.length > 0 ? (
+        <>
+          <Text style={styles.sectionTitle}>Archived</Text>
+          <Text style={styles.sectionHint}>Kept for your records. Not counted in the totals above.</Text>
+          {perArchived.map((p) => (
+            <LedgerCard key={p.propertyId} pl={p} ledger={properties?.find((pr) => pr.id === p.propertyId)} />
+          ))}
+        </>
+      ) : null}
 
       <GlassPressable onPress={() => router.push('/history')} contentStyle={styles.historyLink}>
         <View style={styles.historyText}>
@@ -172,6 +170,28 @@ export default function ReportsScreen() {
         )}
       </GlassSurface>
     </ScrollView>
+  );
+}
+
+/** One ledger's income, expenses and what was left over in the range. */
+function LedgerCard({ pl, ledger }: { pl: PropertyPL; ledger?: Property }) {
+  const isBudget = ledger?.ledger_kind === 'budget';
+  // An archived ledger is worded as it was when active.
+  const label = netLabel(ledger ? [{ ...ledger, is_archived: false }] : []);
+  const cardRate = savingsRate(pl);
+  return (
+    <GlassSurface style={styles.card}>
+      <Text style={styles.cardTitle}>{pl.name}</Text>
+      <PLRow label="Income" value={pl.totalIncome} positive />
+      <PLRow label="Expenses" value={pl.totalExpense} />
+      <View style={styles.divider} />
+      <PLRow label={label} value={pl.net} positive={pl.net >= 0} bold />
+      {isBudget && cardRate !== null ? (
+        <Text style={styles.savingsRate}>
+          {cardRate >= 0 ? 'Savings rate' : 'Overspent by'} {Math.abs(Math.round(cardRate * 100))}% of income
+        </Text>
+      ) : null}
+    </GlassSurface>
   );
 }
 
@@ -206,6 +226,7 @@ const styles = StyleSheet.create({
   card: { padding: space.lg + 2, gap: space.sm },
   cardTitle: { ...type.section, fontSize: 18, marginBottom: space.xs },
   sectionTitle: { ...type.section, marginTop: space.md },
+  sectionHint: { ...type.hint, marginTop: -space.sm },
   plRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   plLabel: { fontSize: 15, color: colors.slate },
   plValue: { ...money, fontSize: 15, fontWeight: '500' },

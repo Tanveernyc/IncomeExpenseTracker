@@ -8,6 +8,7 @@ import {
   lastMonthRange,
   lastYearRange,
   savingsRate,
+  splitActive,
   thisMonthRange,
   thisYearRange,
 } from '../src/lib/aggregate';
@@ -251,5 +252,27 @@ describe('savingsRate', () => {
   });
   it('is null with no income (nothing to save from)', () => {
     expect(savingsRate({ totalIncome: 0, totalExpense: 300, net: -300 })).toBeNull();
+  });
+});
+
+describe('splitActive', () => {
+  const live = property('p1', 'Live');
+  const sold = { ...property('p2', 'Sold'), is_archived: true };
+
+  it('keeps archived ledgers and their money apart from active totals', () => {
+    const split = splitActive(
+      [live, sold],
+      [expense({ id: 'e1', property_id: 'p1' }), expense({ id: 'e2', property_id: 'p2' })],
+      [income({ id: 'i1', property_id: 'p2' })]
+    );
+    expect(split.active.map((p) => p.id)).toEqual(['p1']);
+    expect(split.archived.map((p) => p.id)).toEqual(['p2']);
+    expect(split.activeExpenses.map((e) => e.id)).toEqual(['e1']);
+    expect(split.activeIncome).toEqual([]);
+  });
+
+  it('keeps entries whose ledger is not in the list', () => {
+    const split = splitActive([], [expense({ id: 'e1', property_id: 'unknown' })], []);
+    expect(split.activeExpenses).toHaveLength(1);
   });
 });
