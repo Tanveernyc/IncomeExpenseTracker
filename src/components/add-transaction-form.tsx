@@ -86,7 +86,11 @@ export function AddTransactionForm({
     })();
   }, [kind, propertyId]);
 
-  const selectedLedger = (properties ?? []).find((p) => p.id === state.propertyId);
+  // The picked ledger, else the first one: categories are only ranked for a real
+  // ledger, and a stale remembered id (since archived or deleted) must not stick.
+  const ledgerId =
+    (properties ?? []).find((p) => p.id === state.propertyId)?.id ?? properties?.[0]?.id ?? null;
+  const selectedLedger = (properties ?? []).find((p) => p.id === ledgerId);
   const ledgerKind = selectedLedger?.ledger_kind;
   const kindCategories = orderCategoriesByRecent(categories ?? [], recentCategoryIds, kind, selectedLedger);
 
@@ -105,7 +109,7 @@ export function AddTransactionForm({
       const validation = validateTransactionForm({
         amountText: state.amountText,
         date: state.date,
-        propertyId: state.propertyId,
+        propertyId: ledgerId,
         categoryId,
         periodStart: isExpense && !isBudget ? state.periodStart : undefined,
         periodEnd: isExpense && !isBudget ? state.periodEnd : undefined,
@@ -115,7 +119,7 @@ export function AddTransactionForm({
         throw Object.assign(new Error('validation'), { silent: true });
       }
       const common = {
-        property_id: state.propertyId!,
+        property_id: ledgerId!,
         category_id: categoryId!,
         amount: validation.amount,
         notes: state.notes.trim() || null,
@@ -139,7 +143,7 @@ export function AddTransactionForm({
       // Stay on the screen; clear per-entry fields, keep property/category.
       const recents = pushRecentCategory(recentCategoryIds, categoryId!);
       setRecentCategoryIds(recents);
-      AsyncStorage.setItem(LAST_PROPERTY_KEY, state.propertyId!);
+      AsyncStorage.setItem(LAST_PROPERTY_KEY, ledgerId!);
       AsyncStorage.setItem(recentCategoriesKey(kind), JSON.stringify(recents));
       setState(resetAfterSave(state));
       setErrors({});
@@ -205,7 +209,7 @@ export function AddTransactionForm({
           <GlassChip
             key={p.id}
             label={p.name}
-            selected={state.propertyId === p.id}
+            selected={ledgerId === p.id}
             onPress={() => set({ propertyId: p.id })}
           />
         ))}
@@ -215,7 +219,7 @@ export function AddTransactionForm({
       <Text style={styles.label}>{isExpense ? 'Expense' : 'Income'} category</Text>
       {/* Keyed so a new kind or ledger starts the strip at its most likely categories. */}
       <ScrollView
-        key={`${kind}-${state.propertyId}`}
+        key={`${kind}-${ledgerId}`}
         horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow} style={styles.chipStrip}>
         <GlassChip label="+ New" selected={false} onPress={promptNewCategory} />
         {kindCategories.map((c) => (

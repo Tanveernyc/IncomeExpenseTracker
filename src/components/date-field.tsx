@@ -63,7 +63,9 @@ export function DateField({
   if (process.env.EXPO_OS === 'ios' && date) {
     return (
       <View style={[styles.field, style]} testID={testID} accessibilityLabel={accessibilityLabel}>
-        <Ionicons name="calendar-outline" size={18} color={colors.brass} />
+        {/* A set, clearable date sits in a half-width field: the icon gives up its
+            room so the clear button stays inside the field, where it can be tapped. */}
+        {clearButton ? null : <Ionicons name="calendar-outline" size={18} color={colors.brass} />}
         <DateTimePicker
           value={date}
           onValueChange={(_, picked) => emit(picked)}
@@ -123,8 +125,16 @@ const styles = StyleSheet.create({
   },
   // Sits next to the icon like typed text, not centred in the field. The native
   // capsule's font cannot be set, so it is scaled down to read at body size; the
-  // margin pulls it back beside the icon after the scale shrinks it inward.
-  compactPicker: { width: 140, height: 36, transform: [{ scale: 0.86 }], marginLeft: -12 },
+  // margin pulls it back beside the icon after the scale shrinks it inward. It
+  // shrinks before the clear button is pushed out of a narrow field.
+  compactPicker: {
+    width: 124,
+    height: 36,
+    flexShrink: 1,
+    minWidth: 0,
+    transform: [{ scale: 0.86 }],
+    marginLeft: -9,
+  },
   value: { flex: 1, fontSize: 16, color: colors.ink },
   placeholder: { flex: 1, fontSize: 16, color: colors.mist },
 });

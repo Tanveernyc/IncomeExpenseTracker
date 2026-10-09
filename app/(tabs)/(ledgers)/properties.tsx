@@ -124,6 +124,11 @@ export default function PropertiesScreen() {
 
 function PropertyRow({ property, onDelete }: { property: Property; onDelete?: () => void }) {
   const isBudget = property.ledger_kind === 'budget';
+  // A household's kind adds nothing under the Households heading (its icon says it
+  // too), so it gets no second line unless it has an address.
+  const meta = [isBudget ? null : sentenceCase(ledgerMetaLabel(property)), property.address]
+    .filter(Boolean)
+    .join(' · ');
   return (
     <GlassPressable
       onPress={() => router.push({ pathname: '/property/[id]', params: { id: property.id } })}
@@ -137,10 +142,11 @@ function PropertyRow({ property, onDelete }: { property: Property; onDelete?: ()
         <Text style={styles.rowName} numberOfLines={1}>
           {property.name}
         </Text>
-        <Text style={styles.rowMeta} numberOfLines={1}>
-          {sentenceCase(ledgerMetaLabel(property))}
-          {property.address ? ` · ${property.address}` : ''}
-        </Text>
+        {meta ? (
+          <Text style={styles.rowMeta} numberOfLines={1}>
+            {meta}
+          </Text>
+        ) : null}
       </View>
       {onDelete ? (
         <Pressable onPress={onDelete} hitSlop={10} accessibilityRole="button" accessibilityLabel={`Delete ${property.name}`}>
