@@ -96,7 +96,8 @@ export function GlassSurface({ children, style, interactive, tint, testID }: Sur
     return (
       // The shadow lives on a plain view around the glass: cast by the glass itself it
       // lightens the whole frame of a scrolling row into a band across the screen.
-      <View style={[shape, styles.lift, outer]}>
+      // Never flattened away: a gesture (the segmented slider) may be attached to it.
+      <View collapsable={false} style={[shape, styles.lift, outer]}>
         <GlassView
           testID={testID}
           // Controls are clear glass, so they read as polished and raised; cards stay
