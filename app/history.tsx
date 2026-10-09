@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
   container: { padding: space.lg, paddingBottom: 60 },
   label: { ...ui.label },
   // Chips scroll edge to edge; the strip cancels the screen padding.
-  chipStrip: { marginHorizontal: -space.lg, flexGrow: 0 },
-  chipRow: { gap: space.sm, paddingVertical: space.xs, paddingHorizontal: space.lg },
+  chipStrip: ui.chipStrip,
+  chipRow: ui.chipRow,
   groupBy: { marginTop: rhythm.section },
   empty: { ...ui.empty, marginTop: 32 },
   chartBox: { height: 240, marginTop: rhythm.section, padding: space.md },

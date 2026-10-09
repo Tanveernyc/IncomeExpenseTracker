@@ -310,8 +310,8 @@ const styles = StyleSheet.create({
   label: { ...ui.label },
   // Chips scroll edge to edge; the row cancels the screen padding. Unclipped so the
   // glass shadow fades out instead of ending in a pale band behind the row.
-  chipStrip: { marginHorizontal: -space.lg, overflow: 'visible' },
-  chipRow: { gap: space.sm, paddingHorizontal: space.lg },
+  chipStrip: ui.chipStrip,
+  chipRow: ui.chipRow,
   input: { ...ui.input },
   amountCard: { paddingHorizontal: space.xl, paddingVertical: space.md, marginTop: rhythm.section },
   amountLabel: { ...ui.label, marginTop: 0, marginLeft: 0, marginBottom: 0 },

@@ -121,6 +121,11 @@ export const ui = StyleSheet.create({
     fontSize: 16,
     color: colors.ink,
   },
+  // A side-scrolling row of chips, bled to the screen edges. It also bleeds above
+  // and below: a scroll view clips, and without the room it would cut the glass's
+  // glow and shadow off in a hard band across the screen.
+  chipStrip: { marginHorizontal: -space.lg, marginVertical: -space.xxl, flexGrow: 0, flexShrink: 0 },
+  chipRow: { gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.xxl },
   link: { color: colors.brass, fontSize: 14, fontWeight: '600' },
   // Owns the gaps around itself, so a form's container needs no gap of its own.
   label: { ...type.eyebrow, marginTop: rhythm.section, marginBottom: rhythm.item, marginLeft: space.xs },
