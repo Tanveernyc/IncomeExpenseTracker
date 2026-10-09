@@ -100,13 +100,32 @@ Google sign-in hands the user's **name** to Supabase, so App Privacy needs one
 more row: Contact Info → Name, used for App Functionality, linked to the user,
 not used for tracking. The listing doc's table is already updated.
 
-## 6. Sign in with Apple token revocation (recommended)
+## 6. Sign in with Apple token revocation (required, code done 2026-10-09)
 
-Apple asks apps that offer Sign in with Apple to revoke the user's Apple token
-when they delete their account. That needs the Apple sign-in private key (.p8)
-stored as a Supabase secret and a call from the `delete-account` function.
-Deletion already removes every record; this step only also tells Apple. Ask for
-it when you are ready to create the key.
+Apple requires apps that offer Sign in with Apple to revoke the user's Apple
+tokens when the account is deleted. The code is in place: for an Apple account,
+the Delete screen asks Apple to confirm, sends Apple's one-time code to
+`delete-account`, and the function trades it for a token and revokes it
+(`supabase/functions/delete-account/apple.ts`) before deleting the user. If the
+secrets below are missing or Apple fails, the account is still deleted and the
+function logs why, so do these steps before the build with this code ships.
+
+1. developer.apple.com → Certificates, Identifiers & Profiles → **Keys** → +.
+   Name it "Sign in with Apple revoke", tick **Sign in with Apple**, Configure →
+   primary App ID `com.trueorganichub.propertyledger` → Save → Register.
+   Download the `.p8` (only once) and note the **Key ID**. Store the file in
+   `_secrets-backup/`, never in the repo.
+2. Note your **Team ID** (top right of the developer site).
+3. Set the secrets and deploy:
+   ```
+   supabase secrets set APPLE_TEAM_ID=<team id> APPLE_KEY_ID=<key id> \
+     APPLE_CLIENT_ID=com.trueorganichub.propertyledger \
+     APPLE_PRIVATE_KEY="$(cat AuthKey_<key id>.p8)"
+   supabase functions deploy delete-account
+   ```
+4. Check: delete a throwaway account that signed in with Apple. The function
+   log shows no "Apple token revocation" error, and the app no longer appears
+   under Settings → Apple ID → Sign in with Apple on that phone.
 
 ## 7. Repository (recommended)
 

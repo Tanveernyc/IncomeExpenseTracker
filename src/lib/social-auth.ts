@@ -58,6 +58,25 @@ export async function signInWithApple(): Promise<SocialResult> {
   }
 }
 
+export type AppleCodeResult = { ok: true; code: string } | { ok: false; outcome: ProviderOutcome };
+
+/**
+ * Asks Apple once more for a short-lived authorization code, without signing in.
+ * Deleting an account that used Sign in with Apple has to revoke the user's Apple
+ * tokens; the server trades this code for a token and revokes it.
+ */
+export async function getAppleAuthorizationCode(): Promise<AppleCodeResult> {
+  try {
+    const credential = await AppleAuthentication.signInAsync({ requestedScopes: [] });
+    if (!credential.authorizationCode) {
+      return { ok: false, outcome: { kind: 'error', message: 'Apple did not return a code.' } };
+    }
+    return { ok: true, code: credential.authorizationCode };
+  } catch (e) {
+    return { ok: false, outcome: classifyProviderError(e) };
+  }
+}
+
 export async function signInWithGoogle(): Promise<SocialResult> {
   try {
     await GoogleSignin.hasPlayServices();

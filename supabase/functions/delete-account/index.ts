@@ -8,6 +8,7 @@
 // SUPABASE_URL, SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY are injected
 // into Edge Functions by Supabase; none of them is configured by hand.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { revokeAppleTokens } from './apple.ts';
 
 function json(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
@@ -41,6 +42,18 @@ Deno.serve(async (req: Request) => {
     return json({ error: 'Invalid or expired session' }, 401);
   }
 
+  // An account that used Sign in with Apple sends a fresh code from Apple so its
+  // Apple tokens can be revoked (App Store Review 5.1.1(v)). Revoke first, while
+  // the account still exists; a failure is logged but never blocks the delete.
+  const body = (await req.json().catch(() => null)) as { appleAuthorizationCode?: unknown } | null;
+  const appleCode = typeof body?.appleAuthorizationCode === 'string' ? body.appleAuthorizationCode : null;
+  let appleRevoked = false;
+  if (appleCode) {
+    const failure = await revokeAppleTokens(appleCode);
+    if (failure) console.error(`Apple token revocation for ${data.user.id}: ${failure}`);
+    appleRevoked = failure === null;
+  }
+
   // Service-role client is the only thing that may delete an auth user.
   const admin = createClient(url, serviceRoleKey);
   const { error: deleteError } = await admin.auth.admin.deleteUser(data.user.id);
@@ -48,5 +61,5 @@ Deno.serve(async (req: Request) => {
     return json({ error: deleteError.message }, 500);
   }
 
-  return json({ ok: true }, 200);
+  return json({ ok: true, appleRevoked }, 200);
 });

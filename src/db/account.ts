@@ -25,13 +25,18 @@ function toUserFacingError(error: unknown): string {
 
 /**
  * Permanently deletes the signed-in user and every row they own, then signs out.
+ * Pass an Apple authorization code for an account that used Sign in with Apple.
  *
  * Sign-out happens only after the delete succeeds — a failed delete must leave
  * the session intact so the user sees an error instead of being quietly logged
  * out of an account that still exists.
  */
-export async function deleteAccount(): Promise<{ error: string | null }> {
-  const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
+export async function deleteAccount(appleAuthorizationCode?: string): Promise<{ error: string | null }> {
+  // With a code from Apple, the function also revokes the user's Apple tokens.
+  const { error } = await supabase.functions.invoke(
+    'delete-account',
+    appleAuthorizationCode ? { method: 'POST', body: { appleAuthorizationCode } } : { method: 'POST' },
+  );
   if (error) {
     return { error: toUserFacingError(error) };
   }

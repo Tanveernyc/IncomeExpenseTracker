@@ -4,21 +4,39 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { GlassButton, GlassSurface } from '@/components/glass';
+import { useSession } from '@/components/session-provider';
 import { deleteAccount } from '@/db/account';
-import { CONFIRM_WORD, isDeleteConfirmed } from '@/lib/delete-account';
+import { CONFIRM_WORD, isDeleteConfirmed, usesSignInWithApple } from '@/lib/delete-account';
+import { getAppleAuthorizationCode } from '@/lib/social-auth';
 import { colors, rhythm, space, type, ui } from '@/theme';
 
 export default function DeleteAccountScreen() {
   const [confirmation, setConfirmation] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const { session } = useSession();
 
   const canDelete = isDeleteConfirmed(confirmation) && !submitting;
 
   const submit = async () => {
     setError(null);
     setSubmitting(true);
-    const { error: deleteError } = await deleteAccount();
+    // An Apple account confirms with Apple first, so its Apple tokens can be
+    // revoked too. Backing out of Apple's sheet backs out of the delete. If Apple
+    // fails for any other reason, the account is still deleted: the user's right
+    // to delete must not hang on Apple being reachable.
+    let appleCode: string | undefined;
+    if (process.env.EXPO_OS === 'ios' && usesSignInWithApple(session?.user)) {
+      const apple = await getAppleAuthorizationCode();
+      if (apple.ok) {
+        appleCode = apple.code;
+      } else if (apple.outcome.kind === 'cancelled') {
+        setSubmitting(false);
+        setError('Confirm with Apple to delete your account.');
+        return;
+      }
+    }
+    const { error: deleteError } = await deleteAccount(appleCode);
     if (deleteError) {
       setSubmitting(false);
       setError(deleteError);

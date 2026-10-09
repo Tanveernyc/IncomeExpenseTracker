@@ -27,6 +27,15 @@ describe('deleteAccount', () => {
     expect(mockInvoke).toHaveBeenCalledWith('delete-account', { method: 'POST' });
   });
 
+  it('sends an Apple authorization code when given one', async () => {
+    mockInvoke.mockResolvedValue({ data: { ok: true }, error: null });
+    await deleteAccount('apple-code');
+    expect(mockInvoke).toHaveBeenCalledWith('delete-account', {
+      method: 'POST',
+      body: { appleAuthorizationCode: 'apple-code' },
+    });
+  });
+
   it('signs out locally after a successful delete', async () => {
     mockInvoke.mockResolvedValue({ data: { ok: true }, error: null });
     const result = await deleteAccount();
