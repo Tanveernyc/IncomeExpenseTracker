@@ -31,7 +31,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import { colors, glass, radius, space } from '@/theme';
+import { colors, glass, radius, rhythm, space } from '@/theme';
 
 function detectLiquidGlass(): boolean {
   if (process.env.EXPO_OS !== 'ios') return false;
@@ -447,12 +447,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.sm,
+    // The same height as a field, so a row of chips keeps the form's rhythm.
+    height: rhythm.field,
     paddingHorizontal: 16,
-    paddingVertical: 10,
   },
   chipSelected: { boxShadow: `0 0 0 1px ${colors.brassBright}` },
-  chipText: { color: colors.slate, fontSize: 14, fontWeight: '500' },
-  chipTextSelected: { color: colors.ink, fontSize: 14, fontWeight: '700' },
+  chipText: { color: colors.slate, fontSize: 15, fontWeight: '500' },
+  chipTextSelected: { color: colors.ink, fontSize: 15, fontWeight: '700' },
   segmentTrack: { flexDirection: 'row', padding: SEGMENT_INSET, borderRadius: radius.pill },
   segmentThumb: {
     position: 'absolute',

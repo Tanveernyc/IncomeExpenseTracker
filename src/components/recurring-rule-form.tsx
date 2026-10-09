@@ -16,7 +16,7 @@ import {
   type RecurringRuleValidation,
 } from '@/lib/recurring-rule-validation';
 import type { CategoryKind, EndMode } from '@/types';
-import { colors, moneyDisplay, space, type, ui } from '@/theme';
+import { colors, moneyDisplay, rhythm, space, type, ui } from '@/theme';
 import { CategoryHint } from './category-hint';
 import { DateField } from './date-field';
 import { GlassButton, GlassChip, GlassSegmented } from './glass';
@@ -248,7 +248,8 @@ const styles = StyleSheet.create({
   chipStrip: { flexGrow: 0, flexShrink: 0, marginHorizontal: -space.lg },
   chipRow: { gap: space.sm, paddingVertical: space.xs, paddingHorizontal: space.lg },
   input: { ...ui.input },
-  amountInput: { ...moneyDisplay, fontSize: 28 },
-  saveButton: { marginTop: space.xl },
+  // The amount is the one field allowed to be taller than the rest.
+  amountInput: { ...moneyDisplay, fontSize: 28, height: 56 },
+  saveButton: { marginTop: rhythm.section },
   error: { ...ui.error },
 });

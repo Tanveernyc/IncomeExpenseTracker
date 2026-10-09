@@ -22,7 +22,7 @@ import type { Expense, Income } from '@/types';
 import { ScreenLoading } from '@/components/screen-state';
 import { DateField } from '@/components/date-field';
 import { GlassButton, GlassSurface } from '@/components/glass';
-import { moneyDisplay, space, type, ui } from '@/theme';
+import { moneyDisplay, rhythm, space, type, ui } from '@/theme';
 
 export default function EditTransactionScreen() {
   const { kind, id } = useLocalSearchParams<{ kind: 'expense' | 'income'; id: string }>();
@@ -201,14 +201,15 @@ function TransactionEditor({
 }
 
 const styles = StyleSheet.create({
-  container: { padding: space.lg, paddingBottom: 60, gap: space.xs },
+  container: { padding: space.lg, paddingBottom: 60 },
   label: { ...ui.label },
   recurringCard: { padding: space.lg, marginBottom: space.sm },
   recurringNote: { ...type.label, fontSize: 13, lineHeight: 19 },
   input: { ...ui.input },
-  amountInput: { ...moneyDisplay, fontSize: 30 },
+  // The amount is the one field allowed to be taller than the rest.
+  amountInput: { ...moneyDisplay, fontSize: 30, height: 56 },
   periodRow: { flexDirection: 'row', gap: space.sm },
   periodInput: { flex: 1 },
   error: { ...ui.error },
-  saveButton: { marginTop: space.xl },
+  saveButton: { marginTop: rhythm.section },
 });

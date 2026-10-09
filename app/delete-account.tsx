@@ -6,7 +6,7 @@ import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { GlassButton, GlassSurface } from '@/components/glass';
 import { deleteAccount } from '@/db/account';
 import { CONFIRM_WORD, isDeleteConfirmed } from '@/lib/delete-account';
-import { colors, space, type, ui } from '@/theme';
+import { colors, rhythm, space, type, ui } from '@/theme';
 
 export default function DeleteAccountScreen() {
   const [confirmation, setConfirmation] = useState('');
@@ -82,14 +82,15 @@ export default function DeleteAccountScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: space.lg, gap: space.md },
+  container: { padding: space.lg, gap: rhythm.item },
   heading: { ...type.title },
   card: { padding: space.lg, gap: space.sm },
   body: { ...type.body, fontWeight: '600' },
   list: { gap: space.xs, paddingLeft: space.xs },
   listItem: { ...type.body },
   warning: { fontSize: 14, color: colors.danger, lineHeight: 20 },
-  label: { ...ui.label },
+  // The container's gap already sits on either side; the label adds only the rest.
+  label: { ...ui.label, marginTop: rhythm.section - rhythm.item, marginBottom: 0 },
   input: { ...ui.input },
   error: { ...ui.error, fontSize: 14 },
   button: { marginTop: space.sm },

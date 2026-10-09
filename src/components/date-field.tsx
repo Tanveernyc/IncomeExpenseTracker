@@ -120,10 +120,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.sm,
-    minHeight: 52,
-    paddingVertical: 6,
   },
-  compactPicker: { flex: 1 },
+  // Sits next to the icon like typed text, not centred in the field. The native
+  // capsule's font cannot be set, so it is scaled down to read at body size; the
+  // margin pulls it back beside the icon after the scale shrinks it inward.
+  compactPicker: { width: 140, height: 36, transform: [{ scale: 0.86 }], marginLeft: -12 },
   value: { flex: 1, fontSize: 16, color: colors.ink },
   placeholder: { flex: 1, fontSize: 16, color: colors.mist },
 });

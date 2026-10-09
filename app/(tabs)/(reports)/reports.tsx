@@ -27,7 +27,7 @@ import { todayISO } from '@/lib/dates';
 import { collectionNoun, kindsOf, netLabel } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
 import type { Property } from '@/types';
-import { colors, money, serif, space, type } from '@/theme';
+import { colors, money, rhythm, serif, space, type } from '@/theme';
 
 type Preset = 'this-month' | 'last-month' | 'this-year' | 'last-year' | 'all-time' | 'custom';
 
@@ -217,7 +217,7 @@ function PLRow({
 }
 
 const styles = StyleSheet.create({
-  container: { padding: space.lg, paddingBottom: 120, gap: space.md },
+  container: { padding: space.lg, paddingBottom: 120, gap: rhythm.item },
   // Chips scroll edge to edge; the strip cancels the screen padding.
   presetStrip: { marginHorizontal: -space.lg, flexGrow: 0 },
   presets: { flexDirection: 'row', gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.xs },
@@ -225,7 +225,8 @@ const styles = StyleSheet.create({
   dateInput: { flex: 1 },
   card: { padding: space.lg + 2, gap: space.sm },
   cardTitle: { ...type.section, fontSize: 18, marginBottom: space.xs },
-  sectionTitle: { ...type.section, marginTop: space.md },
+  // The container's gap adds the rest of the section gap.
+  sectionTitle: { ...type.section, marginTop: rhythm.section - rhythm.item },
   sectionHint: { ...type.hint, marginTop: -space.sm },
   plRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   plLabel: { fontSize: 15, color: colors.slate },

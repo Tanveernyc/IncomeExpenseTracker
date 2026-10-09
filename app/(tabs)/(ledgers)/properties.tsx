@@ -11,7 +11,7 @@ import { confirmDelete } from '@/lib/confirm-delete';
 import { kindsOf, ledgerMetaLabel, nounFor } from '@/lib/ledger-copy';
 import { LEDGER_KINDS } from '@/lib/property-validation';
 import type { Property } from '@/types';
-import { colors, space, type, ui } from '@/theme';
+import { colors, rhythm, space, type, ui } from '@/theme';
 
 export default function PropertiesScreen() {
   const queryClient = useQueryClient();
@@ -56,8 +56,9 @@ export default function PropertiesScreen() {
   };
 
   const kinds = kindsOf(active);
+  const titled = kinds.length > 1;
   const sections: { title: string; archived?: boolean; data: Property[] }[] =
-    kinds.length > 1
+    titled
       ? LEDGER_KINDS.map((k) => ({
           title: nounFor(k).many,
           data: active.filter((p) => p.ledger_kind === k),
@@ -79,7 +80,7 @@ export default function PropertiesScreen() {
       refreshing={isPending}
       onRefresh={refetch}
       ListHeaderComponent={
-        <View style={styles.header}>
+        <View style={[styles.header, !titled && styles.headerUntitled]}>
           <GlassButton
             label="Add property or household"
             accessibilityLabel="Add property"
@@ -159,14 +160,16 @@ function sentenceCase(text: string): string {
 
 const styles = StyleSheet.create({
   listContent: { padding: space.lg, paddingBottom: 120 },
-  header: { gap: space.md, marginBottom: space.lg },
+  header: { gap: space.md },
+  // With no headings the list starts straight after the button, a section gap below it.
+  headerUntitled: { marginBottom: rhythm.section },
   sectionHeaderText: { ...type.section },
-  sectionHeader: { marginTop: space.md, marginBottom: space.md },
-  archivedHeader: { marginTop: space.xl, marginBottom: space.md, gap: 2 },
+  sectionHeader: { marginTop: rhythm.section, marginBottom: rhythm.item },
+  archivedHeader: { marginTop: rhythm.section, marginBottom: rhythm.item, gap: 2 },
   archivedTitleRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   archivedHint: { ...type.hint },
   deleteText: { color: colors.danger, fontSize: 14, fontWeight: '600' },
-  separator: { height: space.md },
+  separator: { height: rhythm.item },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg },
   rowIcon: {
     width: 42,

@@ -8,7 +8,7 @@ import { formatDateLabel } from '@/lib/dates';
 import { ledgerMetaLabel } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
 import type { TimelineEntry } from '@/lib/timeline';
-import { colors, glass, money, moneyDisplay, radius, space, type, ui } from '@/theme';
+import { colors, glass, money, moneyDisplay, radius, rhythm, space, type, ui } from '@/theme';
 import { GlassButton, GlassPressable, GlassSurface, tapFeedback } from './glass';
 
 interface Props {
@@ -162,7 +162,7 @@ export function DashboardView({
 }
 
 const styles = StyleSheet.create({
-  container: { padding: space.lg, paddingBottom: 120, gap: space.md },
+  container: { padding: space.lg, paddingBottom: 120, gap: rhythm.item },
   hero: { padding: space.xl, gap: space.sm, borderRadius: 28 },
   heroLabel: { ...type.eyebrow, color: colors.onInkMuted },
   heroValue: { ...moneyDisplay, color: colors.onInk, fontSize: 46 },
@@ -173,7 +173,8 @@ const styles = StyleSheet.create({
   heroStatValue: { ...money, color: colors.onInk, fontSize: 15 },
   heroDivider: { width: StyleSheet.hairlineWidth, alignSelf: 'stretch', backgroundColor: colors.onInkMuted },
   heroMonth: { ...money, color: colors.onInkMuted, fontSize: 13, fontWeight: '500', marginTop: space.sm },
-  sectionTitle: { ...type.section, marginTop: space.md },
+  // The container's gap adds the rest of the section gap.
+  sectionTitle: { ...type.section, marginTop: rhythm.section - rhythm.item },
   empty: { ...type.hint, fontSize: 14 },
   propertyCard: { padding: space.lg, gap: space.sm },
   propertyTop: { flexDirection: 'row', alignItems: 'center', gap: space.md },
