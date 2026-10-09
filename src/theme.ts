@@ -52,6 +52,13 @@ export const radius = { card: 22, control: 16, pill: 999 } as const;
 export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
 
 /**
+ * The vertical rhythm every screen shares, so no section looks bigger or tighter
+ * than its neighbour: one gap above each section, one gap from a heading to what
+ * it labels and between cards in a list, and one height for every one-line field.
+ */
+export const rhythm = { section: space.xl, item: space.md, field: 44 } as const;
+
+/**
  * Display serif, embedded at build time by the expo-font plugin (app.json). iOS
  * resolves it by PostScript name, Android by file name.
  */
@@ -110,12 +117,13 @@ export const ui = StyleSheet.create({
     borderCurve: 'continuous',
     backgroundColor: 'rgba(255, 255, 255, 0.72)',
     paddingHorizontal: space.lg,
-    paddingVertical: 14,
+    height: rhythm.field,
     fontSize: 16,
     color: colors.ink,
   },
   link: { color: colors.brass, fontSize: 14, fontWeight: '600' },
-  label: { ...type.eyebrow, marginTop: space.lg, marginBottom: space.sm, marginLeft: space.xs },
+  // Owns the gaps around itself, so a form's container needs no gap of its own.
+  label: { ...type.eyebrow, marginTop: rhythm.section, marginBottom: rhythm.item, marginLeft: space.xs },
   error: { color: colors.danger, fontSize: 13, marginTop: space.xs },
   empty: { textAlign: 'center', color: colors.mist, marginTop: 40, fontSize: 15 },
 });

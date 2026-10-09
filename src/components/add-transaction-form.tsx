@@ -22,7 +22,7 @@ import { validateTransactionForm, type TransactionValidation } from '@/lib/expen
 import { collectionNoun, kindsOf, partyLabel } from '@/lib/ledger-copy';
 import { recordSavedEntry } from '@/lib/review-prompt';
 import type { CategoryKind } from '@/types';
-import { colors, moneyDisplay, space, type, ui } from '@/theme';
+import { colors, moneyDisplay, rhythm, space, type, ui } from '@/theme';
 import { CategoryHint } from './category-hint';
 import { DateField } from './date-field';
 import { GlassButton, GlassChip, GlassSurface } from './glass';
@@ -242,7 +242,7 @@ export function AddTransactionForm({
       {isExpense && ledgerKind !== 'budget' ? (
         <>
           <Text style={styles.label}>Covers period (optional)</Text>
-          <Text style={styles.hint}>For one bill that pays for several months, like yearly insurance.</Text>
+          <Text style={styles.hint}>For one bill that covers several months.</Text>
           <View style={styles.periodRow}>
             <DateField
               value={state.periodStart}
@@ -302,21 +302,22 @@ export function AddTransactionForm({
 }
 
 const styles = StyleSheet.create({
-  container: { padding: space.lg, paddingBottom: 120, gap: space.xs },
+  container: { padding: space.lg, paddingBottom: 120 },
   label: { ...ui.label },
-  // Chips scroll edge to edge; the row cancels the screen padding.
-  chipStrip: { marginHorizontal: -space.lg },
-  chipRow: { gap: space.sm, paddingVertical: space.xs, paddingHorizontal: space.lg },
+  // Chips scroll edge to edge; the row cancels the screen padding. Unclipped so the
+  // glass shadow fades out instead of ending in a pale band behind the row.
+  chipStrip: { marginHorizontal: -space.lg, overflow: 'visible' },
+  chipRow: { gap: space.sm, paddingHorizontal: space.lg },
   input: { ...ui.input },
-  amountCard: { paddingHorizontal: space.xl, paddingVertical: space.lg, marginTop: space.md },
+  amountCard: { paddingHorizontal: space.xl, paddingVertical: space.md, marginTop: rhythm.section },
   amountLabel: { ...ui.label, marginTop: 0, marginLeft: 0, marginBottom: 0 },
   amountRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
-  amountCurrency: { ...moneyDisplay, fontSize: 30, color: colors.brass },
-  amountInput: { ...moneyDisplay, flex: 1, paddingVertical: space.xs },
+  amountCurrency: { ...moneyDisplay, fontSize: 26, color: colors.brass },
+  amountInput: { ...moneyDisplay, fontSize: 36, flex: 1, paddingVertical: 0 },
   periodRow: { flexDirection: 'row', gap: space.sm },
   hint: { ...type.hint, marginTop: -space.xs, marginBottom: space.sm, marginLeft: space.xs },
   periodInput: { flex: 1 },
   error: { ...ui.error },
-  saveButton: { marginTop: space.xl },
+  saveButton: { marginTop: rhythm.section },
   savedFlash: { color: colors.gain, textAlign: 'center', marginTop: space.sm, fontWeight: '600' },
 });

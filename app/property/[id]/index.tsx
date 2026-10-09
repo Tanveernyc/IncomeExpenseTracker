@@ -36,7 +36,7 @@ import {
 } from '@/lib/timeline';
 import { DateField } from '@/components/date-field';
 import { GlassButton, GlassChip, GlassPressable } from '@/components/glass';
-import { colors, money, radius, space, type, ui } from '@/theme';
+import { colors, money, radius, rhythm, space, type, ui } from '@/theme';
 
 export default function PropertyTransactionsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -276,7 +276,7 @@ export default function PropertyTransactionsScreen() {
 const styles = StyleSheet.create({
   // Clears the floating Add button so the last row and the hint are never under it.
   listContent: { padding: space.lg, paddingBottom: 140 },
-  filters: { gap: space.md, marginBottom: space.lg },
+  filters: { gap: rhythm.item, marginBottom: rhythm.section },
   // Chips scroll edge to edge; the strip cancels the list padding.
   chipStrip: { marginHorizontal: -space.lg, flexGrow: 0 },
   chipRow: { gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.xs },
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   addBar: { position: 'absolute', left: space.lg, right: space.lg },
   addButton: { boxShadow: '0 6px 20px rgba(14, 26, 43, 0.18)' },
   footerHint: { ...type.hint, textAlign: 'center', marginTop: space.lg },
-  separator: { height: space.sm },
+  separator: { height: rhythm.item },
   // The ledger: amounts in a right-hand column of tabular figures.
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space.lg, paddingVertical: 14 },
   rowText: { flex: 1 },

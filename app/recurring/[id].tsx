@@ -26,7 +26,7 @@ import { ScreenLoading } from '@/components/screen-state';
 import { CategoryHint } from '@/components/category-hint';
 import { DateField } from '@/components/date-field';
 import { GlassButton, GlassChip, GlassSegmented, GlassSurface } from '@/components/glass';
-import { colors, moneyDisplay, space, type, ui } from '@/theme';
+import { colors, moneyDisplay, rhythm, space, type, ui } from '@/theme';
 
 const END_OPTIONS = [
   { value: 'until_stopped', label: 'Until I stop it' },
@@ -269,12 +269,13 @@ const styles = StyleSheet.create({
   chipStrip: { flexGrow: 0, flexShrink: 0, marginHorizontal: -space.lg },
   chipRow: { gap: space.sm, paddingVertical: space.xs, paddingHorizontal: space.lg },
   input: { ...ui.input },
-  amountInput: { ...moneyDisplay, fontSize: 28 },
-  applyCard: { padding: space.lg, marginTop: space.xl },
+  // The amount is the one field allowed to be taller than the rest.
+  amountInput: { ...moneyDisplay, fontSize: 28, height: 56 },
+  applyCard: { padding: space.lg, marginTop: rhythm.section },
   applyRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   applyText: { flex: 1 },
   applyTitle: { ...type.body, fontWeight: '600' },
   applyHint: { ...type.hint, marginTop: 2, lineHeight: 17 },
-  saveButton: { marginTop: space.xl },
+  saveButton: { marginTop: rhythm.section },
   error: { ...ui.error },
 });

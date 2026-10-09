@@ -13,7 +13,7 @@ import { nounFor } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
 import type { RecurringRule } from '@/types';
 import { GlassButton, GlassSurface } from '@/components/glass';
-import { colors, money, space, type, ui } from '@/theme';
+import { colors, money, rhythm, space, type, ui } from '@/theme';
 
 export default function PropertyRecurringScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -137,11 +137,11 @@ export default function PropertyRecurringScreen() {
 
 const styles = StyleSheet.create({
   listContent: { padding: space.lg, paddingBottom: 60 },
-  header: { flexDirection: 'row', gap: space.md, marginBottom: space.lg },
+  header: { flexDirection: 'row', gap: space.md, marginBottom: rhythm.section },
   headerButton: { flex: 1 },
   spinner: { marginTop: 32 },
   empty: { ...ui.empty },
-  separator: { height: space.sm },
+  separator: { height: rhythm.item },
   row: { flexDirection: 'row', alignItems: 'center', padding: space.lg, gap: space.md },
   inactiveText: { color: colors.mist },
   rowText: { flex: 1 },

@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState, type ComponentProps, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { LedgerKind, NewProperty, Property, PropertySubtype } from '@/types';
-import { colors, glass, radius, space, type, ui } from '@/theme';
+import { colors, glass, radius, rhythm, space, type, ui } from '@/theme';
 import {
   PROPERTY_SUBTYPES,
   parsePriceInput,
@@ -228,14 +228,14 @@ function Field({ label, required, children }: { label: string; required?: boolea
 }
 
 const styles = StyleSheet.create({
-  container: { padding: space.lg, gap: space.sm, paddingBottom: 56 },
+  container: { padding: space.lg, paddingBottom: 56 },
   label: { ...ui.label },
   section: { padding: space.md, gap: space.md },
   field: { gap: 6 },
   fieldLabel: { ...type.hint, fontSize: 13, fontWeight: '500', color: colors.slate, marginLeft: space.xs },
   required: { color: colors.brass },
   input: { ...ui.input },
-  notes: { minHeight: 96, textAlignVertical: 'top' },
+  notes: { height: 96, paddingVertical: space.md, textAlignVertical: 'top' },
   pair: { flexDirection: 'row', gap: space.md },
   pairItem: { flex: 1 },
   subtypeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md },
@@ -255,5 +255,5 @@ const styles = StyleSheet.create({
   subtypeTitle: { ...type.body, fontWeight: '600' },
   subtypeHint: { ...type.hint, fontSize: 12 },
   error: { ...ui.error, marginLeft: space.xs },
-  button: { marginTop: space.xl },
+  button: { marginTop: rhythm.section },
 });

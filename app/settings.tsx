@@ -7,7 +7,7 @@ import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-na
 import { useSession } from '@/components/session-provider';
 import { supabase } from '@/db/supabase';
 import { GlassSurface, tapFeedback } from '@/components/glass';
-import { colors, radius, serif, space, type } from '@/theme';
+import { colors, radius, rhythm, serif, space, type } from '@/theme';
 
 const SUPPORT_EMAIL = 'support@trueorganichub.com';
 const SUPPORT_URL = 'https://tanveernyc.github.io/PropertyLedger/support.html';
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     gap: space.md,
     marginHorizontal: space.lg,
     padding: space.lg,
-    marginBottom: space.xl,
+    marginBottom: rhythm.section,
   },
   avatar: {
     width: 44,
@@ -154,10 +154,10 @@ const styles = StyleSheet.create({
   identityLabel: { ...type.hint },
   identityEmail: { ...type.body, fontWeight: '600', marginTop: 1 },
 
-  section: { marginBottom: space.xl },
+  section: { marginBottom: rhythm.section },
   sectionTitle: {
     ...type.eyebrow,
-    marginBottom: space.sm,
+    marginBottom: rhythm.item,
     paddingHorizontal: space.lg,
   },
   // One pane of glass per group, rows ruled inside it.

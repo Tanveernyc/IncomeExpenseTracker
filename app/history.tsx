@@ -13,7 +13,7 @@ import { formatMonthShort } from '@/lib/dates';
 import { collectionNoun, kindsOf } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
 import { GlassChip, GlassSegmented, GlassSurface } from '@/components/glass';
-import { colors, money, space, ui } from '@/theme';
+import { colors, money, rhythm, space, ui } from '@/theme';
 
 const GROUP_OPTIONS = [
   { value: 'year', label: 'By year' },
@@ -125,15 +125,15 @@ function changeStyle(change: number | null) {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: space.lg, paddingBottom: 60, gap: space.xs },
+  container: { padding: space.lg, paddingBottom: 60 },
   label: { ...ui.label },
   // Chips scroll edge to edge; the strip cancels the screen padding.
   chipStrip: { marginHorizontal: -space.lg, flexGrow: 0 },
   chipRow: { gap: space.sm, paddingVertical: space.xs, paddingHorizontal: space.lg },
-  groupBy: { marginTop: space.lg },
+  groupBy: { marginTop: rhythm.section },
   empty: { ...ui.empty, marginTop: 32 },
-  chartBox: { height: 240, marginTop: space.lg, padding: space.md },
-  table: { marginTop: space.md },
+  chartBox: { height: 240, marginTop: rhythm.section, padding: space.md },
+  table: { marginTop: rhythm.item },
   tableHead: { borderBottomColor: 'rgba(14, 26, 43, 0.14)' },
   tableRow: {
     flexDirection: 'row',

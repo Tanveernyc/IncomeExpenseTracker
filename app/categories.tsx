@@ -16,7 +16,7 @@ import { canDeleteCategory } from '@/lib/categories';
 import type { Category, CategoryKind, CategoryScope } from '@/types';
 import { ScreenError, ScreenLoading } from '@/components/screen-state';
 import { GlassButton, GlassChip, GlassSurface } from '@/components/glass';
-import { colors, space, type, ui } from '@/theme';
+import { colors, rhythm, space, type, ui } from '@/theme';
 
 const SCOPE_CYCLE: CategoryScope[] = ['both', 'property', 'budget'];
 const SCOPE_LABELS: Record<CategoryScope, string> = {
@@ -167,8 +167,8 @@ const styles = StyleSheet.create({
   addRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   input: { ...ui.input },
   addButton: { flex: 1 },
-  sectionHeader: { ...type.eyebrow, marginTop: space.xl, marginBottom: space.sm, marginLeft: space.xs },
-  separator: { height: space.sm },
+  sectionHeader: { ...type.eyebrow, marginTop: rhythm.section, marginBottom: rhythm.item, marginLeft: space.xs },
+  separator: { height: rhythm.item },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

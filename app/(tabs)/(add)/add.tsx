@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native';
 import { AddTransactionForm } from '@/components/add-transaction-form';
 import { GlassSegmented } from '@/components/glass';
 import type { CategoryKind } from '@/types';
-import { space, ui } from '@/theme';
+import { rhythm, ui } from '@/theme';
 
 const KIND_OPTIONS = [
   { value: 'expense', label: 'Expense' },
@@ -37,5 +37,6 @@ export default function AddScreen() {
 }
 
 const styles = StyleSheet.create({
-  recurringLink: { ...ui.link, fontSize: 13, textAlign: 'center', marginTop: space.md },
+  // Centred between the switch and the amount card: a section gap on each side.
+  recurringLink: { ...ui.link, fontSize: 13, textAlign: 'center', marginTop: rhythm.section },
 });
