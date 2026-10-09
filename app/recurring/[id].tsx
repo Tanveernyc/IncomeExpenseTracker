@@ -266,8 +266,8 @@ const styles = StyleSheet.create({
   help: { ...type.label, marginBottom: space.sm, lineHeight: 20 },
   label: { ...ui.label },
   // Chips scroll edge to edge; the strip cancels the screen padding.
-  chipStrip: { flexGrow: 0, flexShrink: 0, marginHorizontal: -space.lg },
-  chipRow: { gap: space.sm, paddingVertical: space.xs, paddingHorizontal: space.lg },
+  chipStrip: ui.chipStrip,
+  chipRow: ui.chipRow,
   input: { ...ui.input },
   // The amount is the one field allowed to be taller than the rest.
   amountInput: { ...moneyDisplay, fontSize: 28, height: 56 },

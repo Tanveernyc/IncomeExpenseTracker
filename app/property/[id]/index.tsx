@@ -278,8 +278,8 @@ const styles = StyleSheet.create({
   listContent: { padding: space.lg, paddingBottom: 140 },
   filters: { gap: rhythm.item, marginBottom: rhythm.section },
   // Chips scroll edge to edge; the strip cancels the list padding.
-  chipStrip: { marginHorizontal: -space.lg, flexGrow: 0 },
-  chipRow: { gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.xs },
+  chipStrip: ui.chipStrip,
+  chipRow: ui.chipRow,
   dateRow: { flexDirection: 'row', gap: space.sm },
   sortRow: { flexDirection: 'row', justifyContent: 'space-between' },
   dateInput: { flex: 1 },

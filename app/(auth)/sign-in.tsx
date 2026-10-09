@@ -17,8 +17,8 @@ import {
 } from '@/lib/social-auth';
 import { backdrop, colors, space, type, ui } from '@/theme';
 
-const TERMS_URL = 'https://tanveernyc.github.io/PropertyLedger/terms.html';
-const PRIVACY_URL = 'https://tanveernyc.github.io/PropertyLedger/privacy.html';
+const TERMS_URL = 'https://tanveernyc.github.io/IncomeExpenseTracker/terms.html';
+const PRIVACY_URL = 'https://tanveernyc.github.io/IncomeExpenseTracker/privacy.html';
 
 export default function SignInScreen() {
   const [mode, setMode] = useState<Mode>('sign-in');

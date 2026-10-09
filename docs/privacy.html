@@ -3,6 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- GitHub Pages cannot send security headers, so the page carries its own
+       policy: no scripts, no outside resources, nothing to submit to. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
   <title>Income Expense Tracker App — Privacy Policy</title>
   <style>
     body { font-family: -apple-system, Helvetica, Arial, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #1f2937; }
@@ -15,7 +19,7 @@
   <p><em>Effective date: October 7, 2026</em></p>
 
   <p>
-    Income Expense Tracker App (formerly PropertyLedger) is an income and expense
+    Income Expense Tracker App is an income and expense
     tracker for property owners and households, published by True Organic Hub LLC
     ("we", "us"). This policy explains what the app collects, why, where it is
     kept, and the choices you have.

@@ -1,8 +1,8 @@
-# Personal budgets in PropertyLedger — design
+# Personal budgets in Income Expense Tracker — design
 
 **Date:** 2026-09-21
 **Status:** draft for review
-**Decisions taken in brainstorming:** one table with a kind per ledger; savings rate as the personal metric; keep the PropertyLedger name and widen the subtitle.
+**Decisions taken in brainstorming:** one table with a kind per ledger; savings rate as the personal metric; keep the app name and widen the subtitle.
 
 ## 1. Goal
 

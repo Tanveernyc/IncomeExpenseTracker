@@ -65,7 +65,7 @@ Five input classes the spec implies but that no task's happy path exercises. Eac
 - [ ] **Step 1: Install the modules**
 
 ```bash
-cd /Users/riyad/OrganicHub/propertyledger
+cd /Users/riyad/OrganicHub/income-expense-tracker
 npx expo install expo-apple-authentication expo-crypto @react-native-google-signin/google-signin
 ```
 Use `npx expo install` (not `npm install`) so versions match SDK 57.
@@ -820,9 +820,9 @@ app does not use, so there is also no six-month secret rotation.
 
 ## 2. Google (10 minutes)
 
-1. console.cloud.google.com → create a project (e.g. "PropertyLedger").
+1. console.cloud.google.com → create a project (e.g. "Income Expense Tracker").
 2. **APIs & Services → OAuth consent screen**: External, app name
-   "PropertyLedger", support email `support@trueorganichub.com`, developer email
+   "Income Expense Tracker", support email `support@trueorganichub.com`, developer email
    the same. Scopes: `openid`, `.../auth/userinfo.email`,
    `.../auth/userinfo.profile` — the three defaults, nothing more, or Google
    review is triggered.
@@ -832,7 +832,7 @@ app does not use, so there is also no six-month secret rotation.
    "Supabase". Copy that client ID too. Under **Authorized redirect URIs** add
    `https://dxjwyaldmxquuztmnrsb.supabase.co/auth/v1/callback`.
 5. Optional but recommended: start **Branding** verification so the consent
-   screen shows "PropertyLedger" instead of the Supabase project URL. It takes
+   screen shows "Income Expense Tracker" instead of the Supabase project URL. It takes
    a few business days, so start it early.
 
 ## 3. Supabase (3 minutes)
@@ -915,7 +915,7 @@ Do **not** attach the resulting build to an App Store version while 1.0 is under
 
 Run every check in `docs/setup-social-sign-in.md` §5. Record the result of each in the task report, including the identity-linking check (one `auth.users` row, two rows in `auth.identities`), which can be confirmed with psql:
 ```bash
-cd /Users/riyad/OrganicHub/propertyledger && set -a && source .env && set +a
+cd /Users/riyad/OrganicHub/income-expense-tracker && set -a && source .env && set +a
 PGPASSWORD="$SUPABASE_DB_PASSWORD" psql "host=db.dxjwyaldmxquuztmnrsb.supabase.co port=5432 dbname=postgres user=postgres sslmode=require" -Atc \
  "select u.email, count(i.id) from auth.users u join auth.identities i on i.user_id = u.id group by 1 order by 2 desc limit 5;"
 ```

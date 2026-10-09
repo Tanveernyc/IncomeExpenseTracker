@@ -5,7 +5,7 @@ Date: 2026-09-17 · Status: approved, not yet implemented
 ## Why
 
 App Store Review Guideline 5.1.1(v) requires any app offering account creation to
-let users start account deletion from inside the app. PropertyLedger currently
+let users start account deletion from inside the app. Income Expense Tracker currently
 offers Sign out only (`app/(tabs)/index.tsx:54`). This blocks submission for
 review of v1.0.0.
 

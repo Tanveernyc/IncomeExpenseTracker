@@ -87,18 +87,31 @@ export function GlassSurface({ children, style, interactive, tint, testID }: Sur
       </View>
     );
   }
+  // The sheen follows the pane's own corners, which a control's style may round further.
+  const flat = StyleSheet.flatten(style) ?? {};
+  const flatRadius = flat.borderRadius;
+  const [outer, inner] = splitPlacement(flat);
+  const corner = typeof flatRadius === 'number' ? flatRadius : radius.card;
   if (LIQUID_GLASS) {
     return (
-      <GlassView
-        testID={testID}
-        glassEffectStyle="regular"
-        colorScheme="light"
-        isInteractive={interactive}
-        tintColor={tint}
-        style={[shape, style]}
-      >
-        {children}
-      </GlassView>
+      // The shadow lives on a plain view around the glass: cast by the glass itself it
+      // lightens the whole frame of a scrolling row into a band across the screen.
+      // Never flattened away: a gesture (the segmented slider) may be attached to it.
+      <View collapsable={false} style={[shape, styles.lift, outer]}>
+        <GlassView
+          testID={testID}
+          // Controls are clear glass, so they read as polished and raised; cards stay
+          // regular glass so the text and fields on them keep their contrast.
+          glassEffectStyle={interactive ? 'clear' : 'regular'}
+          colorScheme="light"
+          isInteractive={interactive}
+          tintColor={tint}
+          style={[shape, styles.fill, inner]}
+        >
+          <Sheen corner={corner} />
+          {children}
+        </GlassView>
+      </View>
     );
   }
   if (process.env.EXPO_OS === 'ios') {
@@ -109,6 +122,7 @@ export function GlassSurface({ children, style, interactive, tint, testID }: Sur
         intensity={80}
         style={[shape, styles.frost, tint ? { backgroundColor: tint } : null, style, styles.clip]}
       >
+        <Sheen corner={corner} />
         {children}
       </BlurView>
     );
@@ -118,6 +132,30 @@ export function GlassSurface({ children, style, interactive, tint, testID }: Sur
       {children}
     </View>
   );
+}
+
+// Style keys that place a pane among its siblings, as opposed to shaping its inside.
+const PLACEMENT_KEYS = new Set([
+  'margin', 'marginTop', 'marginBottom', 'marginLeft', 'marginRight', 'marginHorizontal', 'marginVertical',
+  'marginStart', 'marginEnd', 'position', 'top', 'bottom', 'left', 'right', 'start', 'end', 'zIndex',
+  'flex', 'flexGrow', 'flexShrink', 'flexBasis', 'alignSelf', 'width', 'height', 'minWidth', 'maxWidth',
+  'minHeight', 'maxHeight', 'transform',
+]);
+
+/** Splits a pane's style into where it sits (for the wrapper) and what it looks like (for the glass). */
+function splitPlacement(style: ViewStyle): [ViewStyle, ViewStyle] {
+  const outer: Record<string, unknown> = {};
+  const inner: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(style)) (PLACEMENT_KEYS.has(key) ? outer : inner)[key] = value;
+  return [outer as ViewStyle, inner as ViewStyle];
+}
+
+/**
+ * The light catching a pane's top edge, like the old slide to unlock bar: a bright
+ * rim along the top, a fainter one below, and a gloss fading down the upper half.
+ */
+function Sheen({ corner }: { corner: number }) {
+  return <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.sheen, { borderRadius: corner }]} />;
 }
 
 interface PressableGlassProps extends SurfaceProps {
@@ -360,6 +398,7 @@ export function GlassSegmented<T extends string>({ options, value, onChange, sty
         <View style={StyleSheet.absoluteFill} onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)} />
         {segmentWidth > 0 ? (
           <Animated.View style={[styles.segmentThumb, { width: segmentWidth }, thumbStyle]}>
+            <Sheen corner={radius.pill} />
             <Animated.View style={[styles.segmentGlint, { width: segmentWidth * 0.35 }, glintStyle]} />
           </Animated.View>
         ) : null}
@@ -433,6 +472,20 @@ const styles = StyleSheet.create({
     boxShadow: '0 10px 30px rgba(14, 26, 43, 0.08)',
   },
   clip: { overflow: 'hidden' },
+  fill: { flexGrow: 1 },
+  // Lifts a pane off the backdrop instead of letting it melt into it.
+  lift: {
+    // A crisp dark outline, then a close shadow and a wide one, so a pane reads as
+    // a raised piece of glass and not as a lighter patch of the backdrop.
+    boxShadow:
+      '0 0 0 1px rgba(14, 26, 43, 0.14), 0 2px 4px rgba(14, 26, 43, 0.14), 0 8px 18px rgba(14, 26, 43, 0.2)',
+  },
+  sheen: {
+    borderCurve: 'continuous',
+    boxShadow: `inset 0 1.5px 0 ${glass.rim}, inset 0 -1px 0 rgba(255, 255, 255, 0.5), inset 0 -10px 16px rgba(14, 26, 43, 0.06)`,
+    experimental_backgroundImage:
+      'linear-gradient(to bottom, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.2) 45%, rgba(255, 255, 255, 0) 55%)',
+  },
   pressed: { opacity: 0.6 },
   disabled: { opacity: 0.5 },
   button: {

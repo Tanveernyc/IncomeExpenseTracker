@@ -115,7 +115,7 @@ Append a `-- RECURRING RULES (Phase 15)` section containing the exact SQL above 
 - [ ] **Step 3: Apply to the live project and verify**
 
 ```bash
-cd /Users/riyad/OrganicHub/propertyledger && set -a && source .env && set +a
+cd /Users/riyad/OrganicHub/income-expense-tracker && set -a && source .env && set +a
 PGPASSWORD="$SUPABASE_DB_PASSWORD" psql "host=db.dxjwyaldmxquuztmnrsb.supabase.co port=5432 dbname=postgres user=postgres sslmode=require" \
   -v ON_ERROR_STOP=1 -f supabase/migrations/2026-09-20-recurring.sql
 PGPASSWORD="$SUPABASE_DB_PASSWORD" psql "host=db.dxjwyaldmxquuztmnrsb.supabase.co port=5432 dbname=postgres user=postgres sslmode=require" -Atc "
@@ -1727,7 +1727,7 @@ Append to `WORKLOG.md`:
 Create a rule for the demo user and run the sync **through the app code path** using a small node script that signs in as the demo account with the anon key, so RLS and `getUser()` are exercised for real. Demo credentials come from the environment; never commit them.
 
 ```bash
-cd /Users/riyad/OrganicHub/propertyledger && set -a && source .env && set +a
+cd /Users/riyad/OrganicHub/income-expense-tracker && set -a && source .env && set +a
 cat > /tmp/recurring-e2e.mjs <<'EOF'
 import { createClient } from '@supabase/supabase-js';
 const sb = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY);
@@ -1766,7 +1766,7 @@ Expected: 0 failures; suite count = previous 22 + 4 new (dates-month, recurring,
 - `app.json`: `"version": "1.1.0"`.
 - `docs/app-store-listing.md`: add a `## What's New (1.1)` section:
   ```
-  Recurring income and expenses. Set up a rent payment or a monthly bill once — PropertyLedger posts it on the 1st of every month, backfills from the start month you choose, and lets you edit or delete any single month without touching the rest. Stop a rule any time; your history stays.
+  Recurring income and expenses. Set up a rent payment or a monthly bill once — Income Expense Tracker posts it on the 1st of every month, backfills from the start month you choose, and lets you edit or delete any single month without touching the rest. Stop a rule any time; your history stays.
   ```
 
 - [ ] **Step 5: WORKLOG FINISH line + commit**
