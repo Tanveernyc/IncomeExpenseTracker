@@ -1,4 +1,4 @@
-# Risk compliance: PropertyLedger (Income Expense Tracker App)
+# Risk compliance: Income Expense Tracker App
 
 Audited 2026-10-09 against `../RISK-README.md` (the workspace root), on version
 1.2.0 at commit `a1aadcd`. The audit covers the code, the legal pages in `docs/`,

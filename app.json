@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "PropertyLedger",
+    "name": "Income Expense",
     "slug": "propertyledger",
     "version": "1.2.0",
-    "scheme": "propertyledger",
+    "scheme": "incomeexpensetracker",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

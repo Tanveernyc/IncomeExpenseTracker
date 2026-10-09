@@ -83,7 +83,7 @@ Dashboard → Authentication → Providers → Email, and Authentication → Pol
 | Leaked password protection | on, if your plan has it | Blocks passwords known from breaches. |
 
 Dashboard → Authentication → URL Configuration → **Site URL**: set it to
-`https://tanveernyc.github.io/PropertyLedger/support.html`. The confirmation
+`https://tanveernyc.github.io/IncomeExpenseTracker/support.html`. The confirmation
 link in sign-up emails lands there after confirming. Today it may point at
 `localhost`, which shows an error page even though the confirmation worked.
 

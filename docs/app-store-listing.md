@@ -14,7 +14,7 @@ have. Spec: `docs/superpowers/specs/2026-09-21-personal-budgets-design.md` §7.
 
 ## Name & Subtitle
 
-**App Name** (30 max, 26 used) — 1.2, replaces `PropertyLedger: Rental P&L`
+**App Name** (30 max, 26 used) — 1.2, replaces the 1.0 name
 ```
 Income Expense Tracker App
 ```
@@ -30,7 +30,7 @@ spending limits and makes no plans. Keep "budget" out of every field.
 
 **Home-screen name** — `Income Expense` (`ios.infoPlist.CFBundleDisplayName`
 in `app.json`). Apple rejects under Guideline 2.3.8 when the name under the icon
-doesn't match the store name, so it can't stay `PropertyLedger`. The full name
+doesn't match the store name, so it can't keep the 1.0 name. The full name
 is too long for the home screen.
 
 **Subtitle** (30 max, 29 used) — 1.2, replaces `Track rental income & expenses`
@@ -123,21 +123,21 @@ advice; check anything you file with a tax professional.
 ## What's New (1.2)
 
 ```
-PropertyLedger is now Income Expense Tracker App, with a fresh new look. Mark each property as a rental, your home, a flip, or an investment. Track your household's income and expenses next to your properties. Set up recurring rent and bills once and they are logged every month. Sign in with Apple or Google, reset a forgotten password right in the app, and pick dates with the native date picker. Your sign-in is now kept in the iOS Keychain.
+A fresh new look. Mark each property as a rental, your home, a flip, or an investment. Track your household's income and expenses next to your properties. Set up recurring rent and bills once and they are logged every month. Sign in with Apple or Google, reset a forgotten password right in the app, and pick dates with the native date picker. Your sign-in is now kept in the iOS Keychain.
 ```
 
 ---
 
-## Keywords (100 max, 97 used)
+## Keywords (100 max, 93 used)
 
 ```
-landlord,rent,real estate,profit,tax,mortgage,bookkeeping,cash flow,flip,household,propertyledger
+landlord,rent,real estate,profit,tax,mortgage,bookkeeping,cash flow,flip,household,accountant
 ```
 
 Reworked 2026-10-06 for the rename. Drops `budget,savings,spending` (the app
 is a tracker, not a budgeting app) and `expense,income,tracker` (now in the
 name). Restores `real estate`. Adds `rent`, `mortgage`, `flip` and
-`propertyledger`, so people who knew the 1.0 name still find the app. Leaves out
+`accountant` (the CSV export is made for one). Leaves out
 every word already in the name or subtitle (income, expense, tracker, app,
 rental, property, home, ledger), because Apple indexes those already and
 repeating them wastes the field.
@@ -179,8 +179,8 @@ Retake them if the demo data is reseeded.
 
 | Field | Value |
 |---|---|
-| Privacy Policy URL (required) | `https://tanveernyc.github.io/PropertyLedger/privacy.html` |
-| Support URL (required) | `https://tanveernyc.github.io/PropertyLedger/support.html` (`docs/support.html`, contact `support@trueorganichub.com`) |
+| Privacy Policy URL (required) | `https://tanveernyc.github.io/IncomeExpenseTracker/privacy.html` |
+| Support URL (required) | `https://tanveernyc.github.io/IncomeExpenseTracker/support.html` (`docs/support.html`, contact `support@trueorganichub.com`) |
 | Marketing URL (optional) | leave blank |
 
 ---

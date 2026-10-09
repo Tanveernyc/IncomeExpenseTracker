@@ -61,7 +61,7 @@ Two things soften it: Apple's *Hide My Email* addresses are unique per app and c
 `app/(auth)/sign-in.tsx` gains a provider block **above** the email form, because that is where people look first:
 
 ```
-            PropertyLedger
+            Income Expense Tracker
         Sign in to your ledger
 
    [   Continue with Apple      ]     (black, Apple's required style)

@@ -10,9 +10,9 @@ import { GlassSurface, tapFeedback } from '@/components/glass';
 import { colors, radius, rhythm, serif, space, type } from '@/theme';
 
 const SUPPORT_EMAIL = 'support@trueorganichub.com';
-const SUPPORT_URL = 'https://tanveernyc.github.io/PropertyLedger/support.html';
-const PRIVACY_URL = 'https://tanveernyc.github.io/PropertyLedger/privacy.html';
-const TERMS_URL = 'https://tanveernyc.github.io/PropertyLedger/terms.html';
+const SUPPORT_URL = 'https://tanveernyc.github.io/IncomeExpenseTracker/support.html';
+const PRIVACY_URL = 'https://tanveernyc.github.io/IncomeExpenseTracker/privacy.html';
+const TERMS_URL = 'https://tanveernyc.github.io/IncomeExpenseTracker/terms.html';
 
 /** Email first; if no mail app is set up, fall back to the support page. */
 async function contactSupport() {

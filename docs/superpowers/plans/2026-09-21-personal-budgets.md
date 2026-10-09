@@ -102,7 +102,7 @@ Append to `schema.sql` a `-- CATEGORY SCOPE (personal budgets)` section with the
 - [ ] **Step 3: Apply live and verify**
 
 ```bash
-cd /Users/riyad/OrganicHub/propertyledger && set -a && source .env && set +a
+cd /Users/riyad/OrganicHub/income-expense-tracker && set -a && source .env && set +a
 P='host=db.dxjwyaldmxquuztmnrsb.supabase.co port=5432 dbname=postgres user=postgres sslmode=require'
 PGPASSWORD="$SUPABASE_DB_PASSWORD" psql "$P" -Atc "select count(*) from categories where is_system;"   # expect 36
 PGPASSWORD="$SUPABASE_DB_PASSWORD" psql "$P" -v ON_ERROR_STOP=1 -f supabase/migrations/2026-09-22-category-scope.sql

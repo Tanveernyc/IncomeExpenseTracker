@@ -15,9 +15,9 @@ app does not use, so there is also no six-month secret rotation.
 
 ## 2. Google (10 minutes)
 
-1. console.cloud.google.com → create a project (e.g. "PropertyLedger").
+1. console.cloud.google.com → create a project (e.g. "Income Expense Tracker").
 2. **APIs & Services → OAuth consent screen**: External, app name
-   "PropertyLedger", support email `support@trueorganichub.com`, developer email
+   "Income Expense Tracker", support email `support@trueorganichub.com`, developer email
    the same. Scopes: `openid`, `.../auth/userinfo.email`,
    `.../auth/userinfo.profile` — the three defaults, nothing more, or Google
    review is triggered.
@@ -27,7 +27,7 @@ app does not use, so there is also no six-month secret rotation.
    "Supabase". Copy that client ID too. Under **Authorized redirect URIs** add
    `https://dxjwyaldmxquuztmnrsb.supabase.co/auth/v1/callback`.
 5. Optional but recommended: start **Branding** verification so the consent
-   screen shows "PropertyLedger" instead of the Supabase project URL. It takes
+   screen shows "Income Expense Tracker" instead of the Supabase project URL. It takes
    a few business days, so start it early.
 
 ## 3. Supabase (3 minutes)

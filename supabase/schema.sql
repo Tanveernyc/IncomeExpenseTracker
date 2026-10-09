@@ -1,4 +1,4 @@
--- PropertyLedger schema — spec §3. Run once in the Supabase SQL Editor (Phase 1).
+-- Income Expense Tracker schema — spec §3. Run once in the Supabase SQL Editor (Phase 1).
 -- Money columns are numeric(12,2), never float (float sums drift). RLS on every table.
 
 -- PROPERTIES
