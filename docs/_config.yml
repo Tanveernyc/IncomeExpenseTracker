@@ -3,3 +3,6 @@
 exclude:
   - superpowers/
   - app-store-listing.md
+  - setup-security.md
+  - setup-social-sign-in.md
+  - risk-compliance.md

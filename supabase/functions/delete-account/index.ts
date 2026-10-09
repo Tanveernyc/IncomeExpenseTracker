@@ -58,7 +58,9 @@ Deno.serve(async (req: Request) => {
   const admin = createClient(url, serviceRoleKey);
   const { error: deleteError } = await admin.auth.admin.deleteUser(data.user.id);
   if (deleteError) {
-    return json({ error: deleteError.message }, 500);
+    // The detail goes to the function log, not to the caller.
+    console.error(`deleteUser failed for ${data.user.id}: ${deleteError.message}`);
+    return json({ error: 'Could not delete the account' }, 500);
   }
 
   return json({ ok: true, appleRevoked }, 200);

@@ -64,3 +64,28 @@ Android-only requirements, and dependency updates.
    and confirmations.
 5. **Renewal terms:** doesn't apply. The app is free with no subscription.
 6. **DMCA agent:** doesn't apply. Users can't upload or share content.
+
+## Security checklist (S1 to S17)
+
+Audited 2026-10-09 against the security checklist in `../RISK-README.md`.
+Checks were run, not assumed. The commands are listed under each finding.
+
+| # | Item | Status | Evidence | Action |
+|---|---|---|---|---|
+| S1 | Secrets and env vars | **Compliant** | The production iOS bundle was built from Metro (`dev=false&minify=true`) and searched for every `.env` value. The anon key, Supabase URL and the two Google client IDs are present, as intended, since all four are public by design. `SUPABASE_DB_PASSWORD` and `E2E_DEMO_PASSWORD` appear 0 times. The service role key is only an Edge Function secret. | None. |
+| S2 | Admin routes | **Compliant / Verify** | The app has no admin screens. The only privileged code is `delete-account`, which acts only on the caller from their JWT. | Verify two-factor sign-in on GitHub, Supabase, Apple Developer, Google Cloud, Expo, Resend and Cloudflare. |
+| S3 | Authentication | **Compliant / Verify** | Supabase Auth, minimum password length 8 with letters and digits, sessions in the iOS Keychain (`src/db/secure-session-storage.ts`), and local sign-out on delete. Google's nonce check is skipped by necessity (`setup-security.md` step 8). Supabase still verifies the token's signature and audience. | Verify **Confirm email** and **leaked-password protection** are on. |
+| S4 | Authorization | **Compliant** | RLS with `auth.uid()` policies on all five tables (`supabase/schema.sql:63-83,121-123`). The `enforce_own_references` trigger blocks writes that point at another user's property, category or rule. `__tests__/db/security.test.mjs` checks this as a second user. | None. |
+| S5 | Input validation | **Compliant** | Database length limits and system-category checks (`2026-10-07-security-hardening.sql`), plus client validators (`src/lib/*-validation.ts`) with tests. | None. |
+| S6 | XSS and injection | **Compliant** | No WebView, `dangerouslySetInnerHTML`, `innerHTML` or `eval` in `app/` or `src/`. All queries go through supabase-js (parameterized). The CSV export prefixes `= + - @` cells (`src/lib/export.ts`). | None. |
+| S7 | Rate limiting | **Partial / Verify** | Auth endpoints rely on Supabase Auth's built-in limits. `delete-account` needs a valid session and can only delete the caller once. The data API has no per-user row cap. | Verify the Auth rate limits in Supabase (Authentication → Rate Limits), especially emails per hour now that custom SMTP is on. A row cap is optional, since abuse costs little on the current plan. |
+| S8 | API endpoints | **Compliant** (fixed 2026-10-09) | `delete-account` accepts POST only, authenticates from the bearer token, and type-checks the optional Apple code. It used to return Supabase's raw error text on failure. It now returns a generic message and logs the detail. | Deploy the function (needed for R9 anyway). |
+| S9 | CORS | **Compliant** | `delete-account` sends no CORS headers, so browsers can't call it cross-origin. Only the native app calls it. | Add an exact-origin allowlist if a web app ever calls it. |
+| S10 | Security headers | **Compliant** (fixed 2026-10-09) | GitHub Pages can't set headers. The three legal pages now carry a meta CSP (`default-src 'none'`, inline styles only, no scripts, no forms) and `referrer=no-referrer`. GitHub Pages already enforces HTTPS. | None. |
+| S11 | Debug mode | **Compliant** | Store builds use the EAS `production` profile (release, no dev client). Three `console.warn` calls log only a rule ID and an error message: no tokens, emails or amounts. | None. |
+| S12 | Dependencies | **Partial** | See R11: patch releases applied, and no unused packages (every dependency is imported or is a config plugin). 63 advisories remain in build and test tooling, with no non-breaking fix. | Re-audit on each SDK patch. |
+| S13 | Exposed files | **Compliant** (tightened 2026-10-09) | `.env`, `*.p8`, `*.key`, `*.pem` and `google-service-account.json` are git-ignored. GitHub Pages now excludes `setup-security.md`, `setup-social-sign-in.md` and this file, so the site serves only the legal pages. The repo itself is public, so internal docs are still readable on GitHub. | Make the repo private if internal docs shouldn't be public (see R14). |
+| S14 | Database | **Compliant / Verify** | RLS everywhere. The one `security definer` function pins `search_path` and has `revoke all ... from public`. | Open Supabase → Advisors → Security Advisor and clear any warnings. Confirm daily backups for the plan. |
+| S15 | Password storage | **Compliant** | Supabase Auth stores bcrypt hashes. The app sends the password only to `signInWithPassword` and `signUp`, and never stores or logs it. | None. |
+| S16 | Secrets in git history | **Compliant** | No gitleaks or trufflehog installed, so: `git log --all -p` was searched for JWTs (none), `sk_`, `re_`, AWS, GitHub, Slack and Google API key patterns, and private-key headers (none). Every `.env` value was searched with `git log -S`: only the public Supabase URL appears. No `.env`, `.p8`, `.pem` or service-account file was ever committed. | Install `gitleaks` and add it as a pre-commit hook (optional). |
+| S17 | Audit and verification | **Done** | This table. Fixes are covered by tests (332 passing) and re-checks. | Re-run S1, S4, S12 and S16 before each release. |
