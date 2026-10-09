@@ -128,7 +128,8 @@
         {
           "faceIDPermission": false
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "extra": {
       "router": {},
