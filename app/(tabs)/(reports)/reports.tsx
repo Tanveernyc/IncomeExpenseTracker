@@ -27,7 +27,7 @@ import { todayISO } from '@/lib/dates';
 import { collectionNoun, kindsOf, netLabel } from '@/lib/ledger-copy';
 import { formatMoney } from '@/lib/money';
 import type { Property } from '@/types';
-import { colors, money, rhythm, serif, space, type } from '@/theme';
+import { colors, money, rhythm, serif, space, type, ui } from '@/theme';
 
 type Preset = 'this-month' | 'last-month' | 'this-year' | 'last-year' | 'all-time' | 'custom';
 
@@ -219,8 +219,8 @@ function PLRow({
 const styles = StyleSheet.create({
   container: { padding: space.lg, paddingBottom: 120, gap: rhythm.item },
   // Chips scroll edge to edge; the strip cancels the screen padding.
-  presetStrip: { marginHorizontal: -space.lg, flexGrow: 0 },
-  presets: { flexDirection: 'row', gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.xs },
+  presetStrip: ui.chipStrip,
+  presets: ui.chipRow,
   customRow: { flexDirection: 'row', gap: space.sm },
   dateInput: { flex: 1 },
   card: { padding: space.lg + 2, gap: space.sm },
