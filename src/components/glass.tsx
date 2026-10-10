@@ -100,9 +100,11 @@ export function GlassSurface({ children, style, interactive, tint, testID }: Sur
       <View collapsable={false} style={[shape, styles.lift, outer]}>
         <GlassView
           testID={testID}
-          // Controls are clear glass, so they read as polished and raised; cards stay
-          // regular glass so the text and fields on them keep their contrast.
-          glassEffectStyle={interactive ? 'clear' : 'regular'}
+          // Tinted controls (the midnight button, a selected chip) are clear glass, so
+          // they read as polished and raised. Every other pane is regular glass, the
+          // same light pane as the system tab bar: clear glass without a tint dims to
+          // a heavy grey on a real device.
+          glassEffectStyle={interactive && tint ? 'clear' : 'regular'}
           colorScheme="light"
           isInteractive={interactive}
           tintColor={tint}

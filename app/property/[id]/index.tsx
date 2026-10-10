@@ -213,6 +213,9 @@ export default function PropertyTransactionsScreen() {
         }
         renderItem={({ item }) => (
           <Swipeable
+            // Swipeable clips its row to a rectangle, which squares off the glass
+            // row's rounded shadow at the corners.
+            containerStyle={styles.swipeContainer}
             renderRightActions={(progress) => (
               // Rows are translucent glass, so the action fades in with the swipe
               // instead of showing red through the row at rest.
@@ -297,6 +300,7 @@ const styles = StyleSheet.create({
   rowMeta: { ...type.hint, marginTop: 2 },
   amountIn: { ...money, color: colors.gain },
   amountOut: { ...money },
+  swipeContainer: { overflow: 'visible' },
   deleteActionWrap: { width: 96, paddingLeft: space.sm },
   deleteAction: {
     flex: 1,
