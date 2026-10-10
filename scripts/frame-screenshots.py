@@ -22,6 +22,9 @@ CAPTIONS = [
     ("5-add.png", "Log an expense", "in seconds"),
     ("6-reports.png", "Profit and loss", "for each property"),
     ("7-household.png", "Household income", "and expenses too"),
+    ("8-recurring.png", "Recurring rent and bills", "logged every month"),
+    ("9-trends.png", "Spending trends", "month by month"),
+    ("10-export.png", "Export to CSV", "for your accountant"),
 ]
 
 

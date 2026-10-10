@@ -78,6 +78,7 @@ const existing = JSON.parse(readFileSync('store.config.json', 'utf8'));
 const SCREENSHOT_DIR = 'store-screenshots/1.2';
 const SCREENSHOTS = [
   '1-dashboard', '2-new-ledger', '3-ledgers', '4-property', '5-add', '6-reports', '7-household',
+  '8-recurring', '9-trends', '10-export',
 ].map((name) => `${SCREENSHOT_DIR}/${name}.png`);
 const missing = SCREENSHOTS.filter((path) => !existsSync(path));
 if (missing.length) {

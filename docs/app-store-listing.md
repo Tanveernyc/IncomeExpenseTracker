@@ -146,30 +146,37 @@ repeating them wastes the field.
 
 ## Screenshots
 
-**1.2 set, captured 2026-10-06** on the iPhone 18 Pro Max simulator (iOS 27) at
-1320×2868, the 6.9" size, with a 9:41 status bar, from the App Review demo
-account. Before this capture the demo data was scrubbed of everything real: the
-addresses are in the fictional town of "Sampleton" with no state or ZIP, every
-vendor is a generic label ("Mortgage lender", "Grocery store") instead of a
-real company or agency, and tenants are "Unit A tenant" and so on. Keep it that
-way when reseeding: no real places, businesses, brands or people. Each is framed with a caption by `scripts/frame-screenshots.py`: Apple
-has indexed screenshot caption text for search since June 2025, so every
-caption leads with words people search for. The framed set is in
-`store-screenshots/1.2/` and the raw captures are in `store-screenshots/1.2/raw/`.
-That folder is gitignored, so re-run the script from the raw captures if it is
-missing. `ios.supportsTablet` is `false`, so no iPad set is required. `npm run store-config` lists them in `store.config.json`
+**1.2 set, retaken 2026-10-09** for the lighter glass and the Settings button on
+every tab: 10 screens, Apple's maximum. Captured on the iPhone 17e simulator
+(iOS 27) at 1170×2532 with a 9:41 status bar, from the App Review demo account;
+`scripts/frame-screenshots.py` scales each capture to 1060 px wide inside a
+1320×2868 (6.9") canvas, so the source size makes no difference to the result.
+The demo data is fictional: the addresses are in the town of "Sampleton" with no
+state or ZIP, every vendor is a generic label ("Mortgage lender", "Grocery
+store") instead of a real company or agency, and tenants are "Unit A tenant" and
+so on. Keep it that way when reseeding: no real places, businesses, brands or
+people. The development build's warning toast was silenced for the capture only.
+Each shot is framed with a caption: Apple has indexed screenshot caption text for
+search since June 2025, so every caption leads with words people search for. The
+framed set is in `store-screenshots/1.2/` and the raw captures are in
+`store-screenshots/1.2/raw/`. That folder is gitignored, so re-run the script
+from the raw captures if it is missing. `ios.supportsTablet` is `false`, so no
+iPad set is required. `npm run store-config` lists them in `store.config.json`
 under `APP_IPHONE_67` (eas-cli 24+ uploads screenshots), so `metadata:push`
-replaces the set in this order. Pushed 2026-10-06.
+replaces the set in this order.
 
 | # | Screen | Caption |
 |---|---|---|
-| 1 | Dashboard: net this year, ledger cards | Track income & expenses / for every property |
+| 1 | Dashboard: left over this year, ledger cards | Track income & expenses / for every property |
 | 2 | New ledger: Property / Household, and the four property types | Rentals, your home, / flips and investments |
 | 3 | Ledgers: properties and households | Properties and household / side by side |
-| 4 | Maple Street Duplex: transactions, newest first | Every rent payment / and bill in one place |
+| 4 | Maple Street Duplex: transactions, oldest first | Every rent payment / and bill in one place |
 | 5 | Add: amount, ledger and category chips, native date picker | Log an expense / in seconds |
 | 6 | Reports: portfolio and per-ledger P&L | Profit and loss / for each property |
-| 7 | Household: transactions, newest first | Household income / and expenses too |
+| 7 | Household: transactions, oldest first | Household income / and expenses too |
+| 8 | New recurring expense | Recurring rent and bills / logged every month |
+| 9 | History & Trends: Credit Card Bill by month | Spending trends / month by month |
+| 10 | Export to CSV | Export to CSV / for your accountant |
 
 Retake them if the demo data is reseeded.
 

@@ -5,6 +5,13 @@ Audited 2026-10-09 against `../RISK-README.md` (the workspace root), on version
 the store metadata and the Supabase schema. Settings that live only in the
 Supabase, App Store Connect or Play Console dashboards are marked **Verify**.
 
+**Pre-release re-check, 2026-10-09, build 52 (1.2.0):** S1, S4, S12 and S16 were
+re-run as S17 asks. No secrets in tracked files or history (only docs naming the
+keys), the 21 database security tests pass, and `npm audit --omit=dev` reports
+the same six tooling packages as R11 (now 65 findings, none with a safe fix).
+The App Review demo account holds no test data (R20). The one release item still
+open is the VoiceOver pass (R13).
+
 **Overall:** the app is in good shape. It has no analytics, no ads, no
 tracking, no payments, no user-shared content and no AI. It bundles its fonts,
 and its privacy policy and terms are accurate. Most of the risks from the
