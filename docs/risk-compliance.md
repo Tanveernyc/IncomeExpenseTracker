@@ -35,7 +35,7 @@ Android-only requirements, and dependency updates.
 | R17 | Ads and tracking | **Compliant** | No ad SDKs. `NSPrivacyTracking` is false. No ATT prompt is needed. | None. |
 | R18 | AI features | **Not applicable** | No AI. | Read R18 first if you ever add receipt scanning or auto-categorizing. |
 | R19 | Cookies | **Not applicable** | The legal pages on GitHub Pages set no cookies. | None. |
-| R20 | Test accounts and secrets | **Partial** | `.env` is git-ignored, and the demo password lives only there. The 2026-10-06 history scan found no secrets. The demo account holds test ledgers (Home222, Assad Assad, Dasdasd). | Rotate the demo password after the 1.2 approval (there's a pending memory note for this). Delete the test ledgers before the next screenshots. |
+| R20 | Test accounts and secrets | **Partial** | `.env` is git-ignored, and the demo password lives only there. The 2026-10-06 history scan found no secrets. The demo account holds only its four seeded ledgers; the test ledgers were confirmed gone on 2026-10-09. | Rotate the demo password after the 1.2 approval (there's a pending memory note for this). |
 | R21 | Payment card data | **Not applicable** | No payments. | None. |
 | R22 | Terms of use | **Compliant** | `docs/terms.html` covers disclaimers, liability capped at $50 or 12 months' fees, Pennsylvania law, and notice of changes. Agreement is shown at sign-up. | None. |
 
@@ -52,8 +52,8 @@ Android-only requirements, and dependency updates.
    email, rate limits, Security Advisor). App Privacy label fixed 2026-10-09
    (Name and User ID added). Still to do: sign the Supabase DPA. Leaked-password protection and backups
    need Pro, which is declined; take manual dumps instead (S14).
-6. **Housekeeping (R13, R20):** a VoiceOver pass, rotate the demo password,
-   clear the test ledgers.
+6. **Housekeeping (R13, R20):** a VoiceOver pass and rotating the demo
+   password. ~~Clear the test ledgers~~ already gone (checked 2026-10-09).
 
 ## The original six, in one line each
 
