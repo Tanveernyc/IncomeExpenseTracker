@@ -100,7 +100,7 @@ Google sign-in hands the user's **name** to Supabase, so App Privacy needs one
 more row: Contact Info → Name, used for App Functionality, linked to the user,
 not used for tracking. The listing doc's table is already updated.
 
-## 6. Sign in with Apple token revocation (done 2026-10-09, test pending)
+## 6. Sign in with Apple token revocation (done and verified 2026-10-09)
 
 Apple requires apps that offer Sign in with Apple to revoke the user's Apple
 tokens when the account is deleted. The code is in place: for an Apple account,
@@ -113,7 +113,9 @@ function logs why, so do these steps before the build with this code ships.
 Status 2026-10-09: steps 1 to 3 are done. Key "Sign in with Apple revoke"
 (Key ID `9DP5GLZH5X`, Team ID `XSFF83V8F9`) is saved in
 `_secrets-backup/propertyledger/`, the four secrets are set, and
-`delete-account` is deployed (version 3). Step 4 is still to do.
+`delete-account` is deployed (version 3). Step 4 passed on build 51: Apple's
+confirmation sheet appeared, the function returned 200 with no revocation
+error, and the app left the phone's Sign in with Apple list.
 
 1. developer.apple.com → Certificates, Identifiers & Profiles → **Keys** → +.
    Name it "Sign in with Apple revoke", tick **Sign in with Apple**, Configure →
