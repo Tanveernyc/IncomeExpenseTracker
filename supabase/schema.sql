@@ -205,7 +205,7 @@ alter table properties add constraint properties_subtype_shape check (
 alter table properties alter column property_type drop not null;
 
 create or replace function properties_sync_legacy_type() returns trigger
-language plpgsql as $$
+language plpgsql set search_path = public, pg_temp as $$
 begin
   -- An old client set or changed property_type without touching ledger_kind.
   if new.property_type is not null and (
@@ -311,6 +311,8 @@ end;
 $$;
 
 revoke all on function enforce_own_references() from public;
+-- Supabase grants EXECUTE to these roles directly; triggers don't need it.
+revoke execute on function enforce_own_references() from anon, authenticated;
 
 drop trigger if exists expenses_own_references on expenses;
 create trigger expenses_own_references

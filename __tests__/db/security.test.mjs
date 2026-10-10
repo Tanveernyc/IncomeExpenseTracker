@@ -16,6 +16,7 @@ import { PGlite } from '@electric-sql/pglite';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const SCHEMA = readFileSync(join(ROOT, 'supabase/schema.sql'), 'utf8');
 const HARDENING = readFileSync(join(ROOT, 'supabase/migrations/2026-10-07-security-hardening.sql'), 'utf8');
+const ADVISOR = readFileSync(join(ROOT, 'supabase/migrations/2026-10-09-advisor-warnings.sql'), 'utf8');
 
 const ALICE = '00000000-0000-0000-0000-00000000a11c';
 const BOB = '00000000-0000-0000-0000-000000000b0b';
@@ -28,6 +29,7 @@ create table auth.users (id uuid primary key);
 create function auth.uid() returns uuid language sql stable as
   $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
 create role authenticated;
+create role anon;
 grant usage on schema auth to authenticated;
 grant execute on function auth.uid() to authenticated;
 `;
@@ -52,6 +54,10 @@ beforeAll(async () => {
   await db.exec(SCHEMA);
   await db.exec(HARDENING);
   await db.exec(HARDENING); // idempotent
+  // Supabase grants EXECUTE on new functions to anon and authenticated directly.
+  await db.exec(`grant execute on all functions in schema public to anon, authenticated;`);
+  await db.exec(ADVISOR);
+  await db.exec(ADVISOR); // idempotent
   await db.exec(`grant select, insert, update, delete on all tables in schema public to authenticated;`);
   await db.query(`insert into auth.users (id) values ($1), ($2)`, [ALICE, BOB]);
   await db.query(
@@ -137,6 +143,19 @@ describe('row level security', () => {
     for (const [sql, params, error] of attempts) {
       await as(ALICE, () => assert.rejects(db.query(sql, params), error, sql));
     }
+  });
+
+  it('runs the ownership trigger without EXECUTE on it', async () => {
+    const grants = await one(
+      `select has_function_privilege('authenticated', 'enforce_own_references()', 'execute') as authed,
+              has_function_privilege('anon', 'enforce_own_references()', 'execute') as anon`
+    );
+    assert.deepEqual(grants, { authed: false, anon: false });
+    // seedBooks inserted through the trigger as authenticated; the attach test
+    // above proves it still rejects foreign references.
+    const fresh = await seedBooks(ALICE, 'Alice again');
+    assert.ok(fresh.expense);
+    await as(ALICE, () => db.query(`delete from properties where id = $1`, [fresh.property]));
   });
 
   it('can use system categories', async () => {
