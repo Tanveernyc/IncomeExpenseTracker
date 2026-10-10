@@ -2,6 +2,7 @@
 // signed-in users get (tabs) and property screens; signed-out users are held at sign-in.
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router/stack';
+import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SessionProvider, useSession } from '@/components/session-provider';
 import { stackChrome } from '@/components/tab-stack';
@@ -56,6 +57,9 @@ export default function RootLayout() {
   return (
     // Gesture root is required once, above any Swipeable (transaction rows).
     <GestureHandlerRootView style={{ flex: 1 }}>
+      {/* Android only: it draws light status bar icons that vanish against the ivory
+          backdrop. iOS already follows userInterfaceStyle, so it is left untouched. */}
+      {process.env.EXPO_OS === 'android' ? <StatusBar style="dark" /> : null}
       <QueryClientProvider client={queryClient}>
         <SessionProvider>
           <RootNavigator />

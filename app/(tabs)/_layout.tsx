@@ -35,7 +35,7 @@ export default function TabsLayout() {
   }, [queryClient]);
 
   return (
-    <NativeTabs tintColor={colors.brass} minimizeBehavior="onScrollDown">
+    <NativeTabs tintColor={colors.brass} minimizeBehavior="onScrollDown" labelVisibilityMode="labeled">
       <NativeTabs.Trigger name="(home)">
         <NativeTabs.Trigger.Icon sf={{ default: 'square.grid.2x2', selected: 'square.grid.2x2.fill' }} md="dashboard" />
         <NativeTabs.Trigger.Label>Dashboard</NativeTabs.Trigger.Label>

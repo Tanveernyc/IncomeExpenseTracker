@@ -8,8 +8,14 @@ import { Stack } from 'expo-router/stack';
 import { Pressable } from 'react-native';
 import { colors, navigation } from '@/theme';
 
+// Only iOS insets scroll content under a transparent header (contentInsetAdjustmentBehavior).
+// Android would draw the title and buttons over the first card, so it gets a solid
+// header in the backdrop's colour instead.
+const TRANSPARENT_HEADER = process.env.EXPO_OS === 'ios';
+
 export const stackChrome = {
-  headerTransparent: true,
+  headerTransparent: TRANSPARENT_HEADER,
+  headerStyle: TRANSPARENT_HEADER ? undefined : { backgroundColor: colors.paper },
   headerShadowVisible: false,
   headerLargeTitleShadowVisible: false,
   headerLargeStyle: { backgroundColor: 'transparent' },
