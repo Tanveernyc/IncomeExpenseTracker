@@ -1,6 +1,6 @@
 # Google Play Listing — Income Expense Tracker App
 
-Package `com.trueorganichub.propertyledger` (permanent, like the iOS bundle id).
+Package `com.trueorganichub.incomeexpensetracker`. Android was never published, so it uses the new name; only the iOS bundle id keeps the old one.
 Developer account: True Organic Hub (organization), owned by
 `trueorganichubsupport@gmail.com`, ID `6320140218439912673`.
 
@@ -125,6 +125,12 @@ until the account is deleted.
 
 ## Release
 
+0. **Google sign-in on Android (owner, once):** in Google Cloud → APIs &
+   Services → Credentials, create an **Android** OAuth client for package
+   `com.trueorganichub.incomeexpensetracker` with the SHA-1 of the Play App
+   Signing key (Play Console → Test and release → App integrity), in the same
+   project as the existing web client. Without it the Google button fails on
+   Android with DEVELOPER_ERROR. Email sign-in works without it.
 1. Build the Android App Bundle from `main`:
    `npx eas-cli@latest build -p android --profile production --local --non-interactive --output ~/Claudeworkspace/income-expense-tracker.aab`
    (or drop `--local` to build on EAS). Use the hotspot if uploads fail.

@@ -92,7 +92,7 @@
       }
     },
     "android": {
-      "package": "com.trueorganichub.propertyledger",
+      "package": "com.trueorganichub.incomeexpensetracker",
       "adaptiveIcon": {
         "backgroundColor": "#14213D",
         "foregroundImage": "./assets/android-icon-foreground.png",
