@@ -2,8 +2,10 @@
 // every tab root gets a transparent large-title header over the backdrop; on
 // iOS 26 its bar buttons render as liquid glass. Screens pushed from a tab go to
 // the root stack (app/_layout.tsx), which shares the same chrome.
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import type { ReactNode } from 'react';
+import { Pressable } from 'react-native';
 import { colors, navigation } from '@/theme';
 
 export const stackChrome = {
@@ -18,18 +20,24 @@ export const stackChrome = {
   contentStyle: navigation.contentStyle,
 } as const;
 
-export function TabStack({
-  screen,
-  title,
-  headerRight,
-}: {
-  screen: string;
-  title: string;
-  headerRight?: () => ReactNode;
-}) {
+// Account lives behind this, one tap from the top of every tab.
+function SettingsButton() {
+  return (
+    <Pressable
+      onPress={() => router.push('/settings')}
+      accessibilityLabel="Settings"
+      accessibilityRole="button"
+      hitSlop={12}
+    >
+      <Ionicons name="person-circle-outline" size={28} color={colors.ink} />
+    </Pressable>
+  );
+}
+
+export function TabStack({ screen, title }: { screen: string; title: string }) {
   return (
     <Stack screenOptions={stackChrome}>
-      <Stack.Screen name={screen} options={{ title, headerLargeTitleEnabled: true, headerRight }} />
+      <Stack.Screen name={screen} options={{ title, headerLargeTitleEnabled: true, headerRight: SettingsButton }} />
     </Stack>
   );
 }

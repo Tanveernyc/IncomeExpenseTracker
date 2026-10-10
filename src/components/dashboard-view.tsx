@@ -164,8 +164,23 @@ export function DashboardView({
 const styles = StyleSheet.create({
   container: { padding: space.lg, paddingBottom: 120, gap: rhythm.item },
   hero: { padding: space.xl, gap: space.sm, borderRadius: 28 },
-  heroLabel: { ...type.eyebrow, color: colors.onInkMuted },
-  heroValue: { ...moneyDisplay, color: colors.onInk, fontSize: 46 },
+  // The top of the card catches the glass's bright sheen, so the label and the total
+  // carry a soft dark shadow to stay legible on it.
+  heroLabel: {
+    ...type.eyebrow,
+    color: colors.onInkMuted,
+    textShadowColor: 'rgba(14, 26, 43, 0.35)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  heroValue: {
+    ...moneyDisplay,
+    color: colors.onInk,
+    fontSize: 46,
+    textShadowColor: 'rgba(14, 26, 43, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 6,
+  },
   heroNegative: { color: colors.onInkDanger },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: space.lg, marginTop: space.xs },
   heroStat: { gap: 2 },
