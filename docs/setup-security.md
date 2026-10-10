@@ -112,7 +112,7 @@ function logs why, so do these steps before the build with this code ships.
 
 Status 2026-10-09: steps 1 to 3 are done. Key "Sign in with Apple revoke"
 (Key ID `9DP5GLZH5X`, Team ID `XSFF83V8F9`) is saved in
-`_secrets-backup/propertyledger/`, the four secrets are set, and
+`_secrets-backup/income-expense-tracker/`, the four secrets are set, and
 `delete-account` is deployed (version 3). Step 4 passed on build 51: Apple's
 confirmation sheet appeared, the function returned 200 with no revocation
 error, and the app left the phone's Sign in with Apple list.
